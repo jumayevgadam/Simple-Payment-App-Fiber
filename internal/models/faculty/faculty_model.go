@@ -1,7 +1,5 @@
 package faculty
 
-import "time"
-
 // We use in this model type
 // DTO and DAO models
 
@@ -14,11 +12,9 @@ type DTO struct {
 
 // DAO is
 type DAO struct {
-	ID        int       `db:"id"`
-	Name      string    `db:"name"`
-	Code      string    `db:"code"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+	Code string `db:"code"`
 }
 
 // ToServer is
