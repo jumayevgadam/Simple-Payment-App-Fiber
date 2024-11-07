@@ -29,11 +29,6 @@ type PostgresDB struct {
 	SslMode  string `envconfig:"DB_SSLMODE" validate:"required"`
 }
 
-// JWTOps options are
-type JWTOps struct {
-	SecretKey string `envconfig:"JWT_SECRET_KEY" validate:"required"`
-}
-
 // LoadConfig read fields of Config  struct and return it
 func LoadConfig() (*Config, error) {
 	// Read .env file with this method

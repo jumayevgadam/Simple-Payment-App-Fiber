@@ -18,6 +18,9 @@ func Routes(f fiber.Router, dataStore database.DataStore) {
 	roleGroup := f.Group("/role")
 	{
 		roleGroup.Post("/create", Handler.AddRole())
+		roleGroup.Get("/get-all", Handler.GetRoles())
 		roleGroup.Get("/:id", Handler.GetRole())
+		roleGroup.Delete("/:id", Handler.DeleteRole())
+		roleGroup.Put("/:id", Handler.UpdateRole())
 	}
 }

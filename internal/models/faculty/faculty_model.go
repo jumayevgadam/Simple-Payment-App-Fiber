@@ -8,13 +8,15 @@ import "time"
 // DTO is
 type DTO struct {
 	ID   int    `json:"facultyID"`
-	Name string `form:"faculty-name" json:"facultyName" validate:"required"`
+	Name string `form:"faculty-name" json:"facultyName"`
+	Code string `form:"faculty-code" json:"faculty-code"`
 }
 
 // DAO is
 type DAO struct {
 	ID        int       `db:"id"`
 	Name      string    `db:"name"`
+	Code      string    `db:"code"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
@@ -24,6 +26,7 @@ func (d *DAO) ToServer() *DTO {
 	return &DTO{
 		ID:   d.ID,
 		Name: d.Name,
+		Code: d.Code,
 	}
 }
 
@@ -32,5 +35,6 @@ func (d *DTO) ToStorage() *DAO {
 	return &DAO{
 		ID:   d.ID,
 		Name: d.Name,
+		Code: d.Code,
 	}
 }

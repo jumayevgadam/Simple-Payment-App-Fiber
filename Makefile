@@ -7,7 +7,7 @@ tidy:
 migrate_create:
 	migrate create -ext sql -dir internal/migrations/ -seq tables	
 
-migrate_run:
+migrate_up:
 	migrate	-path internal/migrations/ -database "postgresql://postgres:12345@localhost:5432/tsu_toleg?sslmode=disable"	-verbose up
 
 migrate_force:

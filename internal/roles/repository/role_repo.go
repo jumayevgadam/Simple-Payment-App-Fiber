@@ -49,3 +49,64 @@ func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (*roleModel.DA
 
 	return &roleDAO, nil
 }
+
+// GetRoles repo is
+func (r *RoleRepository) GetRoles(ctx context.Context) ([]*roleModel.DAO, error) {
+	var roleDAOs []*roleModel.DAO
+
+	if err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&roleDAOs,
+		getRolesQuery,
+	); err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return roleDAOs, nil
+}
+
+// DeleteRole repo is
+func (r *RoleRepository) DeleteRole(ctx context.Context, roleID int) error {
+	_, err := r.psqlDB.Exec(
+		ctx,
+		deleteRoleQuery,
+		roleID,
+	)
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	return nil
+}
+
+// FetchCurrentRoleName repo is
+func (r *RoleRepository) FetchCurrentRoleName(ctx context.Context, roleDAO *roleModel.DAO) (string, error) {
+	var currentRoleName string
+
+	if err := r.psqlDB.QueryRow(
+		ctx,
+		fetchCurrentRoleQuery,
+		roleDAO.ID,
+	).Scan(&currentRoleName); err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return currentRoleName, nil
+}
+
+// UpdateRole repo is
+func (r *RoleRepository) UpdateRole(ctx context.Context, roleDAO *roleModel.DAO) (string, error) {
+	var res string
+
+	if err := r.psqlDB.QueryRow(
+		ctx,
+		updateRoleQuery,
+		roleDAO.RoleName,
+		roleDAO.ID,
+	).Scan(&res); err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return res, nil
+}

@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
+	facultyHTTP "github.com/jumayevgadaym/tsu-toleg/internal/faculties/routes"
 	roleHTTP "github.com/jumayevgadaym/tsu-toleg/internal/roles/routes"
 )
 
@@ -14,6 +15,8 @@ func (s *Server) MapHandlers(f *fiber.App) error {
 
 	// roleHTTP route is
 	roleHTTP.Routes(v1, s.DataStore)
+	// facultyHTTP route is
+	facultyHTTP.Routes(v1, s.DataStore)
 
 	return nil
 }

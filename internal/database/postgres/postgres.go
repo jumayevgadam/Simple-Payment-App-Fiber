@@ -1,25 +1,37 @@
 package postgres
 
 import (
-	"context"
-	"fmt"
-	"log"
 	"sync"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	"github.com/jumayevgadaym/tsu-toleg/internal/database"
+	"github.com/jumayevgadaym/tsu-toleg/internal/faculties"
+	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/faculties/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/groups"
+	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/groups/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/payment"
+	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/payment/repository"
 	"github.com/jumayevgadaym/tsu-toleg/internal/roles"
 	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/roles/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/users"
+	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/users/repository"
 )
 
 var _ database.DataStore = (*DataStoreImpl)(nil)
 
 // DataStore struct is
 type DataStoreImpl struct {
-	db       connection.DB
-	role     roles.Repository
-	roleInit sync.Once
+	db          connection.DB
+	role        roles.Repository
+	roleInit    sync.Once
+	faculty     faculties.Repository
+	facultyInit sync.Once
+	group       groups.Repository
+	groupInit   sync.Once
+	user        users.Repository
+	userInit    sync.Once
+	payment     payment.Repository
+	paymentInit sync.Once
 }
 
 // NewDataStore is
@@ -38,39 +50,38 @@ func (d *DataStoreImpl) RolesRepo() roles.Repository {
 	return d.role
 }
 
-// WithTransaction is
-func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(db database.DataStore) error) error {
-	db, ok := d.db.(connection.DBOps)
-	if !ok {
-		return fmt.Errorf("got error type assertion in WithTx")
-	}
+// FacultiesRepo method is
+func (d *DataStoreImpl) FacultiesRepo() faculties.Repository {
+	d.facultyInit.Do(func() {
+		d.faculty = facultyRepository.NewFacultyRepository(d.db)
+	})
 
-	//begin transaction in this place
-	tx, err := db.Begin(ctx, pgx.TxOptions{})
-	if err != nil {
-		return fmt.Errorf("error in db.Begin[WithTransaction]: %w", err)
-	}
+	return d.faculty
+}
 
-	defer func() {
-		if err != nil {
-			// RollBack transaction if error occured
-			if err = tx.RollBack(ctx); err != nil {
-				log.Printf("postgres:[WithTransaction]: failed to rollback transaction: %v", err.Error())
-			}
-			log.Printf("postgres:[WithTransaction: failed in transaction]")
-		}
-	}()
+// GroupsRepo method is
+func (d *DataStoreImpl) GroupsRepo() groups.Repository {
+	d.groupInit.Do(func() {
+		d.group = groupRepository.NewGroupRepository(d.db)
+	})
 
-	// transactionalDB is
-	transactionalDB := &DataStoreImpl{db: tx}
-	if err := transactionFn(transactionalDB); err != nil {
-		return fmt.Errorf("postgres:[WithTransaction]: transaction function execution failed: %w", err)
-	}
+	return d.group
+}
 
-	// Commit the transaction if no error occurred during the transactionFn execution
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("error in committing transaction: %w", err)
-	}
+// UsersRepo method is
+func (d *DataStoreImpl) UsersRepo() users.Repository {
+	d.userInit.Do(func() {
+		d.user = userRepository.NewUserRepository(d.db)
+	})
 
-	return nil
+	return d.user
+}
+
+// PaymentsRepo method is
+func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
+	d.paymentInit.Do(func() {
+		d.payment = paymentRepository.NewPaymentRepository(d.db)
+	})
+
+	return d.payment
 }
