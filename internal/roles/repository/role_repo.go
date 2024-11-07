@@ -5,7 +5,12 @@ import (
 
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	roleModel "github.com/jumayevgadaym/tsu-toleg/internal/models/role"
+	"github.com/jumayevgadaym/tsu-toleg/internal/roles"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+)
+
+var (
+	_ roles.Repository = (*RoleRepository)(nil)
 )
 
 // RoleRepository is

@@ -5,9 +5,14 @@ import (
 
 	"github.com/jumayevgadaym/tsu-toleg/internal/database"
 	roleModel "github.com/jumayevgadaym/tsu-toleg/internal/models/role"
+	"github.com/jumayevgadaym/tsu-toleg/internal/roles"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst/tracing"
 	"go.opentelemetry.io/otel"
+)
+
+var (
+	_ roles.Service = (*RoleService)(nil)
 )
 
 // RoleService is
