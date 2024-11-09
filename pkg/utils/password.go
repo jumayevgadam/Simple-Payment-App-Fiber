@@ -16,6 +16,6 @@ func HashPassword(password string) (string, error) {
 }
 
 // CheckPassword method checks hashed password with login(time) parol
-func CheckPassword(password string, hashedPassword string) error {
+func CheckAndComparePassword(password string, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

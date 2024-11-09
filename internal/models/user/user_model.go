@@ -1,8 +1,11 @@
 package user
 
+import "time"
+
 // LoginReq model is
 type SignUpReq struct {
-	RoleID   int    `json:"roleID"`
+	RoleID   int    `form:"role-id" json:"roleID" validate:"required"`
+	GroupID  int    `form:"group-id" json:"groupID" validate:"required"`
 	Name     string `form:"name" json:"name" validate:"required"`
 	Surname  string `form:"surname" json:"surname" validate:"required"`
 	UserName string `form:"username" json:"username" validate:"required"`
@@ -12,6 +15,7 @@ type SignUpReq struct {
 // LoginRes model is
 type SignUpRes struct {
 	RoleID   int    `db:"role_id"`
+	GroupID  int    `db:"group_id"`
 	Name     string `db:"name"`
 	Surname  string `db:"surname"`
 	UserName string `db:"username"`
@@ -22,6 +26,7 @@ type SignUpRes struct {
 func (s *SignUpRes) ToServer() *SignUpReq {
 	return &SignUpReq{
 		RoleID:   s.RoleID,
+		GroupID:  s.GroupID,
 		Name:     s.Name,
 		Surname:  s.Surname,
 		UserName: s.UserName,
@@ -33,6 +38,7 @@ func (s *SignUpRes) ToServer() *SignUpReq {
 func (s *SignUpReq) ToStorage() *SignUpRes {
 	return &SignUpRes{
 		RoleID:   s.RoleID,
+		GroupID:  s.GroupID,
 		Name:     s.Name,
 		Surname:  s.Surname,
 		UserName: s.UserName,
@@ -68,22 +74,52 @@ func (l *LoginReq) ToStorage() *LoginRes {
 	}
 }
 
-// UserReq model is
-type UserReq struct {
-	RoleID   int    `form:"role-id" json:"roleID" validate:"required"`
-	ClassID  int    `form:"class-id" json:"classID" validate:"required"`
-	Name     string `form:"name" json:"name" validate:"required"`
-	UserName string `form:"username" json:"userName" validate:"required,min=5"`
-	Surname  string `form:"surname" json:"surName" validate:"required"`
-	Password string `form:"password" json:"password" validate:"required,min=6"`
+// AllUserDAO model is
+type AllUserDAO struct {
+	ID        int       `db:"id"`
+	RoleID    int       `db:"role_id"`
+	GroupID   int       `db:"group_id"`
+	Name      string    `db:"name"`
+	Surname   string    `db:"surname"`
+	Username  string    `db:"username"`
+	Password  string    `db:"password"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
-// UserRes model is
-type UserRes struct {
-	RoleID   int    `db:"role_id"`
-	ClassID  int    `db:"class_id"`
-	Name     string `db:"name"`
-	UserName string `db:"username"`
-	Surname  string `db:"surname"`
-	Password string `db:"password"`
+// AllUserDTO model is
+type AllUserDTO struct {
+	ID       int    `json:"userID"`
+	RoleID   int    `form:"role-id" json:"roleID"`
+	GroupID  int    `form:"group-id" json:"groupID"`
+	Name     string `form:"name" json:"name"`
+	Surname  string `form:"surname" json:"surname"`
+	Username string `form:"username" json:"username"`
+	Password string `form:"password" json:"password"`
+}
+
+// ToStorage is
+func (a *AllUserDTO) ToStorage() *AllUserDAO {
+	return &AllUserDAO{
+		ID:       a.ID,
+		RoleID:   a.RoleID,
+		GroupID:  a.GroupID,
+		Name:     a.Name,
+		Surname:  a.Surname,
+		Username: a.Username,
+		Password: a.Password,
+	}
+}
+
+// ToServer is
+func (a *AllUserDAO) ToServer() *AllUserDTO {
+	return &AllUserDTO{
+		ID:       a.ID,
+		RoleID:   a.RoleID,
+		GroupID:  a.GroupID,
+		Name:     a.Name,
+		Surname:  a.Surname,
+		Username: a.Username,
+		Password: a.Password,
+	}
 }

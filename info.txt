@@ -1,7 +1,7 @@
 There are 5 tables for this project
 
-- roles: create, delete, get, get-all (remaining update)
-- faculties: completed
-- groups:
+- roles: completed
+- faculties: completed:
+- groups: 
 - users:
 - payments: 
