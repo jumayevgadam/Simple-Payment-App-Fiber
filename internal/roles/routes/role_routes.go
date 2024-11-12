@@ -2,15 +2,16 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadaym/tsu-toleg/internal/cache"
 	"github.com/jumayevgadaym/tsu-toleg/internal/database"
 	"github.com/jumayevgadaym/tsu-toleg/internal/roles/handler"
 	"github.com/jumayevgadaym/tsu-toleg/internal/roles/service"
 )
 
 // Routes is
-func Routes(f fiber.Router, dataStore database.DataStore) {
+func Routes(f fiber.Router, dataStore database.DataStore, cacheStore cache.Store) {
 	// init service
-	Service := service.NewRoleService(dataStore)
+	Service := service.NewRoleService(dataStore, cacheStore)
 	// init handler
 	Handler := handler.NewRoleHandler(Service)
 

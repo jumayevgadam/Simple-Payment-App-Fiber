@@ -39,7 +39,7 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		resID, err := h.service.AddFaculty(ctx, &facultyReq)
+		resID, err := h.service.AddFaculty(ctx, facultyReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
@@ -132,7 +132,7 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 		}
 		facultyReq.ID = facultyID
 
-		res, err := h.service.UpdateFaculty(ctx, &facultyReq)
+		res, err := h.service.UpdateFaculty(ctx, facultyReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

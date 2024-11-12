@@ -40,7 +40,7 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		userID, err := h.service.CreateUser(ctx, &req)
+		userID, err := h.service.CreateUser(ctx, req)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
@@ -63,7 +63,7 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		userWithToken, err := h.service.Login(ctx, &loginReq)
+		userWithToken, err := h.service.Login(ctx, loginReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

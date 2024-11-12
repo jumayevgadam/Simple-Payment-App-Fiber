@@ -24,7 +24,7 @@ func NewUserRepository(psqlDB connection.DB) *UserRepository {
 }
 
 // CreateUser repo is
-func (r *UserRepository) CreateUser(ctx context.Context, user *userModel.SignUpRes) (int, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
 	var userID int
 
 	if err := r.psqlDB.QueryRow(
@@ -44,7 +44,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *userModel.SignUpR
 }
 
 // GetUserByUsername repo is
-func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*userModel.AllUserDAO, error) {
+func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (userModel.AllUserDAO, error) {
 	var userDAO userModel.AllUserDAO
 
 	if err := r.psqlDB.Get(
@@ -54,8 +54,8 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, username string)
 		getUserByUsernameQuery,
 		username,
 	); err != nil {
-		return nil, errlst.ParseSQLErrors(err)
+		return userModel.AllUserDAO{}, errlst.ParseSQLErrors(err)
 	}
 
-	return &userDAO, nil
+	return userDAO, nil
 }

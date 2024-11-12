@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
-	// userHTTP "github.com/jumayevgadam/tsu-toleg/internal/users/routes"
 	facultyHTTP "github.com/jumayevgadaym/tsu-toleg/internal/faculties/routes"
 	groupHTTP "github.com/jumayevgadaym/tsu-toleg/internal/groups/routes"
 	roleHTTP "github.com/jumayevgadaym/tsu-toleg/internal/roles/routes"
@@ -17,7 +16,7 @@ func (s *Server) MapHandlers(f *fiber.App) error {
 	v1 := s.Fiber.Group(v1URL)
 
 	// roleHTTP route is
-	roleHTTP.Routes(v1, s.DataStore)
+	roleHTTP.Routes(v1, s.DataStore, s.CacheStore)
 	// facultyHTTP route is
 	facultyHTTP.Routes(v1, s.DataStore)
 	// groupHTTP route is

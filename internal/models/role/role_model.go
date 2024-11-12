@@ -13,16 +13,16 @@ type DAO struct {
 }
 
 // ToServer is
-func (d *DAO) ToServer() *DTO {
-	return &DTO{
+func (d *DAO) ToServer() DTO {
+	return DTO{
 		ID:       d.ID,
 		RoleName: d.RoleName,
 	}
 }
 
 // ToStorage is
-func (d *DTO) ToStorage() *DAO {
-	return &DAO{
+func (d *DTO) ToStorage() DAO {
+	return DAO{
 		ID:       d.ID,
 		RoleName: d.RoleName,
 	}

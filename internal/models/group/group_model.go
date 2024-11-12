@@ -43,8 +43,8 @@ type GroupDTO struct {
 }
 
 // ToStorage is
-func (g *GroupDTO) ToStorage() *GroupDAO {
-	return &GroupDAO{
+func (g *GroupDTO) ToStorage() GroupDAO {
+	return GroupDAO{
 		ID:        g.ID,
 		FacultyID: g.FacultyID,
 		ClassCode: g.ClassCode,
@@ -52,8 +52,8 @@ func (g *GroupDTO) ToStorage() *GroupDAO {
 }
 
 // ToServer is
-func (g *GroupDAO) ToServer() *GroupDTO {
-	return &GroupDTO{
+func (g *GroupDAO) ToServer() GroupDTO {
+	return GroupDTO{
 		ID:        g.ID,
 		FacultyID: g.FacultyID,
 		ClassCode: g.ClassCode,

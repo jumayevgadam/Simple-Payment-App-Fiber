@@ -29,7 +29,7 @@ func NewUserService(jwtOps token.TokenGeneratorOps, repo database.DataStore) *Us
 }
 
 // CreateUser service is
-func (s *UserService) CreateUser(ctx context.Context, request *userModel.SignUpReq) (int, error) {
+func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpReq) (int, error) {
 	ctx, span := otel.Tracer("[UserService]").Start(ctx, "[CreateUser]")
 	defer span.End()
 
@@ -50,7 +50,7 @@ func (s *UserService) CreateUser(ctx context.Context, request *userModel.SignUpR
 }
 
 // Login service is
-func (s *UserService) Login(ctx context.Context, loginReq *userModel.LoginReq) (*userModel.UserWithTokens, error) {
+func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (userModel.UserWithTokens, error) {
 	ctx, span := otel.Tracer("[UserService]").Start(ctx, "[Login]")
 	defer span.End()
 
@@ -88,8 +88,8 @@ func (s *UserService) Login(ctx context.Context, loginReq *userModel.LoginReq) (
 		return nil
 	}); err != nil {
 		tracing.ErrorTracer(span, err)
-		return nil, errlst.ParseErrors(err)
+		return userModel.UserWithTokens{}, errlst.ParseErrors(err)
 	}
 
-	return &userWithToken, nil
+	return userWithToken, nil
 }

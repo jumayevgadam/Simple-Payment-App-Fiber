@@ -13,10 +13,12 @@ import (
 // Must be keep them in .env file
 type Config struct {
 	Server struct {
-		HTTPPort string `envconfig:"HTTP_PORT" validate:"required"`
+		HTTPPort    string `envconfig:"HTTP_PORT" validate:"required"`
+		MetricsPort string `envconfig:"METRICS_PORT" validate:"required"`
 	}
 	Postgres PostgresDB
 	JWT      JWTOps
+	Redis    RedisDB
 }
 
 // PostgresDB options are
@@ -27,6 +29,12 @@ type PostgresDB struct {
 	User     string `envconfig:"DB_USER" validate:"required"`
 	Password string `envconfig:"DB_PASSWORD" validate:"required"`
 	SslMode  string `envconfig:"DB_SSLMODE" validate:"required"`
+}
+
+// RedisDB options are
+type RedisDB struct {
+	Address  string `envconfig:"REDIS_ADDRESS" validate:"required"`
+	Password string `envconfig:"REDIS_PASSWORD"`
 }
 
 // LoadConfig read fields of Config  struct and return it

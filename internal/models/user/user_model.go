@@ -23,8 +23,8 @@ type SignUpRes struct {
 }
 
 // ToServer is
-func (s *SignUpRes) ToServer() *SignUpReq {
-	return &SignUpReq{
+func (s *SignUpRes) ToServer() SignUpReq {
+	return SignUpReq{
 		RoleID:   s.RoleID,
 		GroupID:  s.GroupID,
 		Name:     s.Name,
@@ -35,8 +35,8 @@ func (s *SignUpRes) ToServer() *SignUpReq {
 }
 
 // ToStorage is
-func (s *SignUpReq) ToStorage() *SignUpRes {
-	return &SignUpRes{
+func (s *SignUpReq) ToStorage() SignUpRes {
+	return SignUpRes{
 		RoleID:   s.RoleID,
 		GroupID:  s.GroupID,
 		Name:     s.Name,
@@ -59,16 +59,16 @@ type LoginRes struct {
 }
 
 // ToServer is
-func (l *LoginRes) ToServer() *LoginReq {
-	return &LoginReq{
+func (l *LoginRes) ToServer() LoginReq {
+	return LoginReq{
 		Username: l.Username,
 		Password: l.Password,
 	}
 }
 
 // ToStorage is
-func (l *LoginReq) ToStorage() *LoginRes {
-	return &LoginRes{
+func (l *LoginReq) ToStorage() LoginRes {
+	return LoginRes{
 		Username: l.Username,
 		Password: l.Password,
 	}
@@ -99,8 +99,8 @@ type AllUserDTO struct {
 }
 
 // ToStorage is
-func (a *AllUserDTO) ToStorage() *AllUserDAO {
-	return &AllUserDAO{
+func (a *AllUserDTO) ToStorage() AllUserDAO {
+	return AllUserDAO{
 		ID:       a.ID,
 		RoleID:   a.RoleID,
 		GroupID:  a.GroupID,
@@ -112,8 +112,8 @@ func (a *AllUserDTO) ToStorage() *AllUserDAO {
 }
 
 // ToServer is
-func (a *AllUserDAO) ToServer() *AllUserDTO {
-	return &AllUserDTO{
+func (a *AllUserDAO) ToServer() AllUserDTO {
+	return AllUserDTO{
 		ID:       a.ID,
 		RoleID:   a.RoleID,
 		GroupID:  a.GroupID,

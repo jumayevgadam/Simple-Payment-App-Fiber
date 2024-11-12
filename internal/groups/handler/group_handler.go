@@ -129,7 +129,7 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 		}
 		groupReq.ID = groupID
 
-		updateRes, err := h.service.UpdateGroup(ctx, &groupReq)
+		updateRes, err := h.service.UpdateGroup(ctx, groupReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

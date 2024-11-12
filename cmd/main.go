@@ -4,9 +4,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/jumayevgadaym/tsu-toleg/internal/cache"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	"github.com/jumayevgadaym/tsu-toleg/internal/database/postgres"
+	"github.com/jumayevgadaym/tsu-toleg/internal/metrics"
 	"github.com/jumayevgadaym/tsu-toleg/internal/server"
 )
 
@@ -16,21 +18,45 @@ func main() {
 		log.Printf("error in main.LoadConfig: %v", err.Error())
 	}
 
+	// PostgreSQL connection
 	psqlDB, err := connection.GetDBConnection(context.Background(), cfg.Postgres)
 	if err != nil {
 		log.Printf("error in getting DB connection: %v", err.Error())
 	} else {
 		log.Println("POSTGRESQL:=>DB CONNECTED!")
 	}
+
 	defer func() {
 		if err := psqlDB.Close(); err != nil {
 			log.Printf("error in closing DB: %v", err.Error())
 		}
 	}()
 
-	dataStore := postgres.NewDataStore(psqlDB)
+	// if our server stops to run then metrics will not affect from server, it will run forever
+	go func() {
+		err = metrics.Listen(cfg.Server.MetricsPort)
+		log.Printf("[metrics][Listen]: %v", err)
+	}()
 
-	source := server.NewServer(cfg, dataStore)
+	// Redis Connection is
+	var rdb connection.Cache
+	rdb, err = connection.NewCache(context.Background(), cfg.Redis)
+	if err != nil {
+		log.Printf("connection.NewCache in main: %v", err.Error())
+	}
+	log.Println("redisDB connected!!")
+
+	defer func() {
+		err = rdb.Close()
+		if err != nil {
+			log.Printf("redis.Close in main: %v", err)
+		}
+	}()
+
+	dataStore := postgres.NewDataStore(psqlDB)
+	cacheStore := cache.NewClientRDRepository(rdb)
+
+	source := server.NewServer(cfg, dataStore, cacheStore)
 	if err := source.Run(); err != nil {
 		log.Printf("error in runnning application: %v", err.Error())
 	}

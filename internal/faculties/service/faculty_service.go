@@ -27,7 +27,7 @@ func NewFacultyService(repo database.DataStore) *FacultyService {
 }
 
 // AddFaculty service is
-func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO *facultyModel.DTO) (int, error) {
+func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO facultyModel.DTO) (int, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[AddFaculty]")
 	defer span.End()
 
@@ -42,14 +42,14 @@ func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO *facultyMode
 }
 
 // GetFaculty service is
-func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.DTO, error) {
+func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (facultyModel.DTO, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[GetFaculty]")
 	defer span.End()
 
 	facultyDAO, err := s.repo.FacultiesRepo().GetFaculty(ctx, facultyID)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
-		return nil, errlst.ParseErrors(err)
+		return facultyModel.DTO{}, errlst.ParseErrors(err)
 	}
 
 	span.SetStatus(codes.Ok, "successfully got faculty")
@@ -57,10 +57,10 @@ func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facult
 }
 
 // ListFaculties service is
-func (s *FacultyService) ListFaculties(ctx context.Context) ([]*facultyModel.DTO, error) {
+func (s *FacultyService) ListFaculties(ctx context.Context) ([]facultyModel.DTO, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[ListFaculties]")
 	defer span.End()
-	var facultyDTOs []*facultyModel.DTO
+	var facultyDTOs []facultyModel.DTO
 
 	faculties, err := s.repo.FacultiesRepo().ListFaculties(ctx)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *FacultyService) DeleteFaculty(ctx context.Context, facultyID int) error
 }
 
 // UpdateFaculty service is
-func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyDTO *facultyModel.DTO) (string, error) {
+func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyDTO facultyModel.DTO) (string, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[UpdateFaculty]")
 	defer span.End()
 

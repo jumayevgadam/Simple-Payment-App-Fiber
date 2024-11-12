@@ -40,17 +40,20 @@ func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.Gr
 }
 
 // GetGroup service is
-func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDTO, error) {
+func (s *GroupService) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDTO, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[GetGroup]")
 	defer span.End()
+	var groupDTO groupModel.GroupDTO
 
 	groupDAO, err := s.repo.GroupsRepo().GetGroup(ctx, groupID)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
-		return nil, errlst.ParseErrors(err)
+		return groupDTO, errlst.ParseErrors(err)
 	}
 
-	return groupDAO.ToServer(), nil
+	groupDTO = groupDAO.ToServer()
+
+	return groupDTO, nil
 }
 
 // ListGroups service is
@@ -67,7 +70,7 @@ func (s *GroupService) ListGroups(ctx context.Context) ([]groupModel.GroupDTO, e
 		}
 
 		for _, res := range groupDAOs {
-			groupDTOs = append(groupDTOs, *res.ToServer())
+			groupDTOs = append(groupDTOs, res.ToServer())
 		}
 
 		return nil
@@ -92,7 +95,7 @@ func (s *GroupService) DeleteGroup(ctx context.Context, groupID int) error {
 }
 
 // UpdateGroup service is
-func (s *GroupService) UpdateGroup(ctx context.Context, groupDTO *groupModel.GroupDTO) (string, error) {
+func (s *GroupService) UpdateGroup(ctx context.Context, groupDTO groupModel.GroupDTO) (string, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[UpdateGroup]")
 	defer span.End()
 	var (

@@ -40,7 +40,7 @@ func (h *RoleHandler) AddRole() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		roleID, err := h.service.AddRole(ctx, &roleReq)
+		roleID, err := h.service.AddRole(ctx, roleReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, "[AddRole][Handler]")
 			return errlst.Response(c, err)
@@ -135,7 +135,7 @@ func (h *RoleHandler) UpdateRole() fiber.Handler {
 		}
 		roleReq.ID = roleID
 
-		res, err := h.service.UpdateRole(ctx, &roleReq)
+		res, err := h.service.UpdateRole(ctx, roleReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

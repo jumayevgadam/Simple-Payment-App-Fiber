@@ -24,7 +24,7 @@ func NewRoleRepository(psqlDB connection.DB) *RoleRepository {
 }
 
 // AddRole method is
-func (r *RoleRepository) AddRole(ctx context.Context, roleDAO *roleModel.DAO) (int, error) {
+func (r *RoleRepository) AddRole(ctx context.Context, roleDAO roleModel.DAO) (int, error) {
 	var roleID int
 
 	if err := r.psqlDB.QueryRow(
@@ -39,7 +39,7 @@ func (r *RoleRepository) AddRole(ctx context.Context, roleDAO *roleModel.DAO) (i
 }
 
 // GetRole repo is
-func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (*roleModel.DAO, error) {
+func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (roleModel.DAO, error) {
 	var roleDAO roleModel.DAO
 
 	if err := r.psqlDB.Get(
@@ -49,15 +49,15 @@ func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (*roleModel.DA
 		getRoleQuery,
 		roleID,
 	); err != nil {
-		return nil, errlst.ParseSQLErrors(err)
+		return roleModel.DAO{}, errlst.ParseSQLErrors(err)
 	}
 
-	return &roleDAO, nil
+	return roleDAO, nil
 }
 
 // GetRoles repo is
-func (r *RoleRepository) GetRoles(ctx context.Context) ([]*roleModel.DAO, error) {
-	var roleDAOs []*roleModel.DAO
+func (r *RoleRepository) GetRoles(ctx context.Context) ([]roleModel.DAO, error) {
+	var roleDAOs []roleModel.DAO
 
 	if err := r.psqlDB.Select(
 		ctx,
@@ -101,7 +101,7 @@ func (r *RoleRepository) FetchCurrentRoleName(ctx context.Context, roleDAO *role
 }
 
 // UpdateRole repo is
-func (r *RoleRepository) UpdateRole(ctx context.Context, roleDAO *roleModel.DAO) (string, error) {
+func (r *RoleRepository) UpdateRole(ctx context.Context, roleDAO roleModel.DAO) (string, error) {
 	var res string
 
 	if err := r.psqlDB.QueryRow(

@@ -24,7 +24,7 @@ func NewFacultyRepository(psqlDB connection.DB) *FacultyRepository {
 }
 
 // AddFaculty repo is
-func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO *facultyModel.DAO) (int, error) {
+func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO facultyModel.DAO) (int, error) {
 	var facultyID int
 
 	if err := f.psqlDB.QueryRow(
@@ -40,7 +40,7 @@ func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO *facultyM
 }
 
 // GetFaculty repo is
-func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.DAO, error) {
+func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (facultyModel.DAO, error) {
 	var facultyDAO facultyModel.DAO
 
 	if err := f.psqlDB.Get(
@@ -50,15 +50,15 @@ func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*fac
 		getFacultyQuery,
 		facultyID,
 	); err != nil {
-		return nil, errlst.ParseSQLErrors(err)
+		return facultyModel.DAO{}, errlst.ParseSQLErrors(err)
 	}
 
-	return &facultyDAO, nil
+	return facultyDAO, nil
 }
 
 // ListFaculties repo is
-func (f *FacultyRepository) ListFaculties(ctx context.Context) ([]*facultyModel.DAO, error) {
-	var facultyDAOs []*facultyModel.DAO
+func (f *FacultyRepository) ListFaculties(ctx context.Context) ([]facultyModel.DAO, error) {
+	var facultyDAOs []facultyModel.DAO
 
 	if err := f.psqlDB.Select(
 		ctx,
@@ -87,7 +87,7 @@ func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) er
 }
 
 // UpdateFaculty repo is
-func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO *facultyModel.DAO) (string, error) {
+func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO facultyModel.DAO) (string, error) {
 	var res string
 
 	if err := f.psqlDB.QueryRow(

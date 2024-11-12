@@ -40,7 +40,7 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Gro
 }
 
 // GetGroup repo is
-func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDAO, error) {
+func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDAO, error) {
 	var groupDAO groupModel.GroupDAO
 
 	if err := r.psqlDB.Get(
@@ -50,10 +50,10 @@ func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupMode
 		getGroupQuery,
 		groupID,
 	); err != nil {
-		return nil, errlst.ParseSQLErrors(err)
+		return groupDAO, errlst.ParseSQLErrors(err)
 	}
 
-	return &groupDAO, nil
+	return groupDAO, nil
 }
 
 // ListGroups repo is
@@ -87,7 +87,7 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 }
 
 // UpdateGroup repo is
-func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.GroupDAO) (string, error) {
+func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO groupModel.GroupDAO) (string, error) {
 	var res string
 
 	if err := r.psqlDB.QueryRow(
