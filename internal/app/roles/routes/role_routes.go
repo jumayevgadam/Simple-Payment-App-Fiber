@@ -8,14 +8,14 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
-// Routes is
+// Routes is.
 func Routes(f fiber.Router, dataStore database.DataStore, cacheStore cache.Store) {
-	// init service
+	// init service.
 	Service := service.NewRoleService(dataStore, cacheStore)
-	// init handler
+	// init handler.
 	Handler := handler.NewRoleHandler(Service)
 
-	// roleGroup is
+	// roleGroup is.
 	roleGroup := f.Group("/role")
 	{
 		roleGroup.Post("/create", Handler.AddRole())

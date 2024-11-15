@@ -1,37 +1,37 @@
 package repository
 
-// WE WRITE QUERIES IN THIS PLACE
+// WE WRITE QUERIES IN THIS PLACE.
 const (
-	// addRoleQuery is
+	// addRoleQuery is.
 	addRoleQuery = `
 		INSERT INTO roles (name)
 		VALUES ($1) 
 		RETURNING id;`
 
-	// getRoleQuery is
+	// getRoleQuery is.
 	getRoleQuery = `
 		SELECT id, name
 		FROM roles
 		WHERE id = $1;`
 
-	// getRolesQuery is
+	// getRolesQuery is.
 	getRolesQuery = `
 		SELECT *
 		FROM roles;`
 
-	// deleteRoleQuery is
+	// deleteRoleQuery is.
 	deleteRoleQuery = `
 		DELETE 
 		FROM roles 
 		WHERE id = $1;`
 
-	// fetchCurrentRoleQuery is
+	// fetchCurrentRoleQuery is.
 	fetchCurrentRoleQuery = `
 		SELECT name
 		FROM roles
 		WHERE id = $1;`
 
-	// updateRoleQuery is
+	// updateRoleQuery is.
 	updateRoleQuery = `
 		UPDATE roles
 		SET 

@@ -18,17 +18,17 @@ var (
 	_ roleOps.Handlers = (*RoleHandler)(nil)
 )
 
-// RoleHandler is
+// RoleHandler is for calling methods from service.
 type RoleHandler struct {
 	service roleOps.Service
 }
 
-// NewRoleHandler is
+// NewRoleHandler creates and returns a new instance of RoleHandler.
 func NewRoleHandler(service roleOps.Service) *RoleHandler {
 	return &RoleHandler{service: service}
 }
 
-// AddRole handler is
+// AddRole handleris method adds a new role to the system and returns the created role's id.
 func (h *RoleHandler) AddRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[RoleHandler][AddRole]").Start(c.Context(), "[RoleHandler]")
@@ -53,7 +53,7 @@ func (h *RoleHandler) AddRole() fiber.Handler {
 	}
 }
 
-// GetRole handler is
+// GetRole handler method fetches a role by its id and returns its details.
 func (h *RoleHandler) GetRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[GetRole]")
@@ -76,7 +76,7 @@ func (h *RoleHandler) GetRole() fiber.Handler {
 	}
 }
 
-// GetRoles handler is
+// GetRoles handler method fetches and returns a list of all roles.
 func (h *RoleHandler) GetRoles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "GetRoles")
@@ -94,7 +94,7 @@ func (h *RoleHandler) GetRoles() fiber.Handler {
 	}
 }
 
-// DeleteRole handler is
+// DeleteRole handler method deletes a role from the system identified by the given id.
 func (h *RoleHandler) DeleteRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[DeleteRole]")
@@ -116,7 +116,7 @@ func (h *RoleHandler) DeleteRole() fiber.Handler {
 	}
 }
 
-// UpdateRole handler is
+// UpdateRole handler method updates an existing role based on the provided id and new role data.
 func (h *RoleHandler) UpdateRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[UpdateRole]")

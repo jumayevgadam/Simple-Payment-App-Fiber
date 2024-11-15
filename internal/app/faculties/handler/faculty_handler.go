@@ -13,21 +13,22 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure FacultyHandler implements the facultyOps.Handlers interface.
 var (
 	_ facultyOps.Handlers = (*FacultyHandler)(nil)
 )
 
-// FacultyHandler is
+// FacultyHandler for performing http request in handler layer calling methods from service.
 type FacultyHandler struct {
 	service facultyOps.Service
 }
 
-// NewFacultyHandler is
+// NewFacultyHandler creates and returns a new instance of FacultyHandler.
 func NewFacultyHandler(service facultyOps.Service) *FacultyHandler {
 	return &FacultyHandler{service: service}
 }
 
-// AddFaculty handler is
+// AddFaculty handler processes requests and returns faculty's id.
 func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[AddFaculty]")
@@ -50,7 +51,7 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	}
 }
 
-// GetFaculty handler is
+// GetFaculty handler fetches faculty using identified id.
 func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[GetFaculty]")
@@ -73,7 +74,7 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	}
 }
 
-// ListFaculties handler is
+// ListFaculties handler fetches a list of faculties.
 func (h *FacultyHandler) ListFaculties() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[ListFaculties]")
@@ -90,7 +91,7 @@ func (h *FacultyHandler) ListFaculties() fiber.Handler {
 	}
 }
 
-// DeleteFaculty handler is
+// DeleteFaculty handler deletes a faculty using identified id.
 func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[DeleteFaculty]")
@@ -114,7 +115,7 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 	}
 }
 
-// UpdateFaculty handler is
+// UpdateFaculty handler updates a faculty using a new faculty data and identified id.
 func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[UpdateFaculty]")

@@ -7,7 +7,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
-// ParseAccessToken method is
+// ParseAccessToken method parses accessToken using claims.
 func (tp *TokenOps) ParseAccessToken(accessToken string) (*AccessTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// check jwt signing method
@@ -29,7 +29,7 @@ func (tp *TokenOps) ParseAccessToken(accessToken string) (*AccessTokenClaims, er
 	return claims, nil
 }
 
-// ParseRefreshToken method is
+// ParseRefreshToken method parses refresh token taking claims.
 func (tp *TokenOps) ParseRefreshToken(refreshToken string) (*RefreshTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(refreshToken, &RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// check jwt signing method

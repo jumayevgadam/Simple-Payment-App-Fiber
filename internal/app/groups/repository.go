@@ -6,7 +6,7 @@ import (
 	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
 )
 
-// Repository interface for performing actions in groups repo (layer)
+// Repository interface for performing actions in groups repo (layer).
 type Repository interface {
 	AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error)
 	GetGroup(ctx context.Context, groupID int) (groupModel.GroupDAO, error)

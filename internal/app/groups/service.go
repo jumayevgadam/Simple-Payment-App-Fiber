@@ -6,7 +6,7 @@ import (
 	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
 )
 
-// Service interface for performing actions in this layer (for groups)
+// Service interface for performing actions in this layer (for groups).
 type Service interface {
 	AddGroup(ctx context.Context, groupDTO *groupModel.GroupReq) (int, error)
 	GetGroup(ctx context.Context, groupID int) (groupModel.GroupDTO, error)

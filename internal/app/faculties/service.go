@@ -6,7 +6,7 @@ import (
 	facultyModel "github.com/jumayevgadaym/tsu-toleg/internal/models/faculty"
 )
 
-// Service interface for performing methods in Service layer
+// Service interface for performing methods in Service layer.
 type Service interface {
 	AddFaculty(ctx context.Context, facultyDTO facultyModel.DTO) (int, error)
 	GetFaculty(ctx context.Context, facultyID int) (facultyModel.DTO, error)

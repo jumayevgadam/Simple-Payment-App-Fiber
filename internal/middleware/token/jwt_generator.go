@@ -7,7 +7,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
-// GenerateAccessToken method is
+// GenerateAccessToken method for creating access token.
 func (tg *TokenOps) GenerateAccessToken(userID, roleID int, username string) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(tg.jwtOps.AccessTokenExpiryTime) * time.Minute)
 	claims := AccessTokenClaims{
@@ -27,7 +27,7 @@ func (tg *TokenOps) GenerateAccessToken(userID, roleID int, username string) (st
 	return accessTokenStr, nil
 }
 
-// GenerateRefreshToken method is
+// GenerateRefreshToken method for creating refresh token.
 func (tg *TokenOps) GenerateRefreshToken(userID, roleID int) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(tg.jwtOps.RefreshTokenExpiryTime) * time.Minute)
 	claims := RefreshTokenClaims{
@@ -38,7 +38,7 @@ func (tg *TokenOps) GenerateRefreshToken(userID, roleID int) (string, error) {
 		},
 	}
 
-	// create refresh token with claims
+	// create refresh token with claims.
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	refreshTokenStr, err := refreshToken.SignedString([]byte(tg.jwtOps.AccessTokenSecret))
 	if err != nil {

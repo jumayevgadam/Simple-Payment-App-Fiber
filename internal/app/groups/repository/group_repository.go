@@ -9,21 +9,22 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
+// Ensure GroupRepository implements the groups.Repository interface.
 var (
 	_ groups.Repository = (*GroupRepository)(nil)
 )
 
-// GroupRepository is
+// GroupRepository performs database actions for groups.
 type GroupRepository struct {
 	psqlDB connection.DB
 }
 
-// NewGroupRepository is
+// NewGroupRepository creates and returns a new instance of GroupRepository.
 func NewGroupRepository(psqlDB connection.DB) *GroupRepository {
 	return &GroupRepository{psqlDB: psqlDB}
 }
 
-// AddGroup repo is
+// AddGroup repo insert group data into db and returns id.
 func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error) {
 	var groupID int
 
@@ -39,7 +40,7 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Gro
 	return groupID, nil
 }
 
-// GetGroup repo is
+// GetGroup repo fetches a group using identified id.
 func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDAO, error) {
 	var groupDAO groupModel.GroupDAO
 
@@ -56,7 +57,7 @@ func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel
 	return groupDAO, nil
 }
 
-// ListGroups repo is
+// ListGroups repo fetches a list of groups.
 func (r *GroupRepository) ListGroups(ctx context.Context) ([]groupModel.GroupDAO, error) {
 	var groupDAOs []groupModel.GroupDAO
 
@@ -72,7 +73,7 @@ func (r *GroupRepository) ListGroups(ctx context.Context) ([]groupModel.GroupDAO
 	return groupDAOs, nil
 }
 
-// DeleteGroup repo is
+// DeleteGroup repo deletes a group from db using identified id.
 func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 	_, err := r.psqlDB.Exec(
 		ctx,
@@ -86,7 +87,7 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 	return nil
 }
 
-// UpdateGroup repo is
+// UpdateGroup repo updates group data with a new group data and identified id.
 func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO groupModel.GroupDAO) (string, error) {
 	var res string
 

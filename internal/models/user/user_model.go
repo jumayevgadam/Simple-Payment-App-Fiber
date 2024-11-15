@@ -2,7 +2,7 @@ package user
 
 import "time"
 
-// LoginReq model is
+// LoginReq model is request model for processing request in handler layer.
 type SignUpReq struct {
 	RoleID   int    `form:"role-id" json:"roleID" validate:"required"`
 	GroupID  int    `form:"group-id" json:"groupID" validate:"required"`
@@ -12,7 +12,7 @@ type SignUpReq struct {
 	Password string `form:"password" json:"password" validate:"required,min=6"`
 }
 
-// LoginRes model is
+// LoginRes model is db model.
 type SignUpRes struct {
 	RoleID   int    `db:"role_id"`
 	GroupID  int    `db:"group_id"`
@@ -22,7 +22,7 @@ type SignUpRes struct {
 	Password string `db:"password"`
 }
 
-// ToServer is
+// ToServer method sends response to the server.
 func (s *SignUpRes) ToServer() SignUpReq {
 	return SignUpReq{
 		RoleID:   s.RoleID,
@@ -34,7 +34,7 @@ func (s *SignUpRes) ToServer() SignUpReq {
 	}
 }
 
-// ToStorage is
+// ToStorage method sends dto model to db storage.
 func (s *SignUpReq) ToStorage() SignUpRes {
 	return SignUpRes{
 		RoleID:   s.RoleID,
@@ -46,19 +46,19 @@ func (s *SignUpReq) ToStorage() SignUpRes {
 	}
 }
 
-// LoginReq model is
+// LoginReq model is request model for processing request in handler layer.
 type LoginReq struct {
 	Username string `form:"username" json:"userName" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required"`
 }
 
-// LoginRes model is
+// LoginRes model is response model which taken from DB.
 type LoginRes struct {
 	Username string `db:"username"`
 	Password string `db:"password"`
 }
 
-// ToServer is
+// ToServer method sends response to the server.
 func (l *LoginRes) ToServer() LoginReq {
 	return LoginReq{
 		Username: l.Username,
@@ -66,7 +66,7 @@ func (l *LoginRes) ToServer() LoginReq {
 	}
 }
 
-// ToStorage is
+// ToStorage method receives LoginReq model into db.
 func (l *LoginReq) ToStorage() LoginRes {
 	return LoginRes{
 		Username: l.Username,
@@ -74,7 +74,7 @@ func (l *LoginReq) ToStorage() LoginRes {
 	}
 }
 
-// AllUserDAO model is
+// AllUserDAO model is data access object.
 type AllUserDAO struct {
 	ID        int       `db:"id"`
 	RoleID    int       `db:"role_id"`
@@ -87,7 +87,7 @@ type AllUserDAO struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-// AllUserDTO model is
+// AllUserDTO model is dto model.
 type AllUserDTO struct {
 	ID       int    `json:"userID"`
 	RoleID   int    `form:"role-id" json:"roleID"`
@@ -98,7 +98,7 @@ type AllUserDTO struct {
 	Password string `form:"password" json:"password"`
 }
 
-// ToStorage is
+// ToStorage method for receiving AllUserDTO into database.
 func (a *AllUserDTO) ToStorage() AllUserDAO {
 	return AllUserDAO{
 		ID:       a.ID,
@@ -111,7 +111,7 @@ func (a *AllUserDTO) ToStorage() AllUserDAO {
 	}
 }
 
-// ToServer is
+// ToServer method sends AllUserDAO model to server.
 func (a *AllUserDAO) ToServer() AllUserDTO {
 	return AllUserDTO{
 		ID:       a.ID,

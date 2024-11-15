@@ -2,7 +2,7 @@ package token
 
 import "github.com/golang-jwt/jwt/v5"
 
-// AccessTokenClaims model is
+// AccessTokenClaims model for access token.
 type AccessTokenClaims struct {
 	ID       int    `json:"user_id"`
 	RoleID   int    `json:"role_id"`
@@ -10,7 +10,7 @@ type AccessTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-// RefreshTokenClaims model is
+// RefreshTokenClaims model for refresh token.
 type RefreshTokenClaims struct {
 	ID     int `json:"user_id"`
 	RoleID int `json:"role_id"`

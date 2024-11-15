@@ -6,7 +6,7 @@ import (
 	userModel "github.com/jumayevgadaym/tsu-toleg/internal/models/user"
 )
 
-// Service interface for performing actions in this layer
+// Service interface for performing actions in this layer.
 type Service interface {
 	CreateUser(ctx context.Context, req userModel.SignUpReq) (int, error)
 	Login(ctx context.Context, loginReq userModel.LoginReq) (userModel.UserWithTokens, error)

@@ -2,7 +2,7 @@ package users
 
 import "github.com/gofiber/fiber/v2"
 
-// Handler interface for performing users operations
+// Handler interface for performing users operations.
 type Handler interface {
 	CreateUser() fiber.Handler
 	Login() fiber.Handler

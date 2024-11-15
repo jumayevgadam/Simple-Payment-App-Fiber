@@ -1,31 +1,31 @@
 package repository
 
-// SQL QUERIES
+// SQL QUERIES.
 const (
-	// addGroupQuery is
+	// addGroupQuery is.
 	addGroupQuery = `
 		INSERT INTO groups (faculty_id, class_code)
 		VALUES ($1, $2)
 		RETURNING id;`
 
-	// getGroupQuery is
+	// getGroupQuery is.
 	getGroupQuery = `
 		SELECT id, faculty_id, class_code
 		FROM groups
 		WHERE id = $1;`
 
-	// listGroupsQuery is
+	// listGroupsQuery is.
 	listGroupsQuery = `
 		SELECT id, faculty_id, class_code
 		FROM groups;`
 
-	// deleteGroupQuery is
+	// deleteGroupQuery is.
 	deleteGroupQuery = `
 		DELETE
 		FROM groups
 		WHERE id = $1;`
 
-	// updateGroupQuery is
+	// updateGroupQuery is.
 	updateGroupQuery = `
 		UPDATE groups
 		SET faculty_id = COALESCE(NULLIF($1, 0), faculty_id),

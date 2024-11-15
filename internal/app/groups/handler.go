@@ -2,7 +2,7 @@ package groups
 
 import "github.com/gofiber/fiber/v2"
 
-// Handler interface for groups
+// Handler interface for groups.
 type Handler interface {
 	AddGroup() fiber.Handler
 	GetGroup() fiber.Handler

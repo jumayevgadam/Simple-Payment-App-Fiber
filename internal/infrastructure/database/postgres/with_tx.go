@@ -11,14 +11,14 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
-// WithTransaction is
+// WithTransaction method is transaction method for performing multitasks, we use in service layer.
 func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(db database.DataStore) error) error {
 	db, ok := d.db.(connection.DBOps)
 	if !ok {
 		return fmt.Errorf("got error type assertion in WithTx")
 	}
 
-	//begin transaction in this place
+	//begin transaction in this place.
 	tx, err := db.Begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		log.Println("error in db.Begin[WithTransaction]")
@@ -35,13 +35,13 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 		}
 	}()
 
-	// transactionalDB is
+	// transactionalDB is.
 	transactionalDB := &DataStoreImpl{db: tx}
 	if err := transactionFn(transactionalDB); err != nil {
 		return fmt.Errorf("postgres:[WithTransaction]: transaction function execution failed: %w", err)
 	}
 
-	// Commit the transaction if no error occurred during the transactionFn execution
+	// Commit the transaction if no error occurred during the transactionFn execution.
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("error in committing transaction: %w", err)
 	}

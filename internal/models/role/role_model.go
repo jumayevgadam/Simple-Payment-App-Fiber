@@ -1,18 +1,18 @@
 package role
 
-// DTO model is data transfer object: =>
+// DTO model is data transfer object: =>.
 type DTO struct {
 	ID       int    `json:"roleID"`
 	RoleName string `form:"role-name" json:"roleName" validate:"required"`
 }
 
-// DAO model is data access object: =>
+// DAO model is data access object: =>.
 type DAO struct {
 	ID       int    `db:"id"`
 	RoleName string `db:"name"`
 }
 
-// ToServer is
+// ToServer method sends DAO model to server.
 func (d *DAO) ToServer() DTO {
 	return DTO{
 		ID:       d.ID,
@@ -20,7 +20,7 @@ func (d *DAO) ToServer() DTO {
 	}
 }
 
-// ToStorage is
+// ToStorage method sends DTO to DAO(saves it into database).
 func (d *DTO) ToStorage() DAO {
 	return DAO{
 		ID:       d.ID,

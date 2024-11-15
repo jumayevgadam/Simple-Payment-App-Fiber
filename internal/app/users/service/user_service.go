@@ -13,22 +13,23 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+// Ensure UserService implements the users.Service interface.
 var (
 	_ users.Service = (*UserService)(nil)
 )
 
-// UserService is
+// UserService manages buisiness logic for app/user part of application.
 type UserService struct {
 	jwtOps token.TokenGeneratorOps
 	repo   database.DataStore
 }
 
-// NewUserService is
+// NewUserService creates and returns a new instance of UserRepository.
 func NewUserService(jwtOps token.TokenGeneratorOps, repo database.DataStore) *UserService {
 	return &UserService{jwtOps: jwtOps, repo: repo}
 }
 
-// CreateUser service is
+// CreateUser service insert a user into db and returns its id.
 func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpReq) (int, error) {
 	ctx, span := otel.Tracer("[UserService]").Start(ctx, "[CreateUser]")
 	defer span.End()
@@ -49,7 +50,7 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 	return userID, nil
 }
 
-// Login service is
+// Login service for login.
 func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (userModel.UserWithTokens, error) {
 	ctx, span := otel.Tracer("[UserService]").Start(ctx, "[Login]")
 	defer span.End()

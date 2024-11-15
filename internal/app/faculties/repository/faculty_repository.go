@@ -9,21 +9,22 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
+// Ensure FacultyRepository implements the faculties.Repository interface.
 var (
 	_ faculties.Repository = (*FacultyRepository)(nil)
 )
 
-// FacultyRepository is
+// FacultyRepository performing database operations for faculties.
 type FacultyRepository struct {
 	psqlDB connection.DB
 }
 
-// NewFacultyRepository is
+// NewFacultyRepository creates and returns a new instance of FacultyRepository.
 func NewFacultyRepository(psqlDB connection.DB) *FacultyRepository {
 	return &FacultyRepository{psqlDB: psqlDB}
 }
 
-// AddFaculty repo is
+// AddFaculty repo insert faculty data into db and returns id.
 func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO facultyModel.DAO) (int, error) {
 	var facultyID int
 
@@ -39,7 +40,7 @@ func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO facultyMo
 	return facultyID, nil
 }
 
-// GetFaculty repo is
+// GetFaculty repo fetches faculty by using identified id.
 func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (facultyModel.DAO, error) {
 	var facultyDAO facultyModel.DAO
 
@@ -56,7 +57,7 @@ func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (facu
 	return facultyDAO, nil
 }
 
-// ListFaculties repo is
+// ListFaculties repo fetches a list of faculties from DB.
 func (f *FacultyRepository) ListFaculties(ctx context.Context) ([]facultyModel.DAO, error) {
 	var facultyDAOs []facultyModel.DAO
 
@@ -72,7 +73,7 @@ func (f *FacultyRepository) ListFaculties(ctx context.Context) ([]facultyModel.D
 	return facultyDAOs, nil
 }
 
-// DeleteFaculty repo is
+// DeleteFaculty repo deletes faculty from DB using identified faculty id.
 func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) error {
 	_, err := f.psqlDB.Exec(
 		ctx,
@@ -86,7 +87,7 @@ func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) er
 	return nil
 }
 
-// UpdateFaculty repo is
+// UpdateFaculty repo updates faculty data using a new data and identified faculty id.
 func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO facultyModel.DAO) (string, error) {
 	var res string
 

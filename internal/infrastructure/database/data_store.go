@@ -10,7 +10,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/app/users"
 )
 
-// DataStore is
+// DataStore interface for performing all needed methods for repository layer of application.
 type DataStore interface {
 	WithTransaction(ctx context.Context, tx func(db DataStore) error) error
 	RolesRepo() roles.Repository

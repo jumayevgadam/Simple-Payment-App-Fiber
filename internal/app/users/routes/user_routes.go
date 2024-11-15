@@ -9,22 +9,22 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/middleware/token"
 )
 
-// Routes function for users in this place
+// Routes function for users in this place.
 func Routes(f fiber.Router, dataStore database.DataStore) {
 	tokenGenerator := token.NewTokenOps(config.JWTOps{})
-	// Init Service
+	// Init Service.
 	Service := service.NewUserService(tokenGenerator, dataStore)
-	// Init Handler
+	// Init Handler.
 	Handler := handler.NewUserHandler(&config.Config{}, Service)
 
 	// groups
-	// adminGroup is
+	// adminGroup is.
 	adminGroup := f.Group("/admin")
 	{
 		adminGroup.Post("/sign-up", Handler.CreateUser())
 	}
 
-	// userGroup is
+	// userGroup is.
 	userGroup := f.Group("/user")
 	{
 		userGroup.Post("/sign-up", Handler.CreateUser())

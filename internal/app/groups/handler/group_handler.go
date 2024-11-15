@@ -14,21 +14,22 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure GroupHandler implements the groupOps.Handler.
 var (
 	_ groupOps.Handler = (*GroupHandler)(nil)
 )
 
-// GroupHandler is
+// GroupHandler performs http request actions and call methods from service.
 type GroupHandler struct {
 	service groupOps.Service
 }
 
-// NewGroupHandler is
+// NewGroupHandler creates and returns a new instance of GroupHandler.
 func NewGroupHandler(service groupOps.Service) *GroupHandler {
 	return &GroupHandler{service: service}
 }
 
-// AddGroup handler is
+// AddGroup handler creates a new group and returns id.
 func (h *GroupHandler) AddGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[AddGroup]")
@@ -51,7 +52,7 @@ func (h *GroupHandler) AddGroup() fiber.Handler {
 	}
 }
 
-// GetGroup handler is
+// GetGroup handler fetches group by using identified id.
 func (h *GroupHandler) GetGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[GetGroup]")
@@ -73,7 +74,7 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 	}
 }
 
-// ListGroups handler is
+// ListGroups handler fetches a list of groups.
 func (h *GroupHandler) ListGroups() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[ListGroups]")
@@ -90,7 +91,7 @@ func (h *GroupHandler) ListGroups() fiber.Handler {
 	}
 }
 
-// DeleteGroup handler is
+// DeleteGroup handler deletes a group using identified id.
 func (h *GroupHandler) DeleteGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[DeleteGroup]")
@@ -111,7 +112,7 @@ func (h *GroupHandler) DeleteGroup() fiber.Handler {
 	}
 }
 
-// UpdateGroup handler is
+// UpdateGroup handler update group with a new data and identified id.
 func (h *GroupHandler) UpdateGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[UpdateGroup]")

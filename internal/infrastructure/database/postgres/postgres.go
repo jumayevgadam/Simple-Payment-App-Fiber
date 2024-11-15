@@ -17,9 +17,10 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
+// Ensure DataStoreImpl implements the database.DataStore interface.
 var _ database.DataStore = (*DataStoreImpl)(nil)
 
-// DataStore struct is
+// DataStore struct for performing all actions which needed in repository layer.
 type DataStoreImpl struct {
 	db          connection.DB
 	role        roles.Repository
@@ -34,14 +35,14 @@ type DataStoreImpl struct {
 	paymentInit sync.Once
 }
 
-// NewDataStore is
+// NewDataStore creates and returns a new instance of DataStore.
 func NewDataStore(db connection.DBOps) database.DataStore {
 	return &DataStoreImpl{
 		db: db,
 	}
 }
 
-// RolesRepo method is
+// RolesRepo method needs performing general repo methods for roles.
 func (d *DataStoreImpl) RolesRepo() roles.Repository {
 	d.roleInit.Do(func() {
 		d.role = roleRepository.NewRoleRepository(d.db)
@@ -50,7 +51,7 @@ func (d *DataStoreImpl) RolesRepo() roles.Repository {
 	return d.role
 }
 
-// FacultiesRepo method is
+// FacultiesRepo method needs performing general repo methods for faculties.
 func (d *DataStoreImpl) FacultiesRepo() faculties.Repository {
 	d.facultyInit.Do(func() {
 		d.faculty = facultyRepository.NewFacultyRepository(d.db)
@@ -59,7 +60,7 @@ func (d *DataStoreImpl) FacultiesRepo() faculties.Repository {
 	return d.faculty
 }
 
-// GroupsRepo method is
+// GroupsRepo method needs performing general repo methods for groups.
 func (d *DataStoreImpl) GroupsRepo() groups.Repository {
 	d.groupInit.Do(func() {
 		d.group = groupRepository.NewGroupRepository(d.db)
@@ -68,7 +69,7 @@ func (d *DataStoreImpl) GroupsRepo() groups.Repository {
 	return d.group
 }
 
-// UsersRepo method is
+// UsersRepo method needs performing general repo methods for users.
 func (d *DataStoreImpl) UsersRepo() users.Repository {
 	d.userInit.Do(func() {
 		d.user = userRepository.NewUserRepository(d.db)
@@ -77,7 +78,7 @@ func (d *DataStoreImpl) UsersRepo() users.Repository {
 	return d.user
 }
 
-// PaymentsRepo method is
+// PaymentsRepo method needs performing general repo methods for payments.
 func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
 	d.paymentInit.Do(func() {
 		d.payment = paymentRepository.NewPaymentRepository(d.db)

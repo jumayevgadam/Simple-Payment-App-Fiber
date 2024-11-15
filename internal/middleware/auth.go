@@ -7,7 +7,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
-// GetSuperAdminMiddleware is
+// GetSuperAdminMiddleware for superadmin.
 func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// read the token from cookie
@@ -32,7 +32,7 @@ func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.
 	}
 }
 
-// GetAdminMiddleware is
+// GetAdminMiddleware for admin middleware.
 func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Read the token from cookie
@@ -57,7 +57,7 @@ func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handl
 	}
 }
 
-// GetStudentMiddleware is
+// GetStudentMiddleware for student middleware.
 func GetStudentMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Read the token from cookie

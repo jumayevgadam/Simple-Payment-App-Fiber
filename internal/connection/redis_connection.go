@@ -9,15 +9,15 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// Cache is
+// Ensure Redis struct implements the Cache interface.
 var _ Cache = (*Redis)(nil)
 
-// Redis is
+// Redis struct for using redis methods in application.
 type Redis struct {
 	redis *redis.Client
 }
 
-// NewCache is
+// NewCache creates and returns a new instance Redis struct.
 func NewCache(ctx context.Context, cfgs config.RedisDB) (*Redis, error) {
 	options := &redis.Options{
 		Addr:     cfgs.Address,
@@ -33,7 +33,7 @@ func NewCache(ctx context.Context, cfgs config.RedisDB) (*Redis, error) {
 	return &Redis{redis: rdb}, nil
 }
 
-// Cache interface is
+// Cache interface for performing actions with redis.
 type Cache interface {
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key string, value string, expiration time.Duration) error
@@ -41,22 +41,22 @@ type Cache interface {
 	Close() error
 }
 
-// Get is
+// Get method fetches needed value using key.
 func (r *Redis) Get(ctx context.Context, key string) (string, error) {
 	return r.redis.Get(ctx, key).Result()
 }
 
-// Set is
+// Set method insert a new key value pair in redisDB.
 func (r *Redis) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
 	return r.redis.Set(ctx, key, value, expiration).Err()
 }
 
-// Del is
+// Del method deletes the key value pair using identified key.
 func (r *Redis) Del(ctx context.Context, key string) error {
 	return r.redis.Del(ctx, key).Err()
 }
 
-// Close is
+// Close closes redisDB.
 func (r *Redis) Close() error {
 	return r.redis.Close()
 }

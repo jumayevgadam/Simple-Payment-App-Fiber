@@ -13,22 +13,23 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure UserHandler implements the userOps.Handler interface.
 var (
 	_ userOps.Handler = (*UserHandler)(nil)
 )
 
-// UserHandler is
+// UserHandler manages http request methods and calls methods from service and config.
 type UserHandler struct {
 	cfg     *config.Config
 	service userOps.Service
 }
 
-// NewUserHandler is
+// NewUserHandler creates and returns a new instance of UserHandler.
 func NewUserHandler(cfg *config.Config, service userOps.Service) *UserHandler {
 	return &UserHandler{cfg: cfg, service: service}
 }
 
-// CreateUser handler is
+// CreateUser handler creates a new user and returns id.
 func (h *UserHandler) CreateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[CreateUser]")
@@ -51,7 +52,7 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 	}
 }
 
-// Login handler is
+// Login handler method for login.
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")

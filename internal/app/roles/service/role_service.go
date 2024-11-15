@@ -16,22 +16,23 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure RoleService implements the roles.Service interface.
 var (
 	_ roles.Service = (*RoleService)(nil)
 )
 
-// RoleService is
+// RoleService performs buisiness logic in role management.
 type RoleService struct {
 	repo  database.DataStore
 	cache cache.Store
 }
 
-// NewRoleService is
+// NewRoleService creates and returns a new instance of RoleService.
 func NewRoleService(repo database.DataStore, cache cache.Store) *RoleService {
 	return &RoleService{repo: repo, cache: cache}
 }
 
-// AddRole service is
+// AddRole service processes the request to create a new role and saves it to the database.
 func (s *RoleService) AddRole(ctx context.Context, roleDTO roleModel.DTO) (int, error) {
 	ctx, span := otel.Tracer("[AddRole][Service]").Start(ctx, "[AddRole]")
 	defer span.End()
@@ -44,7 +45,7 @@ func (s *RoleService) AddRole(ctx context.Context, roleDTO roleModel.DTO) (int, 
 	return roleID, nil
 }
 
-// GetRole Service is
+// GetRole Service retrieves a role by its id from the database and returns it.
 func (s *RoleService) GetRole(ctx context.Context, roleID int) (roleModel.DTO, error) {
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[GetRole]")
 	defer span.End()
@@ -85,7 +86,7 @@ func (s *RoleService) GetRole(ctx context.Context, roleID int) (roleModel.DTO, e
 	return roleDTO, nil
 }
 
-// GetRoles service is
+// GetRoles service fetches a list of all roles from database.
 func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[GetRoles]")
 	defer span.End()
@@ -110,7 +111,7 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 	return roleDTOs, nil
 }
 
-// DeleteRole service is
+// DeleteRole service processes deleting role action using its id and also deletes from database.
 func (s *RoleService) DeleteRole(ctx context.Context, roleID int) error {
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[DeleteRole]")
 	defer span.End()
@@ -137,7 +138,7 @@ func (s *RoleService) DeleteRole(ctx context.Context, roleID int) error {
 	return nil
 }
 
-// UpdateRole service is
+// UpdateRole service processes the new role data requests and saves it to the database.
 func (s *RoleService) UpdateRole(ctx context.Context, roleDTO roleModel.DTO) (string, error) {
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[UpdateRole]")
 	defer span.End()

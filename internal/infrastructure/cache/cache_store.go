@@ -13,26 +13,27 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure ClientRedisRepo implements the Store interface.
 var _ Store = (*ClientRedisRepo)(nil)
 
-// Store interface is
+// Store interface for using redisDB methods in app.
 type Store interface {
 	Get(ctx context.Context, argument abstract.CacheArgument) ([]byte, error)
 	Set(ctx context.Context, argument abstract.CacheArgument, value []byte, duration time.Duration) error
 	Del(ctx context.Context, argument abstract.CacheArgument) error
 }
 
-// ClientRedisRepo is
+// ClientRedisRepo takes connection.Cache interface methods for performing decorator pattern in app.
 type ClientRedisRepo struct {
 	rdb connection.Cache
 }
 
-// NewClientRDRepository is
+// NewClientRDRepository creates and returns a new instance of ClientRedisRepo.
 func NewClientRDRepository(rdb connection.Cache) *ClientRedisRepo {
 	return &ClientRedisRepo{rdb: rdb}
 }
 
-// Get is
+// getCacheKey from redisDB.
 func (c *ClientRedisRepo) getCacheKey(objectType string, id string) string {
 	return strings.Join([]string{
 		objectType,
@@ -40,7 +41,7 @@ func (c *ClientRedisRepo) getCacheKey(objectType string, id string) string {
 	}, ":")
 }
 
-// Get is
+// Get method takes needed value using cacheArgument.
 func (c *ClientRedisRepo) Get(ctx context.Context, argument abstract.CacheArgument) ([]byte, error) {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[Get]")
 	defer span.End()
@@ -57,7 +58,7 @@ func (c *ClientRedisRepo) Get(ctx context.Context, argument abstract.CacheArgume
 	return []byte(valueString), nil
 }
 
-// Set is
+// Set method creates and insert a new key value pair into redisDB.
 func (c *ClientRedisRepo) Set(ctx context.Context, argument abstract.CacheArgument, value []byte, duration time.Duration) error {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[Set]")
 	defer span.End()
@@ -75,7 +76,7 @@ func (c *ClientRedisRepo) Set(ctx context.Context, argument abstract.CacheArgume
 	return nil
 }
 
-// Del is
+// Del method deletes cached value using cacheArgument from redisDB.
 func (c *ClientRedisRepo) Del(ctx context.Context, argument abstract.CacheArgument) error {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[Del]")
 	defer span.End()

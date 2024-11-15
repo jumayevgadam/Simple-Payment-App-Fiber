@@ -3,27 +3,28 @@ package repository
 import (
 	"context"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/roles"
+	"github.com/jumayevgadaym/tsu-toleg/internal/app/roles"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	roleModel "github.com/jumayevgadaym/tsu-toleg/internal/models/role"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
+// Ensures RoleRepository implements the roles.Repository interface.
 var (
 	_ roles.Repository = (*RoleRepository)(nil)
 )
 
-// RoleRepository is
+// RoleRepository handles database operations related to roles.
 type RoleRepository struct {
 	psqlDB connection.DB
 }
 
-// NewRoleRepository is
+// NewRoleRepository creates and returns a new instance of RoleRepository.
 func NewRoleRepository(psqlDB connection.DB) *RoleRepository {
 	return &RoleRepository{psqlDB: psqlDB}
 }
 
-// AddRole method is
+// AddRole method inserts a new role into the database.
 func (r *RoleRepository) AddRole(ctx context.Context, roleDAO roleModel.DAO) (int, error) {
 	var roleID int
 
@@ -38,7 +39,7 @@ func (r *RoleRepository) AddRole(ctx context.Context, roleDAO roleModel.DAO) (in
 	return roleID, nil
 }
 
-// GetRole repo is
+// GetRole repo retrieves a role from the database by its id.
 func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (roleModel.DAO, error) {
 	var roleDAO roleModel.DAO
 
@@ -55,7 +56,7 @@ func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (roleModel.DAO
 	return roleDAO, nil
 }
 
-// GetRoles repo is
+// GetRoles repo fetches a list of all roles from database.
 func (r *RoleRepository) GetRoles(ctx context.Context) ([]roleModel.DAO, error) {
 	var roleDAOs []roleModel.DAO
 
@@ -71,7 +72,7 @@ func (r *RoleRepository) GetRoles(ctx context.Context) ([]roleModel.DAO, error) 
 	return roleDAOs, nil
 }
 
-// DeleteRole repo is
+// DeleteRole repo deletes role by identified id from database.
 func (r *RoleRepository) DeleteRole(ctx context.Context, roleID int) error {
 	_, err := r.psqlDB.Exec(
 		ctx,
@@ -85,7 +86,7 @@ func (r *RoleRepository) DeleteRole(ctx context.Context, roleID int) error {
 	return nil
 }
 
-// FetchCurrentRoleName repo is
+// FetchCurrentRoleName repo fetches role name by identified id from database.
 func (r *RoleRepository) FetchCurrentRoleName(ctx context.Context, roleDAO *roleModel.DAO) (string, error) {
 	var currentRoleName string
 
@@ -100,7 +101,7 @@ func (r *RoleRepository) FetchCurrentRoleName(ctx context.Context, roleDAO *role
 	return currentRoleName, nil
 }
 
-// UpdateRole repo is
+// UpdateRole repo updates details of role by using id.
 func (r *RoleRepository) UpdateRole(ctx context.Context, roleDAO roleModel.DAO) (string, error) {
 	var res string
 

@@ -12,21 +12,22 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// Ensure FacultyService implements the faculties.Service interface.
 var (
 	_ faculties.Service = (*FacultyService)(nil)
 )
 
-// FacultyService is
+// FacultyService struct  buisiness logic part for app/faculty part of application.
 type FacultyService struct {
 	repo database.DataStore
 }
 
-// NewFacultyService is
+// NewFacultyService creates and returns a new instance of FacultyService.
 func NewFacultyService(repo database.DataStore) *FacultyService {
 	return &FacultyService{repo: repo}
 }
 
-// AddFaculty service is
+// AddFaculty service insert faculty datas into database.
 func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO facultyModel.DTO) (int, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[AddFaculty]")
 	defer span.End()
@@ -41,7 +42,7 @@ func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO facultyModel
 	return roleID, nil
 }
 
-// GetFaculty service is
+// GetFaculty service fetches faculty from DB using identified id.
 func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (facultyModel.DTO, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[GetFaculty]")
 	defer span.End()
@@ -56,7 +57,7 @@ func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (faculty
 	return facultyDAO.ToServer(), nil
 }
 
-// ListFaculties service is
+// ListFaculties service fetches a list of faculties from DB and returns it.
 func (s *FacultyService) ListFaculties(ctx context.Context) ([]facultyModel.DTO, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[ListFaculties]")
 	defer span.End()
@@ -75,7 +76,7 @@ func (s *FacultyService) ListFaculties(ctx context.Context) ([]facultyModel.DTO,
 	return facultyDTOs, nil
 }
 
-// DeleteFaculty service is
+// DeleteFaculty service deletes faculty from DB using identified id.
 func (s *FacultyService) DeleteFaculty(ctx context.Context, facultyID int) error {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[DeleteFaculty]")
 	defer span.End()
@@ -88,7 +89,7 @@ func (s *FacultyService) DeleteFaculty(ctx context.Context, facultyID int) error
 	return nil
 }
 
-// UpdateFaculty service is
+// UpdateFaculty service updates faculty data using a new faculty data and id.
 func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyDTO facultyModel.DTO) (string, error) {
 	ctx, span := otel.Tracer("[FacultyService]").Start(ctx, "[UpdateFaculty]")
 	defer span.End()

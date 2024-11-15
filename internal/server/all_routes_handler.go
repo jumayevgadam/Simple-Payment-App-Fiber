@@ -12,16 +12,17 @@ const (
 	v1URL = "/api/v1"
 )
 
+// MapHandlers function takes all http routes.
 func (s *Server) MapHandlers(f *fiber.App) error {
 	v1 := s.Fiber.Group(v1URL)
 
-	// roleHTTP route is
+	// roleHTTP is for app/role part of project.
 	roleHTTP.Routes(v1, s.DataStore, s.CacheStore)
-	// facultyHTTP route is
+	// facultyHTTP  is for app/faculty part of project.
 	facultyHTTP.Routes(v1, s.DataStore)
-	// groupHTTP route is
+	// groupHTTP route is for app/group part of project.
 	groupHTTP.Routes(v1, s.DataStore)
-	// userHTTP route is
+	// userHTTP route is for app/user part of project.
 	userHTTP.Routes(v1, s.DataStore)
 
 	return nil

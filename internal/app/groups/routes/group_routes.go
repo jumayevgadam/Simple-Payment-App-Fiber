@@ -7,13 +7,13 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
-// Routes for groups
+// Routes for groups.
 func Routes(f fiber.Router, dataStore database.DataStore) {
-	// Init Service
+	// Init Service.
 	Service := service.NewGroupService(dataStore)
-	// Init Handler
+	// Init Handler.
 	Handler := handler.NewGroupHandler(Service)
-	// put route
+	// put route.
 	groupPath := f.Group("/group")
 	{
 		groupPath.Post("/add", Handler.AddGroup())

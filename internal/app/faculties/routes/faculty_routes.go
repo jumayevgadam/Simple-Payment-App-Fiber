@@ -7,14 +7,14 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
-// Routes func for faculty routes
+// Routes func for faculty routes.
 func Routes(f fiber.Router, dataStore database.DataStore) {
-	// Init Service
+	// Init Service.
 	Service := service.NewFacultyService(dataStore)
-	// Init Handler
+	// Init Handler.
 	Handler := handler.NewFacultyHandler(Service)
 
-	// facultyGroup is
+	// facultyGroup is.
 	facultyGroup := f.Group("/faculty")
 	{
 		facultyGroup.Post("/create", Handler.AddFaculty())

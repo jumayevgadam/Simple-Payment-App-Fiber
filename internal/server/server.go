@@ -8,7 +8,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
-// Server struct is
+// Server struct keeps all configurations needed for application.
 type Server struct {
 	Fiber      *fiber.App
 	Cfg        *config.Config
@@ -16,7 +16,7 @@ type Server struct {
 	CacheStore cache.Store
 }
 
-// NewServer is
+// NewServer creates and returns a new instance of Server.
 func NewServer(
 	cfg *config.Config,
 	dataStore database.DataStore,
@@ -32,7 +32,7 @@ func NewServer(
 	return server
 }
 
-// Run application
+// Run method for running application.
 func (s *Server) Run() error {
 	if err := s.MapHandlers(s.Fiber); err != nil {
 		return errlst.ParseErrors(err)

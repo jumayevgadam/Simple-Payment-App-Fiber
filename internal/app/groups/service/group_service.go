@@ -11,21 +11,22 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+// Ensure GroupService implements the groups.Service interface.
 var (
 	_ groups.Service = (*GroupService)(nil)
 )
 
-// GroupService is
+// GroupService performs buisiness logic for app/group part of application.
 type GroupService struct {
 	repo database.DataStore
 }
 
-// NewGroupService is
+// NewGroupService creates and returns a new instance of GroupService.
 func NewGroupService(repo database.DataStore) *GroupService {
 	return &GroupService{repo: repo}
 }
 
-// AddGroup service is
+// AddGroup service insert a group to db and returns id.
 func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.GroupReq) (int, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[AddGroup]")
 	defer span.End()
@@ -39,7 +40,7 @@ func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.Gr
 	return groupID, nil
 }
 
-// GetGroup service is
+// GetGroup service fetches a group from db using identified id.
 func (s *GroupService) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDTO, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[GetGroup]")
 	defer span.End()
@@ -56,7 +57,7 @@ func (s *GroupService) GetGroup(ctx context.Context, groupID int) (groupModel.Gr
 	return groupDTO, nil
 }
 
-// ListGroups service is
+// ListGroups service fetches a list of groups from db and returns it.
 func (s *GroupService) ListGroups(ctx context.Context) ([]groupModel.GroupDTO, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[ListGroups]")
 	defer span.End()
@@ -81,7 +82,7 @@ func (s *GroupService) ListGroups(ctx context.Context) ([]groupModel.GroupDTO, e
 	return groupDTOs, nil
 }
 
-// DeleteGroup service is
+// DeleteGroup service deletes a group from db using identified id.
 func (s *GroupService) DeleteGroup(ctx context.Context, groupID int) error {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[DeleteGroup]")
 	defer span.End()
@@ -94,7 +95,7 @@ func (s *GroupService) DeleteGroup(ctx context.Context, groupID int) error {
 	return nil
 }
 
-// UpdateGroup service is
+// UpdateGroup service edits group data with a new group data using identified group id.
 func (s *GroupService) UpdateGroup(ctx context.Context, groupDTO groupModel.GroupDTO) (string, error) {
 	ctx, span := otel.Tracer("[GroupService]").Start(ctx, "[UpdateGroup]")
 	defer span.End()

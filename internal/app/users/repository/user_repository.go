@@ -3,27 +3,28 @@ package repository
 import (
 	"context"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/users"
+	"github.com/jumayevgadaym/tsu-toleg/internal/app/users"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	userModel "github.com/jumayevgadaym/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
+// Ensure UserRepository implements the users.Repository interface.
 var (
 	_ users.Repository = (*UserRepository)(nil)
 )
 
-// UserRepository is
+// UserRepository manages database methods for users.
 type UserRepository struct {
 	psqlDB connection.DB
 }
 
-// NewUserRepository is
+// NewUserRepository creates and returns a new instance of UserRepository.
 func NewUserRepository(psqlDB connection.DB) *UserRepository {
 	return &UserRepository{psqlDB: psqlDB}
 }
 
-// CreateUser repo is
+// CreateUser repo insert user data into db and returns id.
 func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
 	var userID int
 
@@ -43,7 +44,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRe
 	return userID, nil
 }
 
-// GetUserByUsername repo is
+// GetUserByUsername fetches user by using identified username.
 func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (userModel.AllUserDAO, error) {
 	var userDAO userModel.AllUserDAO
 
