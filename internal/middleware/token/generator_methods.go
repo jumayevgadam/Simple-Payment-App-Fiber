@@ -2,6 +2,7 @@ package token
 
 import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
+	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
 )
 
 // Ensure TokenOps implements the TokenGeneratorOps interface.
@@ -17,10 +18,11 @@ type TokenGeneratorOps interface {
 
 // JWTMaker struct takes all needed details for jwtToken from config.
 type TokenOps struct {
+	redisRepo cache.Store
 	jwtOps config.JWTOps
 }
 
 // NewJWTMaker func creates and returns a new instance TokenOps.
-func NewTokenOps(jwtOps config.JWTOps) *TokenOps {
-	return &TokenOps{jwtOps: jwtOps}
+func NewTokenOps(jwtOps config.JWTOps, redisRepo cache.Store) *TokenOps {
+	return &TokenOps{jwtOps: jwtOps, redisRepo: redisRepo}
 }

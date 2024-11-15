@@ -7,16 +7,56 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
+// create dynamic roles.
+var RoleMap = map[int]string{
+	1: "SuperAdmin",
+	2: "Admin",
+	3: "Student",
+}
+
+// RoleBasedMiddleware takes needed middleware permissions.
+func RoleBasedMiddleware(cfg config.JWTOps, allowedRoles ...int) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Retrieve the JWT token from cookie.
+		accessToken := c.Cookies(cfg.AccessTokenName)
+		if accessToken == "" {
+			return errlst.NewUnauthorizedError("missing access token in cookies")
+		}
+
+		// get claims.
+		var tokenOps *token.TokenOps
+		claims, err := tokenOps.ParseAccessToken(accessToken)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		roleAllowed := false
+		for _, roleId := range allowedRoles {
+			if claims.RoleID == roleId {
+				roleAllowed = true
+				break
+			}
+		}
+		if !roleAllowed {
+			roleName := RoleMap[claims.RoleID]
+			return errlst.NewUnauthorizedError("access denied for role: " + roleName)
+		}
+
+		// Proceed to the next middleware or handler
+		return c.Next()
+	}
+}
+
 // GetSuperAdminMiddleware for superadmin.
 func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// read the token from cookie
+		// read the token from cookie.
 		accessToken := c.Cookies(cfg.AccessTokenName)
 		if accessToken == "" {
 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
 		}
 
-		// get claims
+		// get claims.
 		claims, err := tokenOps.ParseAccessToken(accessToken)
 		if err != nil {
 			return errlst.Response(c, err)
@@ -26,7 +66,7 @@ func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.
 			return c.Status(fiber.StatusForbidden).JSON("user is not SuperAdmin")
 		}
 
-		// pass the payload/claims down the fiber context
+		// pass the payload/claims down the fiber context.
 		c.Locals("SuperAdmin-claims", claims)
 		return c.Next()
 	}
@@ -35,13 +75,13 @@ func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.
 // GetAdminMiddleware for admin middleware.
 func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Read the token from cookie
+		// Read the token from cookie.
 		accessToken := c.Cookies(cfg.AccessTokenName)
 		if accessToken == "" {
 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
 		}
 
-		// get claims
+		// get claims.
 		claims, err := tokenOps.ParseAccessToken(accessToken)
 		if err != nil {
 			return errlst.Response(c, err)
@@ -51,7 +91,7 @@ func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handl
 			return c.Status(fiber.StatusForbidden).JSON("user is not admin")
 		}
 
-		// pass the payload/claims down the fiber context
+		// pass the payload/claims down the fiber context.
 		c.Locals("Admin-claims", claims)
 		return c.Next()
 	}
@@ -60,13 +100,13 @@ func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handl
 // GetStudentMiddleware for student middleware.
 func GetStudentMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Read the token from cookie
+		// Read the token from cookie.
 		accessToken := c.Cookies(cfg.AccessTokenName)
 		if accessToken == "" {
 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
 		}
 
-		// get claims
+		// get claims.
 		claims, err := tokenOps.ParseAccessToken(accessToken)
 		if err != nil {
 			return errlst.Response(c, err)
@@ -76,7 +116,7 @@ func GetStudentMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Han
 			return c.Status(fiber.StatusForbidden).JSON("user is not a student")
 		}
 
-		// pass the payload/claims down the fiber context
+		// pass the payload/claims down the fiber context.
 		c.Locals("Student-claims", claims)
 		return c.Next()
 	}

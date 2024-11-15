@@ -23,7 +23,7 @@ func (s *Server) MapHandlers(f *fiber.App) error {
 	// groupHTTP route is for app/group part of project.
 	groupHTTP.Routes(v1, s.DataStore)
 	// userHTTP route is for app/user part of project.
-	userHTTP.Routes(v1, s.DataStore)
+	userHTTP.Routes(v1, s.DataStore, s.CacheStore)
 
 	return nil
 }

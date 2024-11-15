@@ -35,6 +35,11 @@ func NewCache(ctx context.Context, cfgs config.RedisDB) (*Redis, error) {
 
 // Cache interface for performing actions with redis.
 type Cache interface {
+	CacheRepository
+}
+
+// CacheRepository interface for managing redis repository.
+type CacheRepository interface {
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key string, value string, expiration time.Duration) error
 	Del(ctx context.Context, key string) error

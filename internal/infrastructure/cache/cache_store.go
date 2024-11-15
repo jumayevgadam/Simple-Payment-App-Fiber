@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -18,9 +19,21 @@ var _ Store = (*ClientRedisRepo)(nil)
 
 // Store interface for using redisDB methods in app.
 type Store interface {
+	CacheStore
+	SessionStore
+}
+
+type CacheStore interface{
 	Get(ctx context.Context, argument abstract.CacheArgument) ([]byte, error)
 	Set(ctx context.Context, argument abstract.CacheArgument, value []byte, duration time.Duration) error
 	Del(ctx context.Context, argument abstract.CacheArgument) error
+}
+
+// SessionStore interface handling operations related with refresh token.
+type SessionStore interface{
+	GetSession(ctx context.Context, params abstract.SessionArgument) ([]byte, error)
+	PutSession(ctx context.Context, params abstract.SessionArgument) error
+	DelSession(ctx context.Context, params abstract.SessionArgument) error
 }
 
 // ClientRedisRepo takes connection.Cache interface methods for performing decorator pattern in app.
@@ -34,10 +47,19 @@ func NewClientRDRepository(rdb connection.Cache) *ClientRedisRepo {
 }
 
 // getCacheKey from redisDB.
-func (c *ClientRedisRepo) getCacheKey(objectType string, id string) string {
+func (c *ClientRedisRepo) getCacheKey(objectType, id string) string {
 	return strings.Join([]string{
 		objectType,
 		id,
+	}, ":")
+}
+
+// getSessionKey from redisDB
+func (c *ClientRedisRepo) getSessionKey(sessionPrefix, refreshToken, userId string) string {
+	return strings.Join([]string{
+		sessionPrefix,
+		refreshToken,
+		userId,
 	}, ":")
 }
 
@@ -91,5 +113,64 @@ func (c *ClientRedisRepo) Del(ctx context.Context, argument abstract.CacheArgume
 	}
 
 	span.SetStatus(codes.Ok, "Successfully deleted data from redis repo")
+	return nil
+}
+
+// GetSession method receives refresh token using userId.
+func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.SessionArgument) ([]byte, error) {
+	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[GetSession]")
+	defer span.End()
+
+	key := params.ToSessionStorage()
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+	valueString, err := c.rdb.Get(ctx, sessionKey)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return nil, errlst.ParseErrors(err)
+	}
+
+	span.SetStatus(codes.Ok, "successfully get session from redisDB")
+	return []byte(valueString), nil
+}
+
+// PutSession method insert and creates a session in redisDB.
+func (c *ClientRedisRepo) PutSession(ctx context.Context, params abstract.SessionArgument) error {
+	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[PutSession]")
+	defer span.End()
+
+	key := params.ToSessionStorage()
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+
+	sessBytes, err := json.Marshal(params)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	err = c.rdb.Set(ctx, sessionKey, string(sessBytes), params.ExpiresAt)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	span.SetStatus(codes.Ok, "Successfully created session")
+	return nil
+}
+
+// DelSession method removes session from redisDB
+func (c *ClientRedisRepo) DelSession(ctx context.Context, params abstract.SessionArgument) error {
+	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[DelSession]")
+	defer span.End()
+
+	key := params.ToSessionStorage()
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+
+	err := c.rdb.Del(ctx, sessionKey)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	span.SetStatus(codes.Ok, "Successfully deleted session")
 	return nil
 }

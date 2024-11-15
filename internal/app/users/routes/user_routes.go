@@ -5,13 +5,14 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/app/users/handler"
 	"github.com/jumayevgadaym/tsu-toleg/internal/app/users/service"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
+	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadaym/tsu-toleg/internal/middleware/token"
 )
 
 // Routes function for users in this place.
-func Routes(f fiber.Router, dataStore database.DataStore) {
-	tokenGenerator := token.NewTokenOps(config.JWTOps{})
+func Routes(f fiber.Router, dataStore database.DataStore, redisStore cache.Store) {
+	tokenGenerator := token.NewTokenOps(config.JWTOps{}, redisStore)
 	// Init Service.
 	Service := service.NewUserService(tokenGenerator, dataStore)
 	// Init Handler.
