@@ -32,12 +32,8 @@ linters-settings:
   goconst:
     min-len: 2
     min-occurrences: 2
-  nakedret:
-    block-size: 4
   nlreturn: 
     block-size: 4
-  govet: 
-    check-shadowing: false
   nolintlint:
     require-explanation: true
     require-specific: true          

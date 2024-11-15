@@ -2,9 +2,9 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/cache"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
-	"github.com/jumayevgadaym/tsu-toleg/internal/database"
+	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
+	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
