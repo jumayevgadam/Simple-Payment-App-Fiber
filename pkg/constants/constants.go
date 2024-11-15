@@ -9,4 +9,9 @@ const (
 	RoleUpdateRes = "role successfully updated"
 )
 
-const RoleTimeDuration = 10 * time.Minute
+const (
+	// RoleTimeDuration need for keeping cached value
+	RoleTimeDuration = 10 * time.Minute
+	// ContextTimeOut is
+	ContextTimeout = 10 * time.Second
+)

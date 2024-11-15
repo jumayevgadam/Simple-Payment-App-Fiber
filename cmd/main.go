@@ -10,16 +10,20 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/database/postgres"
 	"github.com/jumayevgadaym/tsu-toleg/internal/metrics"
 	"github.com/jumayevgadaym/tsu-toleg/internal/server"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/constants"
 )
 
 func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), constants.ContextTimeout)
+	defer cancel()
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Printf("error in main.LoadConfig: %v", err.Error())
 	}
 
 	// PostgreSQL connection
-	psqlDB, err := connection.GetDBConnection(context.Background(), cfg.Postgres)
+	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)
 	if err != nil {
 		log.Printf("error in getting DB connection: %v", err.Error())
 	} else {
@@ -40,7 +44,7 @@ func main() {
 
 	// Redis Connection is
 	var rdb connection.Cache
-	rdb, err = connection.NewCache(context.Background(), cfg.Redis)
+	rdb, err = connection.NewCache(ctx, cfg.Redis)
 	if err != nil {
 		log.Printf("connection.NewCache in main: %v", err.Error())
 	}

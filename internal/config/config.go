@@ -10,7 +10,7 @@ import (
 
 // Config struct keeps,
 // All needed configurations for this project
-// Must be keep them in .env file
+// Must be keep them in .env file.
 type Config struct {
 	Server struct {
 		HTTPPort    string `envconfig:"HTTP_PORT" validate:"required"`
@@ -21,7 +21,7 @@ type Config struct {
 	Redis    RedisDB
 }
 
-// PostgresDB options are
+// PostgresDB options for this project.
 type PostgresDB struct {
 	Host     string `envconfig:"DB_HOST" validate:"required"`
 	Port     string `envconfig:"DB_PORT" validate:"required"`
@@ -31,27 +31,27 @@ type PostgresDB struct {
 	SslMode  string `envconfig:"DB_SSLMODE" validate:"required"`
 }
 
-// RedisDB options are
+// RedisDB options for this project.
 type RedisDB struct {
 	Address  string `envconfig:"REDIS_ADDRESS" validate:"required"`
 	Password string `envconfig:"REDIS_PASSWORD"`
 }
 
-// LoadConfig read fields of Config  struct and return it
+// LoadConfig read fields of Config  struct and return it.
 func LoadConfig() (*Config, error) {
-	// Read .env file with this method
+	// Read .env file with this method.
 	if err := godotenv.Load(".env"); err != nil {
 		return nil, fmt.Errorf("config.LoadConfig.Load: %w", err)
 	}
 
-	// Get instance of config file
+	// Get instance of config file.
 	var c Config
-	// Populate the specified struct based on environment variables
+	// Populate the specified struct based on environment variables.
 	if err := envconfig.Process("", &c); err != nil {
 		return nil, fmt.Errorf("envconfig.Process: %w", err)
 	}
 
-	// Validate the Config
+	// Validate the Config.
 	if err := validator.New().Struct(c); err != nil {
 		return nil, fmt.Errorf("error in validating Config struct: %w", err)
 	}

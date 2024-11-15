@@ -16,6 +16,8 @@ var (
 	ErrBadRequest = errors.New("bad request")
 	// ErrBadQueryParams is
 	ErrBadQueryParams = errors.New("bad query params")
+	// ErrBeginTransaction is
+	ErrBeginTransaction = errors.New("cannot start transaction")
 	// ErrUnauthorized is
 	ErrUnauthorized = errors.New("unauthorized")
 	// ErrNotFound is

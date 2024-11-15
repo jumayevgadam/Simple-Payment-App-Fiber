@@ -21,7 +21,11 @@ func (tp *TokenOps) ParseAccessToken(accessToken string) (*AccessTokenClaims, er
 		return nil, errlst.NewUnauthorizedError("invalid access token")
 	}
 
-	claims := token.Claims.(*AccessTokenClaims)
+	claims, ok := token.Claims.(*AccessTokenClaims)
+	if !ok {
+		return nil, fmt.Errorf("error in type assertions /token/jwt_parser.go:24")
+	}
+
 	return claims, nil
 }
 
@@ -37,9 +41,13 @@ func (tp *TokenOps) ParseRefreshToken(refreshToken string) (*RefreshTokenClaims,
 		return []byte(tp.jwtOps.RefreshTokenSecret), nil
 	})
 	if err != nil {
-		return nil, errlst.NewUnauthorizedError("invalid refresh token")
+		return nil, errlst.ParseErrors(err)
 	}
 
-	claims := token.Claims.(*RefreshTokenClaims)
+	claims, ok := token.Claims.(*RefreshTokenClaims)
+	if !ok {
+		return nil, fmt.Errorf("error in type assertions /token/jwt_parser.go:46")
+	}
+
 	return claims, nil
 }

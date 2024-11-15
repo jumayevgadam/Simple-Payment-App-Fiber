@@ -1,15 +1,19 @@
 FROM golang:1.23.3
 
-WORKDIR /app
- 
-COPY go.mod go.sum ./
+# Set the working directory inside the container
+WORKDIR /tsu-toleg
 
-RUN go mod download && go mod verify
-
+# Copy the entire project into the container
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /tsu-toleg
+# Explicitly enable Go modules
+ENV GO111MODULE=on
 
+# Build the go application
+RUN go build -o main cmd/main.go
+
+# EXPOSE the port the application runs on
 EXPOSE 8080
 
-CMD [ "tsu-toleg" ]
+# Command to run go application
+CMD [ "tsu-toleg/main" ]

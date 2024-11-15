@@ -1,0 +1,57 @@
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - goimports
+    - err113
+    - errcheck
+    - errname
+    - errorlint
+    - gci
+    - godot
+    - godox
+    - gofmt
+    - wsl
+    - unused
+    - tenv
+    - spancheck
+    - sqlclosecheck
+    - intrange
+    - iface
+    - cyclop
+    - contextcheck
+    - dupword
+    - dupl
+    - durationcheck
+    - copyloopvar
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  nakedret:
+    block-size: 4
+  nlreturn: 
+    block-size: 4
+  govet: 
+    check-shadowing: false
+  nolintlint:
+    require-explanation: true
+    require-specific: true          
+  wsl:
+    allow-cuddle-declarations: true
+    force-err-cuddling: true
+    allow-assign-and-anything: true
+  gocognit:
+    min-complexity: 160
+
+run:
+  timeout: 5m
+
+issues:
+  exclude-dirs:
+    - pkg
+          

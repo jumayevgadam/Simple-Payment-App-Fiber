@@ -3,11 +3,11 @@ package database
 import (
 	"context"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/faculties"
-	"github.com/jumayevgadaym/tsu-toleg/internal/groups"
-	"github.com/jumayevgadaym/tsu-toleg/internal/payment"
-	"github.com/jumayevgadaym/tsu-toleg/internal/roles"
-	"github.com/jumayevgadaym/tsu-toleg/internal/users"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/faculties"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/groups"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/payment"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/roles"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/users"
 )
 
 // DataStore is

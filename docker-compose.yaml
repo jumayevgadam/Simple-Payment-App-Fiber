@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  tsu_toleg:
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: tsu-toleg
+    container_name: tsu-toleg 
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES=value

@@ -3,13 +3,13 @@ package connection
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
 // DBOps is
@@ -97,20 +97,20 @@ func (d *Database) Exec(ctx context.Context, query string, args ...interface{}) 
 // Begin starts a new transaction
 func (d *Database) Begin(ctx context.Context, txOpts pgx.TxOptions) (TxOps, error) {
 	if d == nil {
-		return nil, fmt.Errorf("cannot start transaction")
+		return nil, errlst.ErrBeginTransaction
 	}
 
 	c, err := d.Db.Acquire(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("acquire connection: %w", errlst.ErrBeginTransaction)
 	}
 
 	tx, err := d.Db.BeginTx(ctx, txOpts)
 	if err != nil {
 		c.Release()
-		log.Printf("Failed to begin transaction: %v", err)
-		return nil, fmt.Errorf("connection.Database.Begin: %w", err)
+		return nil, fmt.Errorf("connection.Database.Begin: %w", errlst.ErrBeginTransaction)
 	}
+
 	return &Transaction{Tx: tx}, nil
 }
 

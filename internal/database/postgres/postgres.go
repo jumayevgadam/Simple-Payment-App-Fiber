@@ -3,18 +3,18 @@ package postgres
 import (
 	"sync"
 
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/faculties"
+	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/common/faculties/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/groups"
+	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/common/groups/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/payment"
+	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/common/payment/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/roles"
+	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/common/roles/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/users"
+	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/common/users/repository"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	"github.com/jumayevgadaym/tsu-toleg/internal/database"
-	"github.com/jumayevgadaym/tsu-toleg/internal/faculties"
-	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/faculties/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/groups"
-	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/groups/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/payment"
-	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/payment/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/roles"
-	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/roles/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/users"
-	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/users/repository"
 )
 
 var _ database.DataStore = (*DataStoreImpl)(nil)
