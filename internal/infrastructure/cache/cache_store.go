@@ -157,7 +157,7 @@ func (c *ClientRedisRepo) PutSession(ctx context.Context, params abstract.Sessio
 	return nil
 }
 
-// DelSession method removes session from redisDB
+// DelSession method removes session from redisDB.
 func (c *ClientRedisRepo) DelSession(ctx context.Context, params abstract.SessionArgument) error {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[DelSession]")
 	defer span.End()

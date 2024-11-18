@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/metrics"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database/postgres"
-	"github.com/jumayevgadaym/tsu-toleg/internal/metrics"
 	"github.com/jumayevgadaym/tsu-toleg/internal/server"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/constants"
 )

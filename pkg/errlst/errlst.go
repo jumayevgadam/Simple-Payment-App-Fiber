@@ -24,6 +24,8 @@ var (
 	ErrNotFound = errors.New("not found")
 	// ErrConflict is
 	ErrConflict = errors.New("conflict occured")
+	// ErrForbidden is
+	ErrForbidden = errors.New("forbidden")
 	// ErrFieldValidation is
 	ErrFieldValidation = errors.New("field validation error")
 	// ErrNoSuchUser is
@@ -129,5 +131,14 @@ func NewConflictError(cause interface{}) RestErr {
 		ErrStatus:  http.StatusConflict,
 		ErrMessage: ErrConflict.Error(),
 		ErrCause:   cause,
+	}
+}
+
+// NewForbiddenError creates a new 403 forbidden error
+func NewForbiddenError(cause interface{}) RestErr {
+	return &RestError{
+		ErrStatus: http.StatusForbidden,
+		ErrMessage: ErrForbidden.Error(),
+		ErrCause: cause,
 	}
 }

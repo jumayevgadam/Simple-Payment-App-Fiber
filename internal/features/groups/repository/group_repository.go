@@ -1,0 +1,105 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
+	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+)
+
+// Ensure GroupRepository implements the groups.Repository interface.
+var (
+	_ groups.Repository = (*GroupRepository)(nil)
+)
+
+// GroupRepository performs database actions for groups.
+type GroupRepository struct {
+	psqlDB connection.DB
+}
+
+// NewGroupRepository creates and returns a new instance of GroupRepository.
+func NewGroupRepository(psqlDB connection.DB) *GroupRepository {
+	return &GroupRepository{psqlDB: psqlDB}
+}
+
+// AddGroup repo insert group data into db and returns id.
+func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error) {
+	var groupID int
+
+	if err := r.psqlDB.QueryRow(
+		ctx,
+		addGroupQuery,
+		groupDAO.FacultyID,
+		groupDAO.ClassCode,
+	).Scan(&groupID); err != nil {
+		return -1, errlst.ParseSQLErrors(err)
+	}
+
+	return groupID, nil
+}
+
+// GetGroup repo fetches a group using identified id.
+func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDAO, error) {
+	var groupDAO groupModel.GroupDAO
+
+	if err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&groupDAO,
+		getGroupQuery,
+		groupID,
+	); err != nil {
+		return groupDAO, errlst.ParseSQLErrors(err)
+	}
+
+	return groupDAO, nil
+}
+
+// ListGroups repo fetches a list of groups.
+func (r *GroupRepository) ListGroups(ctx context.Context) ([]groupModel.GroupDAO, error) {
+	var groupDAOs []groupModel.GroupDAO
+
+	if err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&groupDAOs,
+		listGroupsQuery,
+	); err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return groupDAOs, nil
+}
+
+// DeleteGroup repo deletes a group from db using identified id.
+func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
+	_, err := r.psqlDB.Exec(
+		ctx,
+		deleteGroupQuery,
+		groupID,
+	)
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	return nil
+}
+
+// UpdateGroup repo updates group data with a new group data and identified id.
+func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO groupModel.GroupDAO) (string, error) {
+	var res string
+
+	if err := r.psqlDB.QueryRow(
+		ctx,
+		updateGroupQuery,
+		groupDAO.FacultyID,
+		groupDAO.ClassCode,
+		groupDAO.ID,
+	).Scan(&res); err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return res, nil
+}

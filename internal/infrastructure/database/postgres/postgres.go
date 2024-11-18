@@ -3,17 +3,17 @@ package postgres
 import (
 	"sync"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/app/faculties"
-	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/app/faculties/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/app/groups"
-	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/app/groups/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/app/payment"
-	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/app/payment/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/app/roles"
-	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/app/roles/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/app/users"
-	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/app/users/repository"
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/faculties"
+	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/faculties/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
+	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/groups/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/payment"
+	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/payment/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/roles"
+	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/roles/repository"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/users"
+	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/users/repository"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
