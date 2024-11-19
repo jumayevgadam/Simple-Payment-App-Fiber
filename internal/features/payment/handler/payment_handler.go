@@ -1,6 +1,6 @@
 package handler
 
-import paymentOps "github.com/jumayevgadaym/tsu-toleg/internal/app/payment"
+import paymentOps "github.com/jumayevgadaym/tsu-toleg/internal/features/payment"
 
 // Ensure PaymentHandler implements the paymentOps.Handler interface.
 var (

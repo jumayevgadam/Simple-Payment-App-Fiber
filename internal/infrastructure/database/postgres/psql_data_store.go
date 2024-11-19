@@ -20,7 +20,7 @@ import (
 // Ensure DataStoreImpl implements the database.DataStore interface.
 var _ database.DataStore = (*DataStoreImpl)(nil)
 
-// DataStore struct for performing all actions which needed in repository layer.
+// DataStoreImpl struct for performing all actions which needed in repository layer.
 type DataStoreImpl struct {
 	db          connection.DB
 	role        roles.Repository

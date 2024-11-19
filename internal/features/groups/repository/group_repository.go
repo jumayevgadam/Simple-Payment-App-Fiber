@@ -6,6 +6,7 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
 	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
@@ -41,7 +42,7 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Gro
 }
 
 // GetGroup repo fetches a group using identified id.
-func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel.GroupDAO, error) {
+func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDAO, error) {
 	var groupDAO groupModel.GroupDAO
 
 	if err := r.psqlDB.Get(
@@ -51,21 +52,25 @@ func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (groupModel
 		getGroupQuery,
 		groupID,
 	); err != nil {
-		return groupDAO, errlst.ParseSQLErrors(err)
+		return &groupDAO, errlst.ParseSQLErrors(err)
 	}
 
-	return groupDAO, nil
+	return &groupDAO, nil
 }
 
 // ListGroups repo fetches a list of groups.
-func (r *GroupRepository) ListGroups(ctx context.Context) ([]groupModel.GroupDAO, error) {
-	var groupDAOs []groupModel.GroupDAO
+func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.GroupDAO, error) {
+	var groupDAOs []*groupModel.GroupDAO
+	offset := (pagination.Page - 1) * pagination.Limit
 
 	if err := r.psqlDB.Select(
 		ctx,
 		r.psqlDB,
 		&groupDAOs,
 		listGroupsQuery,
+		pagination.OrderBy,
+		offset,
+		pagination.Limit,
 	); err != nil {
 		return nil, errlst.ParseSQLErrors(err)
 	}
@@ -88,7 +93,7 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 }
 
 // UpdateGroup repo updates group data with a new group data and identified id.
-func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO groupModel.GroupDAO) (string, error) {
+func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.GroupDAO) (string, error) {
 	var res string
 
 	if err := r.psqlDB.QueryRow(

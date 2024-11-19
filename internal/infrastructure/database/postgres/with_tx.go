@@ -15,7 +15,7 @@ import (
 func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(db database.DataStore) error) error {
 	db, ok := d.db.(connection.DBOps)
 	if !ok {
-		return fmt.Errorf("got error type assertion in WithTx")
+		return errlst.ErrTypeAssertInTransaction
 	}
 
 	//begin transaction in this place.

@@ -56,7 +56,7 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (u
 	defer span.End()
 
 	var userWithToken userModel.UserWithTokens
-	if err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		userDAO, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
@@ -75,7 +75,7 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (u
 			tracing.ErrorTracer(span, err)
 			return errlst.ParseErrors(err)
 		}
-		// generate refresh token here
+		// generate refresh token here.
 		refreshToken, err := s.jwtOps.GenerateRefreshToken(userDAO.ID, userDAO.RoleID)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
@@ -87,7 +87,8 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (u
 		userWithToken.User = userDAO.ToServer()
 
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		tracing.ErrorTracer(span, err)
 		return userModel.UserWithTokens{}, errlst.ParseErrors(err)
 	}

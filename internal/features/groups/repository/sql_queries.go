@@ -17,7 +17,8 @@ const (
 	// listGroupsQuery is.
 	listGroupsQuery = `
 		SELECT id, faculty_id, class_code
-		FROM groups;`
+		FROM groups
+		ORDER BY COALESCE(NULLIF($1, ''), class_code) OFFSET $2 LIMIT $3;`
 
 	// deleteGroupQuery is.
 	deleteGroupQuery = `

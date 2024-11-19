@@ -1,6 +1,7 @@
 package token
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -19,6 +20,7 @@ func (tg *TokenOps) GenerateAccessToken(userID, roleID int, username string) (st
 		},
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	
 	accessTokenStr, err := accessToken.SignedString([]byte(tg.jwtOps.AccessTokenSecret))
 	if err != nil {
 		return "", errlst.NewUnauthorizedError("error creating accessTokenStr")
@@ -42,7 +44,7 @@ func (tg *TokenOps) GenerateRefreshToken(userID, roleID int) (string, error) {
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	refreshTokenStr, err := refreshToken.SignedString([]byte(tg.jwtOps.AccessTokenSecret))
 	if err != nil {
-		return "", errlst.NewUnauthorizedError("error creating refreshTokenStr")
+		return "", errors.New("error in taking refresh token string")
 	}
 
 	return refreshTokenStr, nil

@@ -95,7 +95,7 @@ func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyDTO facultyMo
 	defer span.End()
 
 	var updateRes string
-	if err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// Check faculty exist in that id
 		_, err := db.FacultiesRepo().GetFaculty(ctx, facultyDTO.ID)
 		if err != nil {
@@ -108,7 +108,8 @@ func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyDTO facultyMo
 		}
 
 		return nil
-	}); err != nil {
+	}) 
+	if err != nil {
 		tracing.ErrorTracer(span, err)
 		return "", errlst.ParseErrors(err)
 	}

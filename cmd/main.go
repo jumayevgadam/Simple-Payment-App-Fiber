@@ -26,9 +26,7 @@ func main() {
 	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)
 	if err != nil {
 		log.Printf("error in getting DB connection: %v", err.Error())
-	} else {
-		log.Println("POSTGRESQL:=>DB CONNECTED!")
-	}
+	} 
 
 	defer func() {
 		if err := psqlDB.Close(); err != nil {
@@ -36,7 +34,7 @@ func main() {
 		}
 	}()
 
-	// if our server stops to run then metrics will not affect from server, it will run forever
+	// if our server stops to run then metrics will not affect from server, it will run forever.
 	go func() {
 		err = metrics.Listen(cfg.Server.MetricsPort)
 		log.Printf("[metrics][Listen]: %v", err)
@@ -48,7 +46,6 @@ func main() {
 	if err != nil {
 		log.Printf("connection.NewCache in main: %v", err.Error())
 	}
-	log.Println("redisDB connected!!")
 
 	defer func() {
 		err = rdb.Close()

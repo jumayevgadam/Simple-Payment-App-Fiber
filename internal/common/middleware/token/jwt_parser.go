@@ -1,7 +1,7 @@
 package token
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
@@ -13,7 +13,7 @@ func (tp *TokenOps) ParseAccessToken(accessToken string) (*AccessTokenClaims, er
 		// check jwt signing method
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, fmt.Errorf("invalid signing method in ParseAccessToken")
+			return nil, errlst.ErrInvalidJWTMethod
 		}
 		return []byte(tp.jwtOps.AccessTokenSecret), nil
 	})
@@ -23,7 +23,7 @@ func (tp *TokenOps) ParseAccessToken(accessToken string) (*AccessTokenClaims, er
 
 	claims, ok := token.Claims.(*AccessTokenClaims)
 	if !ok {
-		return nil, fmt.Errorf("error in type assertions /token/jwt_parser.go:24")
+		return nil, errors.New("error in type assertion for AccessTokenClaims")
 	}
 
 	return claims, nil
@@ -35,7 +35,7 @@ func (tp *TokenOps) ParseRefreshToken(refreshToken string) (*RefreshTokenClaims,
 		// check jwt signing method
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, fmt.Errorf("invalid signing method in ParseRefreshToken")
+			return nil, errlst.ErrInvalidJWTMethod
 		}
 
 		return []byte(tp.jwtOps.RefreshTokenSecret), nil
@@ -46,7 +46,7 @@ func (tp *TokenOps) ParseRefreshToken(refreshToken string) (*RefreshTokenClaims,
 
 	claims, ok := token.Claims.(*RefreshTokenClaims)
 	if !ok {
-		return nil, fmt.Errorf("error in type assertions /token/jwt_parser.go:46")
+		return nil, errors.New("error in type assertion in this place")
 	}
 
 	return claims, nil

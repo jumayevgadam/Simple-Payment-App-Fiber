@@ -92,7 +92,7 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 	defer span.End()
 
 	var roleDTOs []roleModel.DTO
-	if err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		roleDAOs, err := db.RolesRepo().GetRoles(ctx)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
@@ -103,7 +103,8 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 			roleDTOs = append(roleDTOs, role.ToServer())
 		}
 		return nil
-	}); err != nil {
+	}) 
+	if err != nil {
 		tracing.ErrorTracer(span, err)
 		return nil, errlst.ParseErrors(err)
 	}

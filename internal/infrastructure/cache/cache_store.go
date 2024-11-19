@@ -54,7 +54,7 @@ func (c *ClientRedisRepo) getCacheKey(objectType, id string) string {
 	}, ":")
 }
 
-// getSessionKey from redisDB
+// getSessionKey from redisDB.
 func (c *ClientRedisRepo) getSessionKey(sessionPrefix, refreshToken, userId string) string {
 	return strings.Join([]string{
 		sessionPrefix,

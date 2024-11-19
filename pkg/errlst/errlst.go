@@ -16,6 +16,8 @@ var (
 	ErrBadRequest = errors.New("bad request")
 	// ErrBadQueryParams is
 	ErrBadQueryParams = errors.New("bad query params")
+	// ErrTypeAssertInTransaction is
+	ErrTypeAssertInTransaction = errors.New("error in type assertion to connection.DBOps")
 	// ErrBeginTransaction is
 	ErrBeginTransaction = errors.New("cannot start transaction")
 	// ErrUnauthorized is
@@ -36,6 +38,8 @@ var (
 	ErrTransactionFailed = errors.New("failed to perform transaction")
 	// ErrInvalidJWTToken is
 	ErrInvalidJWTToken = errors.New("invalid JWT Token")
+	// ErrInvalidJWTMethod is
+	ErrInvalidJWTMethod = errors.New("invalid jwt token method")
 	// ErrInvalidJWTClaims is
 	ErrInvalidJWTClaims = errors.New("invalid JWT Claims")
 

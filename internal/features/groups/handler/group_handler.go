@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	groupOps "github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
 	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst/tracing"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/reqvalidator"
@@ -79,8 +80,13 @@ func (h *GroupHandler) ListGroups() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[ListGroups]")
 		defer span.End()
+		
+		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
 
-		groups, err := h.service.ListGroups(ctx)
+		groups, err := h.service.ListGroups(ctx, paginationReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
@@ -130,7 +136,7 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 		}
 		groupReq.ID = groupID
 
-		updateRes, err := h.service.UpdateGroup(ctx, groupReq)
+		updateRes, err := h.service.UpdateGroup(ctx, &groupReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
