@@ -1,0 +1,350 @@
+1. Handler (handler/group.go)
+
+The handler itself doesn't need any changes related to role-based access control. The middleware will handle that part. However, it might benefit from minor cleanup to improve the code quality:
+
+package handler
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
+	groupOps "github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
+	groupModel "github.com/jumayevgadaym/tsu-toleg/internal/models/group"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst/tracing"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/reqvalidator"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+)
+
+// GroupHandler performs HTTP request actions and calls methods from the service.
+type GroupHandler struct {
+	service groupOps.Service
+}
+
+// NewGroupHandler creates and returns a new instance of GroupHandler.
+func NewGroupHandler(service groupOps.Service) *GroupHandler {
+	return &GroupHandler{service: service}
+}
+
+// ... (Other handler functions: AddGroup, GetGroup, ListGroups, DeleteGroup)
+
+// UpdateGroup handler updates a group with new data.
+func (h *GroupHandler) UpdateGroup() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[UpdateGroup]")
+		defer span.End()
+
+		groupID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return errlst.Response(c, errlst.NewBadRequestError("invalid group ID")) // More specific error
+		}
+
+		var groupReq groupModel.GroupDTO
+		if err := reqvalidator.ReadRequest(c, &groupReq); err != nil {
+			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
+			return errlst.Response(c, err)
+		}
+		groupReq.ID = groupID
+
+		if err := h.service.UpdateGroup(ctx, &groupReq); err != nil { // Return error directly if any
+			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+			return errlst.Response(c, err)
+		}
+
+		span.SetStatus(codes.Ok, "Successfully updated group")
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Group updated successfully"}) // Simplified response
+	}
+}
+Use code with caution.
+Go
+2. Routes (routes/group.go)
+
+Here's where you'll apply the middleware:
+
+package routes
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups/handler"
+	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups/service"
+	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
+)
+
+// Routes for groups.
+func Routes(f fiber.Router, tokenOps *token.TokenOps, dataStore database.DataStore) {  // Inject tokenOps
+    // ... (service and handler initialization)
+
+    groupPath := f.Group("/group")
+
+    // Apply middleware based on your requirements:
+    groupPath.Post("/add", middleware.RoleBasedMiddleware(tokenOps, service.AdminRole), Handler.AddGroup())            // Admin only
+	groupPath.Get("/get-all", Handler.ListGroups())       // Open to all (no middleware)
+    groupPath.Get("/:id", middleware.RoleBasedMiddleware(tokenOps, service.StudentRole, service.TeacherRole), Handler.GetGroup()) // Student and Teacher
+    groupPath.Delete("/:id", middleware.RoleBasedMiddleware(tokenOps, service.AdminRole), Handler.DeleteGroup())       // Admin only
+    groupPath.Put("/:id", middleware.RoleBasedMiddleware(tokenOps, service.AdminRole, service.TeacherRole), Handler.UpdateGroup())      // Admin and Teacher
+
+}
+Use code with caution.
+Go
+3. Middleware (middleware/role.go)
+
+This should remain largely the same, parsing the token and checking the role_id claim:
+
+package middleware
+
+import (
+	"os"
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token" // Correct import path
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"                      // Correct import path
+	"github.com/jumayevgadaym/tsu-toleg/pkg/utils"
+	"github.com/golang-jwt/jwt/v4"
+
+	service "github.com/jumayevgadaym/tsu-toleg/internal/features/groups/service" //Correct import path for correct role constants
+)
+
+// create dynamic roles.
+var RoleMap = map[int]string{
+	1: "SuperAdmin",
+	2: "Admin",
+	3: "Student",
+}
+
+// RoleBasedMiddleware takes needed middleware permissions.
+func RoleBasedMiddleware(tokenOps *token.TokenOps, allowedRoles ...int) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
+		refreshToken := c.Cookies(os.Getenv("REFRESH_TOKEN_NAME"))
+
+		// Access token not present in cookies
+		if accessToken == "" {
+			if refreshToken == "" {
+				return errlst.NewUnauthorizedError("missing access token and refresh token")
+			}
+
+			newAccessToken, err := handleRefreshToken(c.Context(), tokenOps, refreshToken, c)
+			if err != nil {
+				return err
+			}
+
+			accessToken = newAccessToken
+		}
+
+		claims, err := tokenOps.ParseAccessToken(accessToken)
+
+		if err != nil {
+			if err == jwt.ErrTokenExpired {
+				if refreshToken == "" {
+
+				}
+				newAccessToken, err := handleRefreshToken(c, tokenOps, refreshToken)
+				if err != nil {
+					return err
+				}
+				utils.SetAuthCookies(c, &config.Config{}, newAccessToken, refreshToken) // Assuming config.Get() is available
+
+				accessToken = newAccessToken
+				claims, err = tokenOps.ParseAccessToken(accessToken)
+				if err != nil {
+					return errlst.Response(c, err)
+				}
+			} else {
+				return errlst.Response(c, err)
+			}
+
+		}
+
+		for _, roleId := range allowedRoles {
+			if claims.RoleID == roleId {
+				// Attach user claims to the context for further usage.
+				c.Locals("user_claims", claims)
+				return c.Next()
+			}
+		}
+
+		roleName, exists := RoleMap[claims.RoleID]
+		if !exists {
+			roleName = "Unknown role(" + strconv.Itoa(claims.RoleID) + ")"
+		}
+
+		// Proceed to the next middleware or handler
+		return errlst.NewForbiddenError("access denied for role: " + roleName)
+	}
+}
+
+func handleRefreshToken(c *fiber.Ctx, tokenOps *token.TokenOps, refreshToken string) (string, error) {
+	ctx := c.Context()
+
+	userID, err := tokenOps.FetchRefreshToken(ctx, refreshToken)
+
+	if err != nil {
+		return "", err
+	}
+	claims, ok := c.Locals("user_claims").(*token.AccessTokenClaims)
+
+	if !ok {
+		return "", errlst.NewInternalServerError("failed to get role id")
+	}
+
+	roleID := claims.RoleID
+
+	newAccessToken, newRefreshToken, err := tokenOps.GenerateTokens(strconv.Itoa(userID), roleID)
+	if err != nil {
+		return "", errlst.NewInternalServerError("failed to generate new access token")
+	}
+
+	utils.SetAuthCookies(c, &config.Config{}, newAccessToken, newRefreshToken) // Assuming config.Get() is available
+	err = tokenOps.DeleteRefreshToken(ctx, refreshToken)
+
+	return newAccessToken, nil
+}
+Use code with caution.
+Go
+4. Inject token middleware to userHTTP.Routes like in groupHTTP.Routes
+
+Key Changes and Explanations:
+
+Middleware Application: The middleware.RoleBasedMiddleware is now applied to specific routes in routes/group.go. You can customize which roles are allowed for each route.
+
+Role Constants: I'm assuming you're using constants like service.AdminRole, service.StudentRole, etc., defined in your service package to represent role IDs. This is a cleaner approach than using magic numbers directly in the middleware.
+
+Error Handling: Improved error handling in the UpdateGroup handler with specific error messages.
+
+Simplified UpdateGroup Response: The response now simply indicates success. You can adjust this if you need to return more data.
+
+OpenTelemetry: Make sure the context is propagated correctly through your service and repository layers.
+
+Refresh Token Handling: The middleware and the handleRefreshToken function now handle refreshing access tokens if they are expired and a valid refresh token is present.
+
+This revised code provides a clearer structure with proper middleware integration and improved error handling. Remember to thoroughly test the authentication and authorization flows to ensure they work as expected. Pay particular attention to how you handle refresh tokens and secure your JWT secret keys. Always prioritize security best practices.
+
+
+User
+general login func need for me, please give me all codes
+
+
+Model
+29.9s
+package handler
+
+import (
+	"fmt"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/jumayevgadaym/tsu-toleg/internal/config"
+	userOps "github.com/jumayevgadaym/tsu-toleg/internal/features/users"
+	userModel "github.com/jumayevgadaym/tsu-toleg/internal/models/user"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst/tracing"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/reqvalidator"
+	"github.com/jumayevgadaym/tsu-toleg/pkg/utils"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+)
+
+// Ensure UserHandler implements the userOps.Handler interface.
+var (
+	_ userOps.Handler = (*UserHandler)(nil)
+)
+
+// UserHandler manages http request methods and calls methods from service and config.
+type UserHandler struct {
+	cfg     *config.Config
+	service userOps.Service
+}
+
+// NewUserHandler creates and returns a new instance of UserHandler.
+func NewUserHandler(cfg *config.Config, service userOps.Service) *UserHandler {
+	return &UserHandler{cfg: cfg, service: service}
+}
+
+// CreateUser handler creates a new user and returns id.
+func (h *UserHandler) CreateUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// ... (CreateUser logic - no changes here)
+	}
+}
+
+// Login handles login for all roles.
+func (h *UserHandler) Login() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")
+		defer span.End()
+
+		var loginReq userModel.LoginReq
+		if err := reqvalidator.ReadRequest(c, &loginReq); err != nil {
+			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
+			return errlst.Response(c, err)
+		}
+
+		userWithToken, err := h.service.Login(ctx, loginReq)
+		if err != nil {
+			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+			return errlst.Response(c, err)
+		}
+
+		utils.SetAuthCookies(c, h.cfg, userWithToken.AccessToken, userWithToken.RefreshToken)
+
+		// Role-based actions or data fetching (if needed)
+		roleName := ""
+		additionalData := map[string]interface{}{}
+
+		switch userWithToken.User.RoleID {
+
+		case service.StudentRole:
+			roleName = "student"
+			fmt.Println("Role:", roleName)
+
+			studentData, err := h.service.GetStudentData(ctx, strconv.Itoa(userWithToken.User.ID))
+			if err != nil {
+				fmt.Println("Error fetching student data:", err)
+				return err // Handle the error appropriately
+			}
+			additionalData["group_id"] = studentData
+
+		case service.TeacherRole:
+			roleName = "teacher"
+			fmt.Println("Role:", roleName)
+		case service.AdminRole:
+			roleName = "admin"
+			fmt.Println("Role:", roleName)
+		default:
+			return errlst.NewInternalServerError("unknown user role")
+		}
+
+		responseData := map[string]interface{}{
+			"access_token": userWithToken.AccessToken,
+			"refresh_token": userWithToken.RefreshToken,
+			"user_id": userWithToken.User.ID,
+			"username": userWithToken.User.Username,
+			"role_id": userWithToken.User.RoleID,
+			"role_name": roleName,
+			// Include any additional role-specific data
+			"additional_data": additionalData,
+
+		}
+
+		span.SetStatus(codes.Ok, "Login successfully completed")
+
+		return c.Status(fiber.StatusOK).JSON(responseData)
+	}
+
+}
+
+func (h *UserHandler) Logout() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// ... Logout logic ...
+	}
+}
+
+
+
+// ... other handler functions
