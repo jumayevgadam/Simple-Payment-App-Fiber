@@ -8,34 +8,28 @@ import (
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
 )
 
-// TokenCookies model is
-type TokenCookies struct {
-	AccessTokenCookie  *fiber.Cookie
-	RefreshTokenCookie *fiber.Cookie
-}
-
 // SetAuthCookies
-func SetAuthCookies(cfg *config.JWTOps, accessToken, refreshToken string) TokenCookies {
+func SetAuthCookies(c *fiber.Ctx, cfg *config.Config, accessToken, refreshToken string) {
 	accessTokenCookie := &fiber.Cookie{
 		Name:     os.Getenv("ACCESS_TOKEN_NAME"),
 		Value:    accessToken,
 		Path:     "/",
-		Expires:  time.Now().Add(time.Duration(cfg.AccessTokenExpiryTime) * time.Minute),
+		Expires:  time.Now().Add(time.Duration(cfg.JWT.AccessTokenExpiryTime) * time.Minute),
 		Secure:   false,
 		HTTPOnly: true,
+		Domain:   "localhost",
 	}
 
 	refreshTokenCookie := &fiber.Cookie{
 		Name:     os.Getenv("REFRESH_TOKEN_NAME"),
 		Value:    refreshToken,
 		Path:     "/",
-		Expires:  time.Now().Add(time.Duration(cfg.RefreshTokenExpiryTime) * time.Minute),
+		Expires:  time.Now().Add(time.Duration(cfg.JWT.RefreshTokenExpiryTime) * time.Minute),
 		Secure:   false,
 		HTTPOnly: true,
+		Domain:   "localhost",
 	}
 
-	return TokenCookies{
-		AccessTokenCookie:  accessTokenCookie,
-		RefreshTokenCookie: refreshTokenCookie,
-	}
+	c.Cookie(accessTokenCookie)
+	c.Cookie(refreshTokenCookie)
 }

@@ -15,6 +15,7 @@ type DAO struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
 	Code string `db:"code"`
+	Something string `db:"something"`
 }
 
 // ToServer method sends DAO model to Server.

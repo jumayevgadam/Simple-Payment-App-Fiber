@@ -53,7 +53,7 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 }
 
 // Login handler method for login.
-func (h *UserHandler) Login() fiber.Handler {
+func (h *UserHandler) Login(role string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")
 		defer span.End()
@@ -70,8 +70,7 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		// SetTOCookie tokens
-		utils.SetAuthCookies(&h.cfg.JWT, userWithToken.AccessToken, userWithToken.RefreshToken)
+		utils.SetAuthCookies(c, h.cfg, userWithToken.AccessToken, userWithToken.RefreshToken)
 
 		span.SetStatus(codes.Ok, "login successfully completed")
 		return c.Status(fiber.StatusOK).JSON(userWithToken)

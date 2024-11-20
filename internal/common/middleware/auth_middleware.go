@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
@@ -17,16 +17,15 @@ var RoleMap = map[int]string{
 }
 
 // RoleBasedMiddleware takes needed middleware permissions.
-func RoleBasedMiddleware(cfg config.JWTOps, allowedRoles ...int) fiber.Handler {
+func RoleBasedMiddleware(tokenOps *token.TokenOps, allowedRoles ...int) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Retrieve the JWT token from cookie.
-		accessToken := c.Cookies(cfg.AccessTokenName)
+		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
 		if accessToken == "" {
 			return errlst.NewUnauthorizedError("missing access token in cookies")
 		}
 
 		// get claims.
-		var tokenOps *token.TokenOps
 		claims, err := tokenOps.ParseAccessToken(accessToken)
 		if err != nil {
 			return errlst.Response(c, err)

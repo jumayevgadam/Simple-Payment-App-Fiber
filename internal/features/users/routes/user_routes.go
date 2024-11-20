@@ -29,6 +29,6 @@ func Routes(f fiber.Router, dataStore database.DataStore, redisStore cache.Store
 	userGroup := f.Group("/user")
 	{
 		userGroup.Post("/sign-up", Handler.CreateUser())
-		userGroup.Post("/login", Handler.Login())
+		userGroup.Post("/login", Handler.Login("user"))
 	}
 }

@@ -19,7 +19,7 @@ type TokenGeneratorOps interface {
 // JWTMaker struct takes all needed details for jwtToken from config.
 type TokenOps struct {
 	redisRepo cache.Store
-	jwtOps config.JWTOps
+	jwtOps    config.JWTOps
 }
 
 // NewJWTMaker func creates and returns a new instance TokenOps.

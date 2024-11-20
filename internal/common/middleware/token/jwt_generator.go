@@ -20,7 +20,7 @@ func (tg *TokenOps) GenerateAccessToken(userID, roleID int, username string) (st
 		},
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	
+
 	accessTokenStr, err := accessToken.SignedString([]byte(tg.jwtOps.AccessTokenSecret))
 	if err != nil {
 		return "", errlst.NewUnauthorizedError("error creating accessTokenStr")

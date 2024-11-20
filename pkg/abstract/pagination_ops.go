@@ -1,4 +1,3 @@
-// abstract package for pagination options.
 package abstract
 
 import (
@@ -10,31 +9,32 @@ import (
 
 // Pagination struct for sending request pagination ops.
 type PaginationQuery struct {
-	Limit  int `form:"limit" json:"limit" validate:"required,gte=0,lt=101"`
-	Page int `form:"page" json:"page" validate:"required,gte=0"`
+	Limit   int    `form:"limit" json:"limit" validate:"required,gte=0,lt=101"`
+	Page    int    `form:"page" json:"page" validate:"required,gte=0"`
 	OrderBy string `form:"orderBy" json:"orderBy"`
 }
 
 // PaginationData struct is db model, we use in repo layer.
 type PaginationData struct {
-	Limit int `db:"limit"`
-	Page int `db:"page"`
+	Limit   int    `db:"limit"`
+	Page    int    `db:"page"`
 	OrderBy string `db:"order_by"`
 }
 
 // PaginatedResponse model for responsing any model.
 type PaginatedResponse[T any] struct {
-	Items []T `json:"items"`
-	Limit int	`json:"limit"`
-	Page int `json:"page"`
+	Items     []T `json:"items"`
+	Limit     int `json:"limit"`
+	Page      int `json:"page"`
 	TotalPage int `json:"totalPage"`
+	X         int `json:"x"`
 }
 
 // ToStorage func sends Pagination request to db.
 func (p *PaginationQuery) ToStorage() PaginationData {
 	return PaginationData{
-		Limit: p.Limit,
-		Page: p.Page,
+		Limit:   p.Limit,
+		Page:    p.Page,
 		OrderBy: p.OrderBy,
 	}
 }
@@ -86,4 +86,3 @@ func GetPaginationFromFiberCtx(c *fiber.Ctx) (PaginationQuery, error) {
 
 	return pq, nil
 }
-
