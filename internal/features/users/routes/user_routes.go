@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
+	mwMngr "github.com/jumayevgadaym/tsu-toleg/internal/common/middleware"
 	"github.com/jumayevgadaym/tsu-toleg/internal/config"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/users/handler"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/users/service"
@@ -11,10 +11,9 @@ import (
 )
 
 // Routes function for users in this place.
-func Routes(f fiber.Router, dataStore database.DataStore, redisStore cache.Store) {
-	tokenGenerator := token.NewTokenOps(config.JWTOps{}, redisStore)
+func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.DataStore, redisStore cache.Store) {
 	// Init Service.
-	Service := service.NewUserService(tokenGenerator, dataStore)
+	Service := service.NewUserService(mw, dataStore)
 	// Init Handler.
 	Handler := handler.NewUserHandler(&config.Config{}, Service)
 

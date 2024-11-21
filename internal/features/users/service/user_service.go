@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
+	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/users"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 	userModel "github.com/jumayevgadaym/tsu-toleg/internal/models/user"
@@ -20,12 +20,12 @@ var (
 
 // UserService manages buisiness logic for features/user part of application.
 type UserService struct {
-	jwtOps token.TokenGeneratorOps
+	jwtOps middleware.TokenGeneratorOps
 	repo   database.DataStore
 }
 
 // NewUserService creates and returns a new instance of UserRepository.
-func NewUserService(jwtOps token.TokenGeneratorOps, repo database.DataStore) *UserService {
+func NewUserService(jwtOps middleware.TokenGeneratorOps, repo database.DataStore) *UserService {
 	return &UserService{jwtOps: jwtOps, repo: repo}
 }
 
@@ -70,15 +70,10 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (u
 		}
 
 		// generate accessToken here
-		accessToken, err := s.jwtOps.GenerateAccessToken(userDAO.ID, userDAO.RoleID, userDAO.Username)
+		accessToken, refreshToken, err := s.jwtOps.GenerateTokens(userDAO.ID, userDAO.RoleID, userDAO.Username)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
 			return errlst.ParseErrors(err)
-		}
-		// generate refresh token here.
-		refreshToken, err := s.jwtOps.GenerateRefreshToken(userDAO.ID, userDAO.RoleID)
-		if err != nil {
-			tracing.ErrorTracer(span, err)
 		}
 
 		// Putting all values to UserWithToken model

@@ -2,15 +2,14 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware"
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
+	mwMngr "github.com/jumayevgadaym/tsu-toleg/internal/common/middleware"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups/handler"
 	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups/service"
 	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
 )
 
 // Routes for groups.
-func Routes(f fiber.Router, tp *token.TokenOps, dataStore database.DataStore) {
+func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.DataStore) {
 	// Init Service.
 	Service := service.NewGroupService(dataStore)
 	// Init Handler.
@@ -21,7 +20,7 @@ func Routes(f fiber.Router, tp *token.TokenOps, dataStore database.DataStore) {
 	{
 		groupPath.Post("/add", Handler.AddGroup())
 		groupPath.Get("/get-all", Handler.ListGroups())
-		groupPath.Get("/:id", middleware.RoleBasedMiddleware(tp, 3), Handler.GetGroup())
+		groupPath.Get("/:id", mwMngr.RoleBasedMiddleware(mw, 3), Handler.GetGroup())
 		groupPath.Delete("/:id", Handler.DeleteGroup())
 		groupPath.Put("/:id", Handler.UpdateGroup())
 	}

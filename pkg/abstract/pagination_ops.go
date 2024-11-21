@@ -27,7 +27,6 @@ type PaginatedResponse[T any] struct {
 	Limit     int `json:"limit"`
 	Page      int `json:"page"`
 	TotalPage int `json:"totalPage"`
-	X         int `json:"x"`
 }
 
 // ToStorage func sends Pagination request to db.

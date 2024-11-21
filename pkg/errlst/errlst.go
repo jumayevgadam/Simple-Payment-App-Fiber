@@ -38,6 +38,8 @@ var (
 	ErrTransactionFailed = errors.New("failed to perform transaction")
 	// ErrInvalidJWTToken is
 	ErrInvalidJWTToken = errors.New("invalid JWT Token")
+	// ErrTokenExpired is
+	ErrTokenExpired = errors.New("token is expired")
 	// ErrInvalidJWTMethod is
 	ErrInvalidJWTMethod = errors.New("invalid jwt token method")
 	// ErrInvalidJWTClaims is
@@ -141,8 +143,8 @@ func NewConflictError(cause interface{}) RestErr {
 // NewForbiddenError creates a new 403 forbidden error
 func NewForbiddenError(cause interface{}) RestErr {
 	return &RestError{
-		ErrStatus: http.StatusForbidden,
+		ErrStatus:  http.StatusForbidden,
 		ErrMessage: ErrForbidden.Error(),
-		ErrCause: cause,
+		ErrCause:   cause,
 	}
 }

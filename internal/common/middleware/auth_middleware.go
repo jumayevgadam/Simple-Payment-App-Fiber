@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/middleware/token"
 	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
 )
 
@@ -17,18 +16,32 @@ var RoleMap = map[int]string{
 }
 
 // RoleBasedMiddleware takes needed middleware permissions.
-func RoleBasedMiddleware(tokenOps *token.TokenOps, allowedRoles ...int) fiber.Handler {
+func RoleBasedMiddleware(mw *MiddlewareManager, allowedRoles ...int) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Retrieve the JWT token from cookie.
 		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
-		if accessToken == "" {
-			return errlst.NewUnauthorizedError("missing access token in cookies")
+		refreshToken := c.Cookies(os.Getenv("REFRESH_TOKEN_NAME"))
+
+		if accessToken == "" && refreshToken == "" {
+			return errlst.NewUnauthorizedError("missing access and refresh tokens")
 		}
 
 		// get claims.
-		claims, err := tokenOps.ParseAccessToken(accessToken)
+		claims, err := mw.ParseAccessToken(accessToken)
 		if err != nil {
-			return errlst.Response(c, err)
+			if err == errlst.ErrTokenExpired && refreshToken != "" {
+				newAccessToken, err := HandleNewAccessToken(c, mw, refreshToken)
+				if err != nil {
+					return errlst.NewBadRequestError("cannot create a new accessToken")
+				}
+				accessToken = newAccessToken
+				claims, err = mw.ParseAccessToken(accessToken)
+				if err != nil {
+					return errlst.NewUnauthorizedError("invalid refreshed access token")
+				}
+			} else {
+				return errlst.Response(c, err)
+			}
 		}
 
 		for _, roleId := range allowedRoles {
@@ -49,77 +62,18 @@ func RoleBasedMiddleware(tokenOps *token.TokenOps, allowedRoles ...int) fiber.Ha
 	}
 }
 
-// // GetSuperAdminMiddleware for superadmin.
-// func GetSuperAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
-// 	return func(c *fiber.Ctx) error {
-// 		// read the token from cookie.
-// 		accessToken := c.Cookies(cfg.AccessTokenName)
-// 		if accessToken == "" {
-// 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
-// 		}
+// HandleNewAccessToken method generates a new access token and delete old refresh token from redisDB.
+func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken string) (string, error) {
+	// verify refresh token from redisDB.
 
-// 		// get claims.
-// 		claims, err := tokenOps.ParseAccessToken(accessToken)
-// 		if err != nil {
-// 			return errlst.Response(c, err)
-// 		}
+	// Retrieve user claims.
 
-// 		if claims.RoleID != 1 {
-// 			return c.Status(fiber.StatusForbidden).JSON("user is not SuperAdmin")
-// 		}
+	// generate new tokens.
 
-// 		// pass the payload/claims down the fiber context.
-// 		c.Locals("SuperAdmin-claims", claims)
-// 		return c.Next()
-// 	}
-// }
+	// update cookies with new tokens
 
-// // GetAdminMiddleware for admin middleware.
-// func GetAdminMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
-// 	return func(c *fiber.Ctx) error {
-// 		// Read the token from cookie.
-// 		accessToken := c.Cookies(cfg.AccessTokenName)
-// 		if accessToken == "" {
-// 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
-// 		}
+	// delete old refresh token from redis and store the new one.
 
-// 		// get claims.
-// 		claims, err := tokenOps.ParseAccessToken(accessToken)
-// 		if err != nil {
-// 			return errlst.Response(c, err)
-// 		}
-
-// 		if claims.RoleID != 2 {
-// 			return c.Status(fiber.StatusForbidden).JSON("user is not admin")
-// 		}
-
-// 		// pass the payload/claims down the fiber context.
-// 		c.Locals("Admin-claims", claims)
-// 		return c.Next()
-// 	}
-// }
-
-// // GetStudentMiddleware for student middleware.
-// func GetStudentMiddleware(cfg config.JWTOps, tokenOps *token.TokenOps) fiber.Handler {
-// 	return func(c *fiber.Ctx) error {
-// 		// Read the token from cookie.
-// 		accessToken := c.Cookies(cfg.AccessTokenName)
-// 		if accessToken == "" {
-// 			return c.Status(fiber.StatusNotFound).JSON("access token is not found in cookie")
-// 		}
-
-// 		// get claims.
-// 		claims, err := tokenOps.ParseAccessToken(accessToken)
-// 		if err != nil {
-// 			return errlst.Response(c, err)
-// 		}
-
-// 		if claims.RoleID != 3 {
-// 			return c.Status(fiber.StatusForbidden).JSON("user is not a student")
-// 		}
-
-// 		// pass the payload/claims down the fiber context.
-// 		c.Locals("Student-claims", claims)
-// 		return c.Next()
-// 	}
-// }
+	// return newAccessToken
+	return "", nil
+}

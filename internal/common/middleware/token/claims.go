@@ -12,7 +12,8 @@ type AccessTokenClaims struct {
 
 // RefreshTokenClaims model for refresh token.
 type RefreshTokenClaims struct {
-	ID     int `json:"user_id"`
-	RoleID int `json:"role_id"`
+	ID       int    `json:"user_id"`
+	RoleID   int    `json:"role_id"`
+	UserName string `json:"username"`
 	jwt.RegisteredClaims
 }
