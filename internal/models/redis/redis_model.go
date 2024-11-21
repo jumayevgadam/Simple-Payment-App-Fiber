@@ -16,8 +16,10 @@ type CacheArgument struct {
 
 // SessionArgument model is.
 type SessionArgument struct {
-	UserID       string
+	UserID        string
+	RoleID        string
+	UserName      string
 	SessionPrefix string
-	RefreshToken string
-	ExpiresAt    time.Duration
+	RefreshToken  string
+	ExpiresAt     time.Duration
 }

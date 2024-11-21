@@ -15,9 +15,11 @@ type CacheArgument struct {
 
 type SessionArgument struct {
 	SessionPrefix string
-	UserId       int
-	RefreshToken string
-	ExpiresAt    time.Duration
+	UserID        int
+	RoleID        int
+	UserName      string
+	RefreshToken  string
+	ExpiresAt     time.Duration
 }
 
 // ToCacheStorage for Sending CacheArgument into memory.
@@ -31,9 +33,11 @@ func (c *CacheArgument) ToCacheStorage() redisModel.CacheArgument {
 // ToSessionStorage for sending SessionArgument into memory.
 func (s *SessionArgument) ToSessionStorage() redisModel.SessionArgument {
 	return redisModel.SessionArgument{
-		UserID: strconv.Itoa(int(s.UserId)),
+		UserID:        strconv.Itoa(int(s.UserID)),
+		RoleID:        strconv.Itoa(int(s.RoleID)),
+		UserName:      s.UserName,
 		SessionPrefix: s.SessionPrefix,
-		RefreshToken: s.RefreshToken,
-		ExpiresAt: s.ExpiresAt,
+		RefreshToken:  s.RefreshToken,
+		ExpiresAt:     s.ExpiresAt,
 	}
 }

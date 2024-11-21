@@ -23,14 +23,14 @@ type Store interface {
 	SessionStore
 }
 
-type CacheStore interface{
+type CacheStore interface {
 	Get(ctx context.Context, argument abstract.CacheArgument) ([]byte, error)
 	Set(ctx context.Context, argument abstract.CacheArgument, value []byte, duration time.Duration) error
 	Del(ctx context.Context, argument abstract.CacheArgument) error
 }
 
 // SessionStore interface handling operations related with refresh token.
-type SessionStore interface{
+type SessionStore interface {
 	GetSession(ctx context.Context, params abstract.SessionArgument) ([]byte, error)
 	PutSession(ctx context.Context, params abstract.SessionArgument) error
 	DelSession(ctx context.Context, params abstract.SessionArgument) error
@@ -55,11 +55,10 @@ func (c *ClientRedisRepo) getCacheKey(objectType, id string) string {
 }
 
 // getSessionKey from redisDB.
-func (c *ClientRedisRepo) getSessionKey(sessionPrefix, refreshToken, userId string) string {
+func (c *ClientRedisRepo) getSessionKey(sessionPrefix, userID string) string {
 	return strings.Join([]string{
 		sessionPrefix,
-		refreshToken,
-		userId,
+		userID,
 	}, ":")
 }
 
@@ -122,7 +121,7 @@ func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.Sessio
 	defer span.End()
 
 	key := params.ToSessionStorage()
-	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID) // SessionKey is refresh token here.
 	valueString, err := c.rdb.Get(ctx, sessionKey)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
@@ -139,7 +138,7 @@ func (c *ClientRedisRepo) PutSession(ctx context.Context, params abstract.Sessio
 	defer span.End()
 
 	key := params.ToSessionStorage()
-	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID)
 
 	sessBytes, err := json.Marshal(params)
 	if err != nil {
@@ -163,7 +162,7 @@ func (c *ClientRedisRepo) DelSession(ctx context.Context, params abstract.Sessio
 	defer span.End()
 
 	key := params.ToSessionStorage()
-	sessionKey := c.getSessionKey(key.SessionPrefix, key.RefreshToken, key.UserID)
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID)
 
 	err := c.rdb.Del(ctx, sessionKey)
 	if err != nil {

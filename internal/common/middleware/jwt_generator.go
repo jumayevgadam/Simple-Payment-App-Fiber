@@ -20,13 +20,6 @@ func (mw *MiddlewareManager) GenerateTokens(userID, roleID int, username string)
 			ExpiresAt: jwt.NewNumericDate(accessTokenExTime),
 		},
 	}
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims)
-
-	accessTokenStr, err := accessToken.SignedString([]byte(mw.cfg.JWT.AccessTokenName))
-	if err != nil {
-		return "", "", errlst.NewUnauthorizedError("error creating accessTokenStr")
-	}
-
 	refreshTokenClaims := token.RefreshTokenClaims{
 		ID:       userID,
 		RoleID:   roleID,
@@ -35,12 +28,16 @@ func (mw *MiddlewareManager) GenerateTokens(userID, roleID int, username string)
 			ExpiresAt: jwt.NewNumericDate(refreshTokenExTime),
 		},
 	}
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
 
-	refreshTokenStr, err := refreshToken.SignedString([]byte(mw.cfg.JWT.RefreshTokenSecret))
+	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte(mw.cfg.JWT.AccessTokenName))
 	if err != nil {
-		return "", "", errlst.NewUnauthorizedError("error creating refreshTokenStr")
+		return "", "", errlst.NewInternalServerError("error creating accessToken")
 	}
 
-	return accessTokenStr, refreshTokenStr, nil
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims).SignedString([]byte(mw.cfg.JWT.RefreshTokenSecret))
+	if err != nil {
+		return "", "", errlst.NewInternalServerError("error creating refreshToken")
+	}
+
+	return accessToken, refreshToken, nil
 }
