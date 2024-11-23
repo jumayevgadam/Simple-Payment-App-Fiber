@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	redisModel "github.com/jumayevgadaym/tsu-toleg/internal/models/redis"
+	redisModel "github.com/jumayevgadam/tsu-toleg/internal/models/redis"
 )
 
 // CacheArgument for creating key:value pair in redisDB.

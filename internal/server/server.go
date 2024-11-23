@@ -1,11 +1,14 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
 // Server struct keeps all configurations needed for application.
@@ -34,9 +37,14 @@ func NewServer(
 
 // Run method for running application.
 func (s *Server) Run() error {
-	if err := s.MapHandlers(s.Fiber); err != nil {
+	if err := s.MapHandlers(); err != nil {
 		return errlst.ParseErrors(err)
 	}
 
-	return s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
+	err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
+	if err != nil {
+		return fmt.Errorf("failed to listen app: %w", err)
+	}
+
+	return nil
 }

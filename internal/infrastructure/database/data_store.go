@@ -3,11 +3,11 @@ package database
 import (
 	"context"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/faculties"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/payment"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/roles"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/users"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 )
 
 // DataStore interface for performing all needed methods for repository layer of application.

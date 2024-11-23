@@ -3,18 +3,18 @@ package postgres
 import (
 	"sync"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/faculties"
-	facultyRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/faculties/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/groups"
-	groupRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/groups/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/payment"
-	paymentRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/payment/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/roles"
-	roleRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/roles/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/features/users"
-	userRepository "github.com/jumayevgadaym/tsu-toleg/internal/features/users/repository"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
+	facultyRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
+	groupRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	paymentRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+	roleRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
+	userRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
 )
 
 // Ensure DataStoreImpl implements the database.DataStore interface.

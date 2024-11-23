@@ -13,4 +13,7 @@ migrate_up:
 migrate_force:
 	migrate -path internal/infrastructure/migrations/ -database "postgresql://postgres:12345@localhost:5432/tsu_toleg?sslmode=disable" force 1
 
-.PHONY: run tidy migrate_create migrate_run migrate_force	
+swag-init:
+	swag init --output ./docs --parseDependency --generalInfo ./cmd/main.go
+
+.PHONY: run tidy migrate_create migrate_run migrate_force swag-init

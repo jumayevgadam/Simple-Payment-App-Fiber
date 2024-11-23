@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"golang.org/x/crypto/bcrypt"
 )
 

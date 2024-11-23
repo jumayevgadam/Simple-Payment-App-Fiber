@@ -6,9 +6,9 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
 // WithTransaction method is transaction method for performing multitasks, we use in service layer.

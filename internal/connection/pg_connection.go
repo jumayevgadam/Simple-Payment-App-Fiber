@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
 // Ensure Database struct implements the DB interface.

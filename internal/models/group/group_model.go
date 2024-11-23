@@ -3,7 +3,7 @@ package group
 // GroupReq model is request model for adding group to DB.
 type GroupReq struct {
 	FacultyID int    `form:"faculty-id" json:"facultyID" validate:"required"`
-	ClassCode string `form:"class-code" json:"classCode" validate:"required"`
+	ClassCode string `form:"group-code" json:"groupCode" validate:"required"`
 }
 
 // GroupRes model is response model which get from DB.
@@ -57,5 +57,19 @@ func (g *GroupDAO) ToServer() *GroupDTO {
 		ID:        g.ID,
 		FacultyID: g.FacultyID,
 		ClassCode: g.ClassCode,
+	}
+}
+
+// UpdateGroupInput model for updating group model fields.
+type UpdateGroupReq struct {
+	FacultyID int    `form:"faculty-id"`
+	ClassCode string `form:"group-code"`
+}
+
+func (u *UpdateGroupReq) ToStorage(groupID int) *GroupDAO {
+	return &GroupDAO{
+		ID:        groupID,
+		FacultyID: u.FacultyID,
+		ClassCode: u.ClassCode,
 	}
 }

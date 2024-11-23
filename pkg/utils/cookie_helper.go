@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
 )
 
 // SetAuthCookies

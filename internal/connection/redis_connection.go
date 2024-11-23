@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/redis/go-redis/v9"
 )
 

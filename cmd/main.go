@@ -4,15 +4,27 @@ import (
 	"context"
 	"log"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/common/metrics"
-	"github.com/jumayevgadaym/tsu-toleg/internal/config"
-	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/cache"
-	"github.com/jumayevgadaym/tsu-toleg/internal/infrastructure/database/postgres"
-	"github.com/jumayevgadaym/tsu-toleg/internal/server"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/constants"
+	// _ "github.com/jumayevgadam/tsu-toleg/docs"
+	"github.com/jumayevgadam/tsu-toleg/internal/common/metrics"
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database/postgres"
+	"github.com/jumayevgadam/tsu-toleg/internal/server"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 )
 
+// @title TSU-TOLEG API Documentation
+// @version 2.0
+// @description This is the API for the TSU-TOLEG system.
+// @termsOfService http://swagger.io/terms
+// @contact.name Gadam Jumayev
+// @contact.url https://github.com/jumayevgadam
+// @contact.email hypergadam@gmail.com
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:5000
+// @BasePath /api/v1
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), constants.ContextTimeout)
 	defer cancel()
@@ -26,7 +38,7 @@ func main() {
 	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)
 	if err != nil {
 		log.Printf("error in getting DB connection: %v", err.Error())
-	} 
+	}
 
 	defer func() {
 		if err := psqlDB.Close(); err != nil {

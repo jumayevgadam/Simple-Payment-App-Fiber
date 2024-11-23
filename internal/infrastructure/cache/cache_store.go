@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jumayevgadaym/tsu-toleg/internal/connection"
-	"github.com/jumayevgadaym/tsu-toleg/internal/models/abstract"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadaym/tsu-toleg/pkg/errlst/tracing"
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 )
