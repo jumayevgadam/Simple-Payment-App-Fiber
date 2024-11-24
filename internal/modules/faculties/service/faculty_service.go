@@ -96,6 +96,9 @@ func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyID int, updat
 
 	var updateRes string
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		if updateReq.Code == "" && updateReq.Name == "" {
+			updateRes = "No changes made, update struct has no value"
+		}
 		// Check faculty exist in that id.
 		_, err := db.FacultiesRepo().GetFaculty(ctx, facultyID)
 		if err != nil {

@@ -70,6 +70,164 @@ const docTemplate = `{
                 }
             }
         },
+        "/faculty/get-all": {
+            "get": {
+                "description": "list faculties, pagination not setted.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faculties"
+                ],
+                "summary": "List faculties.",
+                "operationId": "list-faculties",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/faculty/{id}": {
+            "get": {
+                "description": "retrieve faculty using its id.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faculties"
+                ],
+                "summary": "get-faculty.",
+                "operationId": "get-faculty",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "put": {
+                "description": "update faculty fields using identified faculty id",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faculties"
+                ],
+                "summary": "Update Faculty",
+                "operationId": "update-faculty",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "needed faculty id for update",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "faculty-code",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "faculty-name",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully updated faculty ops",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete faculty using identified id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Faculties"
+                ],
+                "summary": "delete-faculty",
+                "operationId": "delete-faculty",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully deleted faculty",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/group/add": {
             "post": {
                 "description": "Creates a new group and returns its id.",
@@ -305,6 +463,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty": {
+            "type": "object",
+            "required": [
+                "faculty-code",
+                "facultyName"
+            ],
+            "properties": {
+                "faculty-code": {
+                    "type": "string"
+                },
+                "facultyID": {
+                    "type": "integer"
+                },
+                "facultyName": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO": {
             "type": "object",
             "properties": {

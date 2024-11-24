@@ -1,5 +1,7 @@
 package faculty
 
+import "errors"
+
 // We use in this model type.
 // DTO and DAO models.
 
@@ -73,4 +75,12 @@ func (u *UpdateInputReq) ToStorage(facultyID int) *FacultyData {
 		Name: u.Name,
 		Code: u.Code,
 	}
+}
+
+func (u UpdateInputReq) Validate() error {
+	if u.Code == "" && u.Name == "" {
+		return errors.New("update structure has no value")
+	}
+
+	return nil
 }

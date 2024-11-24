@@ -17,8 +17,7 @@ const (
 // MapHandlers function takes all http routes.
 func (s *Server) MapHandlers() error {
 	// docs.SwaggerInfo.Title = "TSU-TOLEG API"
-	s.Fiber.Get("/swagger/*", swagger.HandlerDefault)
-	s.Fiber.Get("/swagger/*", swagger.New(swagger.Config{}))
+	s.Fiber.Get("/api-docs/tsu-toleg-api/*", swagger.HandlerDefault)
 
 	v1 := s.Fiber.Group(v1URL)
 

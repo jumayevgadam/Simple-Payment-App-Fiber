@@ -1,5 +1,17 @@
 basePath: /api/v1
 definitions:
+  github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty:
+    properties:
+      faculty-code:
+        type: string
+      facultyID:
+        type: integer
+      facultyName:
+        type: string
+    required:
+    - faculty-code
+    - facultyName
+    type: object
   github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO:
     properties:
       classCode:
@@ -23,6 +35,92 @@ info:
   title: TSU-TOLEG API Documentation
   version: "2.0"
 paths:
+  /faculty/{id}:
+    delete:
+      description: delete faculty using identified id.
+      operationId: delete-faculty
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully deleted faculty
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: delete-faculty
+      tags:
+      - Faculties
+    get:
+      consumes:
+      - multipart/form-data
+      description: retrieve faculty using its id.
+      operationId: get-faculty
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: get-faculty.
+      tags:
+      - Faculties
+    put:
+      consumes:
+      - multipart/form-data
+      description: update faculty fields using identified faculty id
+      operationId: update-faculty
+      parameters:
+      - description: needed faculty id for update
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: formData
+        name: faculty-code
+        type: string
+      - in: formData
+        name: faculty-name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully updated faculty ops
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update Faculty
+      tags:
+      - Faculties
   /faculty/create:
     post:
       consumes:
@@ -52,6 +150,28 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Add a new faculty.
+      tags:
+      - Faculties
+  /faculty/get-all:
+    get:
+      description: list faculties, pagination not setted.
+      operationId: list-faculties
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: List faculties.
       tags:
       - Faculties
   /group/{id}:
