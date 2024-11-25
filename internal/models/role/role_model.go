@@ -3,7 +3,7 @@ package role
 // DTO model is data transfer object: =>.
 type DTO struct {
 	ID       int    `json:"roleID"`
-	RoleName string `form:"role-name" json:"roleName" validate:"required"`
+	RoleName string `form:"role-name" json:"roleName"`
 }
 
 // DAO model is data access object: =>.

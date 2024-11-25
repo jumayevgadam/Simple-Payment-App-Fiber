@@ -73,3 +73,12 @@ func (u *UpdateGroupReq) ToStorage(groupID int) *GroupDAO {
 		ClassCode: u.ClassCode,
 	}
 }
+
+// If update structure has no value, then must return that.
+func (u UpdateGroupReq) Validate() (string, error) {
+	if u.ClassCode == "" && u.FacultyID == 0 {
+		return "update structure has no value", nil
+	}
+
+	return "", nil
+}

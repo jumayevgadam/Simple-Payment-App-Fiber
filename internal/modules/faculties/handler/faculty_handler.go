@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -174,26 +173,25 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[UpdateFaculty]")
 		defer span.End()
-		var res string
 
 		facultyID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
+		// Parse the request body into `UpdateInputReq`.
 		var inputReq facultyModel.UpdateInputReq
-		if err := inputReq.Validate(); err != nil {
-			res = "update structure has no value"
-			return c.JSON(res)
-		} else {
-			err = reqvalidator.ReadRequest(c, &inputReq)
-			if err != nil {
-				log.Println(err)
-				return errlst.Response(c, err)
+		if err := reqvalidator.ReadRequest(c, &inputReq); err != nil {
+			res, err := inputReq.Validate()
+			if err == nil {
+				return c.JSON(res)
 			}
+			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
+
+			return errlst.Response(c, err)
 		}
 
-		res, err = h.service.UpdateFaculty(ctx, facultyID, &inputReq)
+		res, err := h.service.UpdateFaculty(ctx, facultyID, &inputReq)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

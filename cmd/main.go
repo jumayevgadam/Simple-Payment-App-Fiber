@@ -23,7 +23,7 @@ import (
 // @contact.email hypergadam@gmail.com
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host localhost:5000
+// @host localhost:4000
 // @BasePath /api/v1
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), constants.ContextTimeout)

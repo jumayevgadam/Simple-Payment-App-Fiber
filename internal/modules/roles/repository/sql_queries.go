@@ -1,6 +1,6 @@
 package repository
 
-// WE WRITE QUERIES IN THIS PLACE.
+// WE WRITE QUERIES IN THIS PLACE FOR ROLES
 const (
 	// addRoleQuery is.
 	addRoleQuery = `
@@ -39,3 +39,44 @@ const (
 		WHERE id = $2	
 		RETURNING 'role changed successfully';`
 )
+
+// WE WRITE QUERIES FOR PERMISSIONS IN THIS CONST.
+const (
+	// addPermissionQuery is.
+	addPermissionQuery = `
+		INSERT INTO permissions (permission_type)
+		VALUES ($1) 
+		RETURNING id;`
+
+	// getPermissionQuery is.
+	getPermissionQuery = `
+		SELECT
+			id,
+			permission_type
+		FROM permissions
+		WHERE id = $1;`
+
+	// listPermissionsQuery is.
+	listPermissionsQuery = `
+		SELECT
+			id,
+			permission_type
+		FROM permissions
+		ORDER BY COALESCE(NULLIF($1, ''), permission_type) DESC OFFSET $2 LIMIT $3;`
+
+	// deletePermissionQuery is.
+	deletePermissionQuery = `
+		DELETE 
+		FROM permissions
+		WHERE id = $1;`
+
+	// updatePermissionQuery is.
+	updatePermissionQuery = `
+		UPDATE permissions 
+		SET permission_type = COALESCE(NULLIF($1, ''), permission_type)
+		WHERE id = $2
+		RETURNING 'permission successfully edited'`
+)
+
+// WE WRITE QUERIES FOR ROLE PERMISSIONS IN THIS CONST.
+const ()

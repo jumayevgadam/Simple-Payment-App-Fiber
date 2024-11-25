@@ -21,7 +21,21 @@ definitions:
       groupID:
         type: integer
     type: object
-host: localhost:5000
+  github_com_jumayevgadam_tsu-toleg_internal_models_role.DTO:
+    properties:
+      roleID:
+        type: integer
+      roleName:
+        type: string
+    type: object
+  github_com_jumayevgadam_tsu-toleg_internal_models_role.Permission:
+    properties:
+      permission_id:
+        type: integer
+      permission_type:
+        type: string
+    type: object
+host: localhost:4000
 info:
   contact:
     email: hypergadam@gmail.com
@@ -314,7 +328,7 @@ paths:
         format: orderBy
         in: query
         name: orderBy
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -333,4 +347,295 @@ paths:
       summary: List groups.
       tags:
       - Groups
+  /permission/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: deletes a permission using identified id.
+      operationId: delete-permission
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permission deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete-Permission.
+      tags:
+      - Permissions
+    get:
+      consumes:
+      - multipart/form-data
+      description: retrieve permission by using identified id.
+      operationId: get-permission
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.Permission'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get-PermissionBYID
+      tags:
+      - Permissions
+    put:
+      consumes:
+      - multipart/form-data
+      description: editing a permissions by using id.
+      operationId: update-permission
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: formData
+        name: permission-type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully edited permission
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update-Permission
+      tags:
+      - Permissions
+  /permission/add:
+    post:
+      consumes:
+      - multipart/form-data
+      description: add a new permission for roles.
+      operationId: add-permission
+      parameters:
+      - in: formData
+        name: permission-type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: AddPermission.
+      tags:
+      - Permissions
+  /permission/list-all:
+    get:
+      consumes:
+      - multipart/form-data
+      description: list permissions by pagination
+      operationId: list-permission
+      parameters:
+      - description: page number
+        format: page
+        in: query
+        name: page
+        type: integer
+      - description: number of objects per page
+        format: limit
+        in: query
+        name: limit
+        type: integer
+      - description: filter name
+        format: orderBy
+        in: query
+        name: orderBy
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.Permission'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: List-Permissions
+      tags:
+      - Permissions
+  /role/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: deletes role using identified role id.
+      operationId: delete-role
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: role successfully deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete-Role
+      tags:
+      - Roles
+    get:
+      consumes:
+      - multipart/form-data
+      description: retrieve role by identified id.
+      operationId: get-role
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.DTO'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get-Role
+      tags:
+      - Roles
+    put:
+      consumes:
+      - multipart/form-data
+      description: updating roles only giving rolename and do not use roleID, only
+        can change roleName by given id.
+      operationId: update-role
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: formData
+        name: roleID
+        type: integer
+      - in: formData
+        name: role-name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: role successfully updated
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update-Role
+      tags:
+      - Roles
+  /role/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: creates a new role and returns its id.
+      operationId: add-role
+      parameters:
+      - in: formData
+        name: roleID
+        type: integer
+      - in: formData
+        name: role-name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Add-Role.
+      tags:
+      - Roles
+  /role/get-all:
+    get:
+      description: list roles
+      operationId: list-roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.DTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: List-Roles
+      tags:
+      - Roles
 swagger: "2.0"

@@ -106,7 +106,7 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 // @Produce json
 // @Param page query int false "page number" Format(page)
 // @Param limit query int false "number of elements per page" Format(limit)
-// @Param orderBy query int false "filter name" Format(orderBy)
+// @Param orderBy query string false "filter name" Format(orderBy)
 // @Success 200 {object} []groupModel.GroupDTO
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
@@ -189,7 +189,12 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 
 		var groupReq groupModel.UpdateGroupReq
 		if err := reqvalidator.ReadRequest(c, &groupReq); err != nil {
+			updateRes, err := groupReq.Validate()
+			if err == nil {
+				return c.Status(fiber.StatusOK).JSON(updateRes)
+			}
 			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
+
 			return errlst.Response(c, err)
 		}
 
