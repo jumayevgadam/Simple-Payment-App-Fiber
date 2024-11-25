@@ -79,4 +79,26 @@ const (
 )
 
 // WE WRITE QUERIES FOR ROLE PERMISSIONS IN THIS CONST.
-const ()
+const (
+	// addRolePermissionQuery is.
+	addRolePermissionQuery = `
+		INSERT INTO role_permissions (role_id, permission_id)
+		VALUES ($1, $2)
+		RETURNING 'role-permission successfully created.'`
+
+	// getPermissionsByRoleQuery is.
+	getPermissionsByRoleQuery = `
+		SELECT 
+			role_id, 
+			permission_id
+		FROM role_permissions
+		WHERE role_id = $1;`
+
+	// getRolesByPermissionQuery is.
+	getRolesByPermissionQuery = `
+		SELECT 
+			role_id,
+			permission_id
+		FROM role_permissions
+		WHERE permission_id = $1;`
+)

@@ -682,6 +682,132 @@ const docTemplate = `{
                 }
             }
         },
+        "/role-permission/create": {
+            "post": {
+                "description": "adds a new role-permission twice",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RolePermissions"
+                ],
+                "summary": "Add Role-Permission.",
+                "operationId": "add-role-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "permission-id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "role-id",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully added role-permission",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/role-permission/{permission_id}": {
+            "get": {
+                "description": "retrieve all roles for identified that permission.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RolePermissions"
+                ],
+                "summary": "GetRoles By Permissions",
+                "operationId": "get-roles-by-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "permission_id",
+                        "name": "permission_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.RolePermissionReq"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/role-permission/{role_id}": {
+            "get": {
+                "description": "retrieve all permissions for that role.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RolePermissions"
+                ],
+                "summary": "GetPermissions By Role",
+                "operationId": "get-permissions-by-role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role_id",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_role.RolePermissionReq"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/role/create": {
             "post": {
                 "description": "creates a new role and returns its id.",
@@ -940,6 +1066,17 @@ const docTemplate = `{
                 },
                 "permission_type": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_jumayevgadam_tsu-toleg_internal_models_role.RolePermissionReq": {
+            "type": "object",
+            "properties": {
+                "permissionID": {
+                    "type": "integer"
+                },
+                "roleID": {
+                    "type": "integer"
                 }
             }
         }

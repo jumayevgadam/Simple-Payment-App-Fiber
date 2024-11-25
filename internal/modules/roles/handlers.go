@@ -29,4 +29,7 @@ type PermissionOps interface {
 
 // RolePermissions interface for role_permissions.
 type RolePermissions interface {
+	AddRolePermission() fiber.Handler
+	GetPermissionsByRole() fiber.Handler
+	GetRolesByPermission() fiber.Handler
 }

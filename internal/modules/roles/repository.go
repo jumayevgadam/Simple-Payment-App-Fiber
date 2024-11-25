@@ -33,4 +33,8 @@ type PermissionRepoOps interface {
 }
 
 // RolePermRepoOps interface handles repo methods for role_permissions.
-type RolePermRepoOps interface{}
+type RolePermRepoOps interface {
+	AddRolePermission(ctx context.Context, data roleModel.RolePermissionRes) (string, error)
+	GetPermissionsByRole(ctx context.Context, roleID int) ([]roleModel.RolePermissionRes, error)
+	GetRolesByPermission(ctx context.Context, permissionID int) ([]roleModel.RolePermissionRes, error)
+}
