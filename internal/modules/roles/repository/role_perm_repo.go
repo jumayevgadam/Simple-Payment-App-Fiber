@@ -59,3 +59,18 @@ func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionID 
 
 	return res, nil
 }
+
+// DeleteRolePermission repo removes role permission by identified role_id and permission_id.
+func (r *RoleRepository) DeleteRolePermission(ctx context.Context, roleID, permissionID int) error {
+	_, err := r.psqlDB.Exec(
+		ctx,
+		deleteRolePermissionQuery,
+		roleID,
+		permissionID,
+	)
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	return nil
+}

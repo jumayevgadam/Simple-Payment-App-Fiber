@@ -32,4 +32,6 @@ type RolePermissions interface {
 	AddRolePermission() fiber.Handler
 	GetPermissionsByRole() fiber.Handler
 	GetRolesByPermission() fiber.Handler
+	DeleteRolePermission() fiber.Handler
+	// UpdateRolePermission() fiber.Handler
 }

@@ -37,4 +37,6 @@ type RolePermRepoOps interface {
 	AddRolePermission(ctx context.Context, data roleModel.RolePermissionRes) (string, error)
 	GetPermissionsByRole(ctx context.Context, roleID int) ([]roleModel.RolePermissionRes, error)
 	GetRolesByPermission(ctx context.Context, permissionID int) ([]roleModel.RolePermissionRes, error)
+	DeleteRolePermission(ctx context.Context, roleID, permissionID int) error
+	// UpdateRolePermission(ctx context.Context, roleID, permissionID int) (string, error)
 }

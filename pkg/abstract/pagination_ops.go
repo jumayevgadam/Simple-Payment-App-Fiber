@@ -23,10 +23,20 @@ type PaginationData struct {
 
 // PaginatedResponse model for responsing any model.
 type PaginatedResponse[T any] struct {
-	Items     []T `json:"items"`
-	Limit     int `json:"limit"`
-	Page      int `json:"page"`
-	TotalPage int `json:"totalPage"`
+	Items      []T `json:"items"`
+	Limit      int `json:"limit"`
+	Page       int `json:"page"`
+	TotalPage  int `json:"totalPage"`
+	TotalItems int `json:"totalItems"`
+}
+
+// PaginatedResponseData is db model.
+type PaginatedResponseData[T any] struct {
+	Items      []T `db:"items"`
+	Limit      int `db:"limit"`
+	Page       int `db:"page"`
+	TotalPage  int `db:"total_page"`
+	TotalItems int `db:"total_items"`
 }
 
 // ToStorage func sends Pagination request to db.

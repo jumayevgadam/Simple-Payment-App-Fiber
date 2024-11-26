@@ -37,4 +37,5 @@ type RolePermServOps interface {
 	AddRolePermission(ctx context.Context, req roleModel.RolePermissionReq) (string, error)
 	GetPermissionsByRole(ctx context.Context, roleID int) ([]roleModel.RolePermissionReq, error)
 	GetRolesByPermission(ctx context.Context, permissionID int) ([]roleModel.RolePermissionReq, error)
+	DeleteRolePermission(ctx context.Context, roleID, permissionID int) error
 }

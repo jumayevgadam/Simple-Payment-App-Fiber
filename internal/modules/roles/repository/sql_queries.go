@@ -101,4 +101,10 @@ const (
 			permission_id
 		FROM role_permissions
 		WHERE permission_id = $1;`
+
+	// deleteRolePermissionQuery is.
+	deleteRolePermissionQuery = `
+		DELETE FROM role_permissions
+		WHERE 
+			role_id = $1 AND permission_id = $2;`
 )

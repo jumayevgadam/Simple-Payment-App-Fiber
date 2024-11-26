@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -25,8 +26,14 @@ func NewServer(
 	dataStore database.DataStore,
 	cacheStore cache.Store,
 ) *Server {
+	fiberConfig := fiber.Config{
+		ReadTimeout:  cfg.Server.ReadTimeOut * time.Second,
+		WriteTimeout: cfg.Server.WriteTimeOut * time.Second,
+		IdleTimeout:  cfg.Server.CtxDefaultTimeOut * time.Second,
+	}
+
 	server := &Server{
-		Fiber:      fiber.New(),
+		Fiber:      fiber.New(fiberConfig),
 		Cfg:        cfg,
 		DataStore:  dataStore,
 		CacheStore: cacheStore,

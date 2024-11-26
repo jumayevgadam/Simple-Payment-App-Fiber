@@ -91,3 +91,18 @@ func (s *RoleService) GetRolesByPermission(ctx context.Context, permissionID int
 
 	return rolePermDTOs, nil
 }
+
+// DeleteRolePermission service removes and send to handler response.
+func (s *RoleService) DeleteRolePermission(ctx context.Context, roleID, permissionID int) error {
+	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[DeleteRolePermission]")
+	defer span.End()
+
+	err := s.repo.RolesRepo().DeleteRolePermission(ctx, roleID, permissionID)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	span.SetStatus(codes.Ok, "successfully removed role_permission from db.")
+	return nil
+}

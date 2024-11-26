@@ -561,6 +561,39 @@ paths:
       summary: GetPermissions By Role
       tags:
       - RolePermissions
+  /role-permission/{role_id}/and/{permission_id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: delete role-permission with using role_id and permission_id.
+      operationId: delete-role-permission
+      parameters:
+      - description: role_id
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      - description: permission_id
+        in: path
+        name: permission_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully removed role-permission
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete Role-Permission
+      tags:
+      - RolePermissions
   /role-permission/create:
     post:
       consumes:

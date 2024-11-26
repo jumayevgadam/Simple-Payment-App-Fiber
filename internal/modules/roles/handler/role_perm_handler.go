@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -113,5 +114,47 @@ func (h *RoleHandler) GetRolesByPermission() fiber.Handler {
 
 		span.SetStatus(codes.Ok, "successfully got roles by permission id")
 		return c.Status(fiber.StatusOK).JSON(response)
+	}
+}
+
+// DeleteRolePermission handler deletes role with that permission.
+// @Summary Delete Role-Permission
+// @Description delete role-permission with using role_id and permission_id.
+// @Tags RolePermissions
+// @ID delete-role-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param role_id path int true "role_id"
+// @Param permission_id path int true "permission_id"
+// @Success 200 {string} string "successfully removed role-permission"
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /role-permission/{role_id}/and/{permission_id} [delete]
+func (h *RoleHandler) DeleteRolePermission() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[DeleteRolePermission]")
+		defer span.End()
+
+		role_id, err := strconv.Atoi(c.Params("role_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+		permission_id, err := strconv.Atoi(c.Params("permission_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		err = h.service.DeleteRolePermission(ctx, role_id, permission_id)
+		if err != nil {
+			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+			return errlst.Response(c, err)
+		}
+
+		span.SetStatus(codes.Ok, "successfully removed role permission")
+		return c.Status(fiber.StatusOK).JSON(
+			fiber.Map{
+				"message": fmt.Sprintf("successfully removed role-permission with roleID: %d and permissionID: %d", role_id, permission_id),
+			},
+		)
 	}
 }

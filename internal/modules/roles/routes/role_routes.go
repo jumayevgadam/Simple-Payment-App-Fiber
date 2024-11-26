@@ -40,5 +40,6 @@ func Routes(f fiber.Router, dataStore database.DataStore, cacheStore cache.Store
 		rolePermissionGroup.Post("/create", Handler.AddRolePermission())
 		rolePermissionGroup.Get("/:role_id", Handler.GetPermissionsByRole())
 		rolePermissionGroup.Get("/:permission_id", Handler.GetRolesByPermission())
+		rolePermissionGroup.Delete("/:role_id/and/:permission_id", Handler.DeleteRolePermission())
 	}
 }
