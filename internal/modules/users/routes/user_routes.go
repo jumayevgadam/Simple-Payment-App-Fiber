@@ -13,21 +13,13 @@ import (
 // Routes function for users in this place.
 func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.DataStore, redisStore cache.Store) {
 	// Init Service.
-	Service := service.NewUserService(mw, dataStore)
+	Service := service.NewUserService(mw, dataStore, redisStore)
 	// Init Handler.
 	Handler := handler.NewUserHandler(&config.Config{}, Service)
 
-	// groups
-	// adminGroup is.
-	adminGroup := f.Group("/admin")
+	authGroup := f.Group("/auth")
 	{
-		adminGroup.Post("/sign-up", Handler.CreateUser("admin"))
-	}
-
-	// userGroup is.
-	userGroup := f.Group("/user")
-	{
-		userGroup.Post("/sign-up", Handler.CreateUser("user"))
-		userGroup.Post("/login", Handler.Login("user"))
+		authGroup.Post("/:role/sign-up", Handler.CreateUser())
+		authGroup.Post("/:role/login", Handler.Login())
 	}
 }

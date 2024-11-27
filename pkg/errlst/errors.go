@@ -32,6 +32,8 @@ var (
 	ErrFieldValidation = errors.New("field validation error")
 	// ErrNoSuchUser is
 	ErrNoSuchUser = errors.New("no such user")
+	// ErrNoSuchRole is
+	ErrNoSuchRole = errors.New("no roles found for this permission")
 	// ErrInternalServer is
 	ErrInternalServer = errors.New("internal server error")
 	// ErrTransactionFailed is

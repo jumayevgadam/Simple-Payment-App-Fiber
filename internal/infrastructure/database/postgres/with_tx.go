@@ -31,6 +31,7 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 			if err = tx.RollBack(ctx); err != nil {
 				log.Printf("postgres:[WithTransaction]: failed to rollback transaction: %v", err.Error())
 			}
+
 			log.Printf("postgres:[WithTransaction: failed in transaction]")
 		}
 	}()

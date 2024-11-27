@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware/token"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 )
 
 // Ensure TokenOps implements the TokenGeneratorOps interface.

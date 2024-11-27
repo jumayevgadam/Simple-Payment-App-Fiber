@@ -69,6 +69,7 @@ func (c *ClientRedisRepo) Get(ctx context.Context, argument abstract.CacheArgume
 
 	key := argument.ToCacheStorage()
 	cacheKey := c.getCacheKey(key.ObjectType, key.ID)
+
 	valueString, err := c.rdb.Get(ctx, cacheKey)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
@@ -97,6 +98,30 @@ func (c *ClientRedisRepo) Set(ctx context.Context, argument abstract.CacheArgume
 	return nil
 }
 
+// PutSession method insert and creates a session in redisDB.
+func (c *ClientRedisRepo) PutSession(ctx context.Context, params abstract.SessionArgument) error {
+	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[PutSession]")
+	defer span.End()
+
+	key := params.ToSessionStorage()
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID)
+
+	sessBytes, err := json.Marshal(params)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	err = c.rdb.Set(ctx, sessionKey, string(sessBytes), params.ExpiresAt)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return errlst.ParseErrors(err)
+	}
+
+	span.SetStatus(codes.Ok, "Successfully created session")
+	return nil
+}
+
 // Del method deletes cached value using cacheArgument from redisDB.
 func (c *ClientRedisRepo) Del(ctx context.Context, argument abstract.CacheArgument) error {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[Del]")
@@ -122,6 +147,7 @@ func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.Sessio
 
 	key := params.ToSessionStorage()
 	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID) // SessionKey is refresh token here.
+
 	valueString, err := c.rdb.Get(ctx, sessionKey)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
@@ -130,30 +156,6 @@ func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.Sessio
 
 	span.SetStatus(codes.Ok, "successfully get session from redisDB")
 	return []byte(valueString), nil
-}
-
-// PutSession method insert and creates a session in redisDB.
-func (c *ClientRedisRepo) PutSession(ctx context.Context, params abstract.SessionArgument) error {
-	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[PutSession]")
-	defer span.End()
-
-	key := params.ToSessionStorage()
-	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID)
-
-	sessBytes, err := json.Marshal(params)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return errlst.ParseErrors(err)
-	}
-
-	err = c.rdb.Set(ctx, sessionKey, string(sessBytes), params.ExpiresAt)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return errlst.ParseErrors(err)
-	}
-
-	span.SetStatus(codes.Ok, "Successfully created session")
-	return nil
 }
 
 // DelSession method removes session from redisDB.

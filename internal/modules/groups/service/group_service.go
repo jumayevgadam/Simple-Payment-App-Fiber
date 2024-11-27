@@ -64,7 +64,7 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 	defer span.End()
 
 	var groupDTOs []*groupModel.GroupDTO
-	if err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		groupDAOs, err := db.GroupsRepo().ListGroups(ctx, pagination.ToStorage())
 		if err != nil {
 			tracing.ErrorTracer(span, err)
@@ -76,7 +76,8 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 		}
 
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, errlst.ParseErrors(err)
 	}
 

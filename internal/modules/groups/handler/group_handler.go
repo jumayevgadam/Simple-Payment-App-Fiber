@@ -193,8 +193,8 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 			if err == nil {
 				return c.Status(fiber.StatusOK).JSON(updateRes)
 			}
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 
+			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 

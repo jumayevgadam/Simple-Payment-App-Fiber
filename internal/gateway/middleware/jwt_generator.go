@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware/token"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 

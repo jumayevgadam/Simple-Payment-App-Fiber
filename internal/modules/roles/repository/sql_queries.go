@@ -95,12 +95,18 @@ const (
 		WHERE role_id = $1;`
 
 	// getRolesByPermissionQuery is.
-	getRolesByPermissionQuery = `
+	getRolesByPermissionIDQuery = `
 		SELECT 
 			role_id,
 			permission_id
 		FROM role_permissions
 		WHERE permission_id = $1;`
+
+	getRolesByPermissionQuery = `
+		SELECT rp.role_id
+		FROM role_permissions rp
+		JOIN permissions p ON rp.permission_id = p.id 
+		WHERE p.permission_type = $1;`
 
 	// deleteRolePermissionQuery is.
 	deleteRolePermissionQuery = `

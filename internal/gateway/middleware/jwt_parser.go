@@ -1,10 +1,8 @@
 package middleware
 
 import (
-	"errors"
-
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware/token"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -24,7 +22,7 @@ func (mw *MiddlewareManager) ParseAccessToken(accessToken string) (*token.Access
 
 	claims, ok := tokenStr.Claims.(*token.AccessTokenClaims)
 	if !ok {
-		return nil, errors.New("error in type assertion for AccessTokenClaims")
+		return nil, errlst.ErrInvalidJWTClaims
 	}
 
 	return claims, nil
@@ -47,7 +45,7 @@ func (mw *MiddlewareManager) ParseRefreshToken(refreshToken string) (*token.Refr
 
 	claims, ok := tokenStr.Claims.(*token.RefreshTokenClaims)
 	if !ok {
-		return nil, errors.New("error in type assertion in this place")
+		return nil, errlst.ErrInvalidJWTClaims
 	}
 
 	return claims, nil

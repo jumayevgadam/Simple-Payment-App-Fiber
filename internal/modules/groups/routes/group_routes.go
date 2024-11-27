@@ -16,7 +16,6 @@ func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.Dat
 	Handler := handler.NewGroupHandler(Service)
 	// put route.
 	groupPath := f.Group("/group")
-	// groupPath.Use(middleware.RoleBasedMiddleware(cfg.JWT, 1, 2, 3))
 	{
 		groupPath.Post("/add", Handler.AddGroup())
 		groupPath.Get("/get-all", Handler.ListGroups())

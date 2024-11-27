@@ -4,8 +4,7 @@ import "time"
 
 // LoginReq model is request model for processing request in handler layer.
 type SignUpReq struct {
-	RoleID   int    `form:"role-id" json:"roleID" validate:"required"`
-	GroupID  int    `form:"group-id" json:"groupID" validate:"required"`
+	GroupID  int    `form:"group-id" json:"groupID"`
 	Name     string `form:"name" json:"name" validate:"required"`
 	Surname  string `form:"surname" json:"surname" validate:"required"`
 	UserName string `form:"username" json:"username" validate:"required"`
@@ -14,7 +13,6 @@ type SignUpReq struct {
 
 // LoginRes model is db model.
 type SignUpRes struct {
-	RoleID   int    `db:"role_id"`
 	GroupID  int    `db:"group_id"`
 	Name     string `db:"name"`
 	Surname  string `db:"surname"`
@@ -25,7 +23,6 @@ type SignUpRes struct {
 // ToServer method sends response to the server.
 func (s *SignUpRes) ToServer() SignUpReq {
 	return SignUpReq{
-		RoleID:   s.RoleID,
 		GroupID:  s.GroupID,
 		Name:     s.Name,
 		Surname:  s.Surname,
@@ -37,7 +34,6 @@ func (s *SignUpRes) ToServer() SignUpReq {
 // ToStorage method sends dto model to db storage.
 func (s *SignUpReq) ToStorage() SignUpRes {
 	return SignUpRes{
-		RoleID:   s.RoleID,
 		GroupID:  s.GroupID,
 		Name:     s.Name,
 		Surname:  s.Surname,

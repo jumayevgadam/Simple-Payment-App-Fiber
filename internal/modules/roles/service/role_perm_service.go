@@ -72,7 +72,7 @@ func (s *RoleService) GetRolesByPermission(ctx context.Context, permissionID int
 			return errlst.ParseErrors(err)
 		}
 
-		rolePermDAOs, err := db.RolesRepo().GetRolesByPermission(ctx, permissionID)
+		rolePermDAOs, err := db.RolesRepo().GetRolesByPermissionID(ctx, permissionID)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
 			return errlst.ParseErrors(err)

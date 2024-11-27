@@ -56,6 +56,54 @@ info:
   title: TSU-TOLEG API Documentation
   version: "2.0"
 paths:
+  /auth/{role}/sign-up:
+    post:
+      consumes:
+      - multipart/form-data
+      description: create user func general func for creating users.
+      operationId: create-user
+      parameters:
+      - description: role
+        in: path
+        name: role
+        required: true
+        type: string
+      - in: formData
+        name: group-id
+        type: integer
+      - in: formData
+        name: name
+        required: true
+        type: string
+      - in: formData
+        minLength: 6
+        name: password
+        required: true
+        type: string
+      - in: formData
+        name: surname
+        required: true
+        type: string
+      - in: formData
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: int
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create User.
+      tags:
+      - Users
   /faculty/{id}:
     delete:
       description: delete faculty using identified id.

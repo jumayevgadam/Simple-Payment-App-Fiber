@@ -1,12 +1,15 @@
 package middleware
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/models/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
@@ -20,7 +23,7 @@ var RoleMap = map[int]string{
 }
 
 // RoleBasedMiddleware takes needed middleware permissions.
-func RoleBasedMiddleware(mw *MiddlewareManager, allowedRoles ...int) fiber.Handler {
+func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore database.DataStore) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Retrieve the JWT token from cookie.
 		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
@@ -33,12 +36,15 @@ func RoleBasedMiddleware(mw *MiddlewareManager, allowedRoles ...int) fiber.Handl
 		// get claims.
 		claims, err := mw.ParseAccessToken(accessToken)
 		if err != nil {
-			if err == errlst.ErrTokenExpired && refreshToken != "" {
+			if errors.Is(err, errlst.ErrTokenExpired) && refreshToken != "" {
+				// clear accesstoken from cookie
+				utils.ClearAccessTokenCookie(c, mw.cfg, accessToken)
 				newAccessToken, err := HandleNewAccessToken(c, mw, refreshToken)
 				if err != nil {
 					return errlst.NewBadRequestError("cannot create a new accessToken")
 				}
 				accessToken = newAccessToken
+
 				claims, err = mw.ParseAccessToken(accessToken)
 				if err != nil {
 					return errlst.NewUnauthorizedError("invalid refreshed access token")
@@ -48,21 +54,30 @@ func RoleBasedMiddleware(mw *MiddlewareManager, allowedRoles ...int) fiber.Handl
 			}
 		}
 
-		for _, roleId := range allowedRoles {
-			if claims.RoleID == roleId {
-				// Attach user claims to the context for further usage.
-				c.Locals("user_claims", claims)
-				return c.Next()
+		// Fetch permissions for the user's role
+		roleIDs, err := dataStore.RolesRepo().GetRolesByPermission(context.Background(), permission)
+		if err != nil {
+			return errlst.ErrNoSuchRole
+		}
+
+		hasPermission := false
+		for _, roleID := range roleIDs {
+			if claims.RoleID == roleID {
+				hasPermission = true
+				break
 			}
 		}
 
-		roleName, exists := RoleMap[claims.RoleID]
-		if !exists {
-			roleName = "Unknown role(" + strconv.Itoa(claims.RoleID) + ")"
+		if !hasPermission {
+			roleName, exists := RoleMap[claims.RoleID]
+			if !exists {
+				roleName = "Unknown role(" + strconv.Itoa(claims.RoleID) + ")"
+			}
+			return errlst.NewForbiddenError("access denied for role: " + roleName)
 		}
 
-		// Proceed to the next middleware or handler
-		return errlst.NewForbiddenError("access denied for role: " + roleName)
+		c.Locals("user_claims", claims)
+		return c.Next()
 	}
 }
 
@@ -98,12 +113,15 @@ func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken stri
 	if err != nil {
 		return "", errlst.NewInternalServerError("error deleting old refresh token key from redisDB")
 	}
+	// Clear refresh token from cookie
+	utils.ClearRefreshTokenCookie(c, mw.cfg, refreshToken)
 
 	// store new refresh token in redis.
 	err = mw.redisRepo.PutSession(c.Context(), abstract.SessionArgument{
 		SessionPrefix: "refresh_token",
 		UserID:        sessionClaims.UserID,
-		RefreshToken:  sessionClaims.RefreshToken,
+		RoleID:        sessionClaims.RoleID,
+		RefreshToken:  newRefreshToken,
 		ExpiresAt:     time.Duration(mw.cfg.JWT.RefreshTokenExpiryTime),
 	})
 	if err != nil {

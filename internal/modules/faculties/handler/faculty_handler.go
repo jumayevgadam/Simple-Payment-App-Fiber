@@ -186,8 +186,8 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 			if err == nil {
 				return c.JSON(res)
 			}
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 
+			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 

@@ -43,14 +43,14 @@ func (r *RoleRepository) GetPermissionsByRole(ctx context.Context, roleID int) (
 }
 
 // GetRolesByPermission repo retrieve all roles of identifided permission.
-func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionID int) ([]rolePermModel.RolePermissionRes, error) {
+func (r *RoleRepository) GetRolesByPermissionID(ctx context.Context, permissionID int) ([]rolePermModel.RolePermissionRes, error) {
 	var res []rolePermModel.RolePermissionRes
 
 	err := r.psqlDB.Select(
 		ctx,
 		r.psqlDB,
 		&res,
-		getRolesByPermissionQuery,
+		getRolesByPermissionIDQuery,
 		permissionID,
 	)
 	if err != nil {
@@ -58,6 +58,24 @@ func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionID 
 	}
 
 	return res, nil
+}
+
+// GetRolesByPermission repo takes roles from identified permission,we will use this in role based middleware.
+func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionType string) ([]int, error) {
+	var roles []int
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&roles,
+		getRolesByPermissionQuery,
+		permissionType,
+	)
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return roles, nil
 }
 
 // DeleteRolePermission repo removes role permission by identified role_id and permission_id.

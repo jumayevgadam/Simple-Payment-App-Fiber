@@ -30,18 +30,36 @@ func NewUserHandler(cfg *config.Config, service userOps.Service) *UserHandler {
 }
 
 // CreateUser handler creates a new user and returns id.
-func (h *UserHandler) CreateUser(role string) fiber.Handler {
+// @Summary Create User.
+// @Description create user func general func for creating users.
+// @Tags Users
+// @ID create-user
+// @Accept multipart/form-data
+// @Produce json
+// @Param role path string true "role"
+// @Param req formData userModel.SignUpReq true "create user payload"
+// @Success 200 {int} int
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /auth/{role}/sign-up [post]
+func (h *UserHandler) CreateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[CreateUser]")
 		defer span.End()
 
+		role := c.Params("role")
 		var req userModel.SignUpReq
+
+		if role != "student" {
+			req.GroupID = 0
+		}
+
 		if err := reqvalidator.ReadRequest(c, &req); err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		userID, err := h.service.CreateUser(ctx, req)
+		userID, err := h.service.CreateUser(ctx, req, role)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
@@ -53,10 +71,12 @@ func (h *UserHandler) CreateUser(role string) fiber.Handler {
 }
 
 // Login handler method for login.
-func (h *UserHandler) Login(role string) fiber.Handler {
+func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")
 		defer span.End()
+
+		role := c.Params("role")
 
 		var loginReq userModel.LoginReq
 		if err := reqvalidator.ReadRequest(c, &loginReq); err != nil {
@@ -64,7 +84,7 @@ func (h *UserHandler) Login(role string) fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		userWithToken, err := h.service.Login(ctx, loginReq)
+		userWithToken, err := h.service.Login(ctx, loginReq, role)
 		if err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)

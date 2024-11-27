@@ -8,6 +8,6 @@ import (
 
 // Repository interface for performing actions in this layer.
 type Repository interface {
-	CreateUser(ctx context.Context, res userModel.SignUpRes) (int, error)
+	CreateUser(ctx context.Context, roleID int, res userModel.SignUpRes) (int, error)
 	GetUserByUsername(ctx context.Context, username string) (userModel.AllUserDAO, error)
 }
