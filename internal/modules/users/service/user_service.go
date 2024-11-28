@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
@@ -30,14 +31,14 @@ var RoleMap = map[string]int{
 
 // UserService manages buisiness logic for modules/user part of application.
 type UserService struct {
-	jwtOps middleware.TokenGeneratorOps
-	repo   database.DataStore
-	cache  cache.Store
+	mw    *middleware.MiddlewareManager
+	repo  database.DataStore
+	cache cache.Store
 }
 
 // NewUserService creates and returns a new instance of UserRepository.
-func NewUserService(jwtOps middleware.TokenGeneratorOps, repo database.DataStore, cache cache.Store) *UserService {
-	return &UserService{jwtOps: jwtOps, repo: repo, cache: cache}
+func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore, cache cache.Store) *UserService {
+	return &UserService{mw: mw, repo: repo, cache: cache}
 }
 
 // CreateUser service insert a user into db and returns its id.
@@ -90,14 +91,14 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 			return errlst.NewConflictError("provided roleID does not match with taken roleID from db.")
 		}
 
-		// Compare passwords
+		// Compare passwords.
 		if err := utils.CheckAndComparePassword(loginReq.Password, userDAO.Password); err != nil {
 			tracing.ErrorTracer(span, err)
 			return errlst.ParseErrors(err)
 		}
 
-		// generate accessToken here
-		accessToken, refreshToken, err := s.jwtOps.GenerateTokens(userDAO.ID, userDAO.RoleID, userDAO.Username)
+		// generate accessToken here.
+		accessToken, refreshToken, err := s.mw.GenerateTokens(userDAO.ID, userDAO.RoleID, userDAO.Username)
 		if err != nil {
 			tracing.ErrorTracer(span, err)
 			return errlst.ParseErrors(err)
@@ -130,4 +131,18 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 	}
 
 	return userWithToken, nil
+}
+
+// RenewAccessToken service checks some ops.
+func (s *UserService) RenewAccessToken(c *fiber.Ctx, refreshToken string) (string, string, error) {
+	_, span := otel.Tracer("[UserService]").Start(c.Context(), "[RenewAccessToken]")
+	defer span.End()
+
+	s.mw.Logger.Info(refreshToken)
+	newAccessToken, newRefreshToken, err := middleware.HandleNewAccessToken(c, s.mw, refreshToken)
+	if err != nil {
+		return "", "", errlst.NewInternalServerError("can not generate refresh and access tokens")
+	}
+
+	return newAccessToken, newRefreshToken, nil
 }

@@ -80,6 +80,24 @@ func (c *ClientRedisRepo) Get(ctx context.Context, argument abstract.CacheArgume
 	return []byte(valueString), nil
 }
 
+// GetSession method receives refresh token using userId.
+func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.SessionArgument) ([]byte, error) {
+	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[GetSession]")
+	defer span.End()
+
+	key := params.ToSessionStorage()
+	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID) // SessionKey is refresh token here.
+
+	valueString, err := c.rdb.Get(ctx, sessionKey)
+	if err != nil {
+		tracing.ErrorTracer(span, err)
+		return nil, errlst.NewBadRequestError("error getting value string in this place") // error in this place....
+	}
+
+	span.SetStatus(codes.Ok, "successfully get session from redisDB")
+	return []byte(valueString), nil
+}
+
 // Set method creates and insert a new key value pair into redisDB.
 func (c *ClientRedisRepo) Set(ctx context.Context, argument abstract.CacheArgument, value []byte, duration time.Duration) error {
 	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[Set]")
@@ -138,24 +156,6 @@ func (c *ClientRedisRepo) Del(ctx context.Context, argument abstract.CacheArgume
 
 	span.SetStatus(codes.Ok, "Successfully deleted data from redis repo")
 	return nil
-}
-
-// GetSession method receives refresh token using userId.
-func (c *ClientRedisRepo) GetSession(ctx context.Context, params abstract.SessionArgument) ([]byte, error) {
-	ctx, span := otel.Tracer("[ClientRedisRepo]").Start(ctx, "[GetSession]")
-	defer span.End()
-
-	key := params.ToSessionStorage()
-	sessionKey := c.getSessionKey(key.SessionPrefix, key.UserID) // SessionKey is refresh token here.
-
-	valueString, err := c.rdb.Get(ctx, sessionKey)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return nil, errlst.ParseErrors(err)
-	}
-
-	span.SetStatus(codes.Ok, "successfully get session from redisDB")
-	return []byte(valueString), nil
 }
 
 // DelSession method removes session from redisDB.

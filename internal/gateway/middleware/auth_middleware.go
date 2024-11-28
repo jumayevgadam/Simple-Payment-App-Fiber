@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/models/abstract"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
@@ -34,12 +35,15 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 		}
 
 		// get claims.
-		claims, err := mw.ParseAccessToken(accessToken)
+		var claims *token.AccessTokenClaims
+		var err error
+		claims, err = mw.ParseAccessToken(accessToken)
 		if err != nil {
+			mw.Logger.Error("error in 41") // error in here
 			if errors.Is(err, errlst.ErrTokenExpired) && refreshToken != "" {
 				// clear accesstoken from cookie
 				utils.ClearAccessTokenCookie(c, mw.cfg, accessToken)
-				newAccessToken, err := HandleNewAccessToken(c, mw, refreshToken)
+				newAccessToken, _, err := HandleNewAccessToken(c, mw, refreshToken)
 				if err != nil {
 					return errlst.NewBadRequestError("cannot create a new accessToken")
 				}
@@ -47,9 +51,11 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 
 				claims, err = mw.ParseAccessToken(accessToken)
 				if err != nil {
+					mw.Logger.Error("error in 52")
 					return errlst.NewUnauthorizedError("invalid refreshed access token")
 				}
 			} else {
+				mw.Logger.Error("Token error not expired")
 				return errlst.Response(c, err)
 			}
 		}
@@ -82,26 +88,39 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 }
 
 // HandleNewAccessToken method generates a new access token and delete old refresh token from redisDB.
-func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken string) (string, error) {
-	// verify refresh token from redisDB.
-	userID, err := mw.redisRepo.GetSession(c.Context(), abstract.SessionArgument{
-		SessionPrefix: "refresh_token",
-		RefreshToken:  refreshToken,
-		UserID:        0,
-	})
+func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken string) (string, string, error) {
+	refreshTokenClaims, err := mw.ParseRefreshToken(refreshToken)
 	if err != nil {
-		return "", errlst.NewUnauthorizedError("invalid or expired refresh token")
+		mw.Logger.Error(err)
+		return "", "", errlst.NewUnauthorizedError("error verifying refresh token")
+	}
+	mw.Logger.Info(refreshTokenClaims.UserName)
+
+	sessionArgument := abstract.SessionArgument{
+		SessionPrefix: "refresh_token",
+		UserID:        refreshTokenClaims.ID,
+		UserName:      refreshTokenClaims.UserName,
+		RoleID:        refreshTokenClaims.RoleID,
+	}
+
+	// verify refresh token from redisDB.
+	userID, err := mw.redisRepo.GetSession(c.Context(), sessionArgument)
+	if err != nil {
+		mw.Logger.Error(err)
+		return "", "", errlst.NewUnauthorizedError("invalid or expired refresh token")
 	}
 
 	var sessionClaims abstract.SessionArgument
 	if err := json.Unmarshal(userID, &sessionClaims); err != nil {
-		return "", errlst.NewInternalServerError("failed to parse session claims")
+		mw.Logger.Error(err)
+		return "", "", errlst.NewInternalServerError("failed to parse session claims")
 	}
 
 	// generate new tokens.
 	newAccessToken, newRefreshToken, err := mw.GenerateTokens(sessionClaims.UserID, sessionClaims.RoleID, sessionClaims.UserName)
 	if err != nil {
-		return "", errlst.NewInternalServerError("error creating access, refresh token in HandleNewAccessToken")
+		mw.Logger.Error(err)
+		return "", "", errlst.NewInternalServerError("error creating access, refresh token in HandleNewAccessToken")
 	}
 
 	// delete old refresh token from redis and store the new one.
@@ -111,7 +130,8 @@ func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken stri
 		UserID:        sessionClaims.UserID,
 	})
 	if err != nil {
-		return "", errlst.NewInternalServerError("error deleting old refresh token key from redisDB")
+		mw.Logger.Error(err)
+		return "", "", errlst.NewInternalServerError("error deleting old refresh token key from redisDB")
 	}
 	// Clear refresh token from cookie
 	utils.ClearRefreshTokenCookie(c, mw.cfg, refreshToken)
@@ -122,15 +142,16 @@ func HandleNewAccessToken(c *fiber.Ctx, mw *MiddlewareManager, refreshToken stri
 		UserID:        sessionClaims.UserID,
 		RoleID:        sessionClaims.RoleID,
 		RefreshToken:  newRefreshToken,
-		ExpiresAt:     time.Duration(mw.cfg.JWT.RefreshTokenExpiryTime),
+		ExpiresAt:     time.Duration(24 * time.Hour),
 	})
 	if err != nil {
-		return "", errlst.NewInternalServerError("error setting new refresh token in redisDB")
+		mw.Logger.Error(err)
+		return "", "", errlst.NewInternalServerError("error setting new refresh token in redisDB")
 	}
 
 	// update cookies with new values
-	utils.SetAuthCookies(c, mw.cfg, newAccessToken, newRefreshToken)
+	utils.SetAuthCookies(c, newAccessToken, newRefreshToken)
 
 	// return newAccessToken
-	return newAccessToken, nil
+	return newAccessToken, newRefreshToken, nil
 }

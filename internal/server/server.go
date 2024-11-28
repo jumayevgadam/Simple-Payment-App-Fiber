@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
 // Server struct keeps all configurations needed for application.
@@ -18,6 +18,7 @@ type Server struct {
 	Cfg        *config.Config
 	DataStore  database.DataStore
 	CacheStore cache.Store
+	Logger     logger.Logger
 }
 
 // NewServer creates and returns a new instance of Server.
@@ -25,18 +26,14 @@ func NewServer(
 	cfg *config.Config,
 	dataStore database.DataStore,
 	cacheStore cache.Store,
+	logger logger.Logger,
 ) *Server {
-	fiberConfig := fiber.Config{
-		ReadTimeout:  cfg.Server.ReadTimeOut * time.Second,
-		WriteTimeout: cfg.Server.WriteTimeOut * time.Second,
-		IdleTimeout:  cfg.Server.CtxDefaultTimeOut * time.Second,
-	}
-
 	server := &Server{
-		Fiber:      fiber.New(fiberConfig),
+		Fiber:      fiber.New(),
 		Cfg:        cfg,
 		DataStore:  dataStore,
 		CacheStore: cacheStore,
+		Logger:     logger,
 	}
 
 	return server

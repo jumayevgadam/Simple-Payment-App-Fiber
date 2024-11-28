@@ -99,7 +99,7 @@ func main() {
 	dataStore := postgres.NewDataStore(psqlDB)
 	cacheStore := cache.NewClientRDRepository(rdb)
 
-	source := server.NewServer(cfg, dataStore, cacheStore)
+	source := server.NewServer(cfg, dataStore, cacheStore, appLogger)
 	if err := source.Run(); err != nil {
 		log.Printf("error in runnning application: %v", err.Error())
 	}

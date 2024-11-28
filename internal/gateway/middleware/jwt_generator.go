@@ -10,8 +10,8 @@ import (
 
 // GenerateAccessToken method for creating access token.
 func (mw *MiddlewareManager) GenerateTokens(userID, roleID int, username string) (string, string, error) {
-	accessTokenExTime := time.Now().Add(time.Duration(mw.cfg.JWT.AccessTokenExpiryTime) * time.Minute)
-	refreshTokenExTime := time.Now().Add(time.Duration(mw.cfg.JWT.RefreshTokenExpiryTime) * time.Minute)
+	accessTokenExTime := time.Now().Add(5 * time.Minute)
+	refreshTokenExTime := time.Now().Add(24 * time.Hour)
 	accessTokenclaims := token.AccessTokenClaims{
 		ID:       userID,
 		RoleID:   roleID,

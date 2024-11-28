@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	userOps "github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -20,13 +20,13 @@ var (
 
 // UserHandler manages http request methods and calls methods from service and config.
 type UserHandler struct {
-	cfg     *config.Config
+	mw      *middleware.MiddlewareManager
 	service userOps.Service
 }
 
 // NewUserHandler creates and returns a new instance of UserHandler.
-func NewUserHandler(cfg *config.Config, service userOps.Service) *UserHandler {
-	return &UserHandler{cfg: cfg, service: service}
+func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *UserHandler {
+	return &UserHandler{mw: mw, service: service}
 }
 
 // CreateUser handler creates a new user and returns id.
@@ -71,6 +71,18 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 }
 
 // Login handler method for login.
+// @Summary Login
+// @Description login func for all users.
+// @Tags Users
+// @ID login
+// @Accept multipart/form-data
+// @Produce json
+// @Param role path string true "role"
+// @Param loginReq formData userModel.LoginReq true "login request payload"
+// @Success 200 {object} userModel.UserWithTokens
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /auth/{role}/login [post]
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")
@@ -90,9 +102,31 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		utils.SetAuthCookies(c, h.cfg, userWithToken.AccessToken, userWithToken.RefreshToken)
+		utils.SetAuthCookies(c, userWithToken.AccessToken, userWithToken.RefreshToken)
 
 		span.SetStatus(codes.Ok, "login successfully completed")
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
+	}
+}
+
+// RenewAccessToken handler func renews access token using refresh token.
+func (h *UserHandler) RenewAccessToken() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		_, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[RenewAccessToken]")
+		defer span.End()
+
+		refreshToken := c.FormValue("refresh_token")
+		if refreshToken == "" {
+			return errlst.NewUnauthorizedError("refresh token can not be empty")
+		}
+		
+		newAccessToken, newRefreshToken, err := h.service.RenewAccessToken(c, refreshToken)
+		if err != nil {
+			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+			return errlst.Response(c, err)
+		}
+
+		span.SetStatus(codes.Ok, "successfully handled new access Token")
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"newAccessToken": newAccessToken, "newRefreshToken": newRefreshToken})
 	}
 }

@@ -217,3 +217,8 @@ func handleRefreshToken(ctx context.Context, tokenOps *token.TokenOps, refreshTo
 
 	return newAccessToken, nil
 }
+
+Date: Wed, 27 Nov 2024 16:35:18 GMT
+Content-Type: application/json
+Content-Length: 538
+Set-Cookie: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJyb2xlX2lkIjoyLCJ1c2VybmFtZSI6ImJiYmJiYiIsImV4cCI6MTczMjgxMTcxOH0.ysDOfQWq05hR-TkOkNFdGc_PgKGASDY_ApP8t01U0VQ; expires=Thu, 28 Nov 2024 16:35:18 GMT; path=/; HttpOnly; SameSite=Lax

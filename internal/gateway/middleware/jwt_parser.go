@@ -14,14 +14,17 @@ func (mw *MiddlewareManager) ParseAccessToken(accessToken string) (*token.Access
 		if !ok {
 			return nil, errlst.ErrInvalidJWTMethod
 		}
+
 		return []byte(mw.cfg.JWT.AccessTokenSecret), nil
 	})
-	if err != nil || !tokenStr.Valid {
+	mw.Logger.Info(tokenStr)
+	if err != nil {
 		return nil, errlst.NewUnauthorizedError("invalid access token")
 	}
 
 	claims, ok := tokenStr.Claims.(*token.AccessTokenClaims)
 	if !ok {
+		mw.Logger.Info("error in tokenStr.Claims...")
 		return nil, errlst.ErrInvalidJWTClaims
 	}
 
@@ -40,6 +43,7 @@ func (mw *MiddlewareManager) ParseRefreshToken(refreshToken string) (*token.Refr
 		return []byte(mw.cfg.JWT.RefreshTokenSecret), nil
 	})
 	if err != nil {
+		mw.Logger.Errorf("error in verifying refresh token : %v, %v", refreshToken, err)
 		return nil, errlst.ParseErrors(err)
 	}
 

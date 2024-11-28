@@ -4,6 +4,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
+	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
 // Ensure TokenOps implements the TokenGeneratorOps interface.
@@ -20,9 +21,10 @@ type TokenGeneratorOps interface {
 type MiddlewareManager struct {
 	redisRepo cache.Store
 	cfg       *config.Config
+	Logger    logger.Logger
 }
 
 // NewMiddlewareManager func creates and returns a new instance TokenOps.
-func NewMiddlewareManager(cfg *config.Config, redisRepo cache.Store) *MiddlewareManager {
-	return &MiddlewareManager{cfg: cfg, redisRepo: redisRepo}
+func NewMiddlewareManager(cfg *config.Config, redisRepo cache.Store, logger logger.Logger) *MiddlewareManager {
+	return &MiddlewareManager{cfg: cfg, redisRepo: redisRepo, Logger: logger}
 }

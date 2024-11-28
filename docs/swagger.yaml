@@ -42,6 +42,32 @@ definitions:
       roleID:
         type: integer
     type: object
+  github_com_jumayevgadam_tsu-toleg_internal_models_user.AllUserDTO:
+    properties:
+      groupID:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      roleID:
+        type: integer
+      surname:
+        type: string
+      userID:
+        type: integer
+      username:
+        type: string
+    type: object
+  github_com_jumayevgadam_tsu-toleg_internal_models_user.UserWithTokens:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_user.AllUserDTO'
+    type: object
 host: localhost:4000
 info:
   contact:
@@ -56,6 +82,42 @@ info:
   title: TSU-TOLEG API Documentation
   version: "2.0"
 paths:
+  /auth/{role}/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: login func for all users.
+      operationId: login
+      parameters:
+      - description: role
+        in: path
+        name: role
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      - in: formData
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_user.UserWithTokens'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Login
+      tags:
+      - Users
   /auth/{role}/sign-up:
     post:
       consumes:

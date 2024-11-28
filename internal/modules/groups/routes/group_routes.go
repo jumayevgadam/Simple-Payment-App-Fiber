@@ -19,7 +19,7 @@ func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.Dat
 	{
 		groupPath.Post("/add", Handler.AddGroup())
 		groupPath.Get("/get-all", Handler.ListGroups())
-		groupPath.Get("/:id", Handler.GetGroup())
+		groupPath.Get("/:id", mwMngr.RoleBasedMiddleware(mw, "get:group", dataStore), Handler.GetGroup())
 		groupPath.Delete("/:id", Handler.DeleteGroup())
 		groupPath.Put("/:id", Handler.UpdateGroup())
 	}

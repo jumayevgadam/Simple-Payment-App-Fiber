@@ -21,7 +21,7 @@ func (s *Server) MapHandlers() error {
 
 	v1 := s.Fiber.Group(v1URL)
 
-	mwOps := mwMngr.NewMiddlewareManager(s.Cfg, s.CacheStore)
+	mwOps := mwMngr.NewMiddlewareManager(s.Cfg, s.CacheStore, s.Logger)
 
 	// roleHTTP is for app/role part of project.
 	roleHTTP.Routes(v1, s.DataStore, s.CacheStore)
