@@ -25,13 +25,13 @@ func NewUserRepository(psqlDB connection.DB) *UserRepository {
 }
 
 // CreateUser repo insert user data into db and returns id.
-func (r *UserRepository) CreateUser(ctx context.Context, roleID int, user userModel.SignUpRes) (int, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
 	var userID int
 
 	if err := r.psqlDB.QueryRow(
 		ctx,
 		createUserQuery,
-		roleID,
+		user.RoleID,
 		user.GroupID,
 		user.Name,
 		user.Surname,

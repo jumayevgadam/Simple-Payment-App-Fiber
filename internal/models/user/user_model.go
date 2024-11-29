@@ -4,36 +4,27 @@ import "time"
 
 // LoginReq model is request model for processing request in handler layer.
 type SignUpReq struct {
-	GroupID  int    `form:"group-id" json:"groupID"`
 	Name     string `form:"name" json:"name" validate:"required"`
 	Surname  string `form:"surname" json:"surname" validate:"required"`
 	UserName string `form:"username" json:"username" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required,min=6"`
+	GroupID  *int   `form:"group-id,omitempty"`
 }
 
 // LoginRes model is db model.
 type SignUpRes struct {
-	GroupID  int    `db:"group_id"`
+	RoleID   *int   `db:"role_id"`
+	GroupID  *int   `db:"group_id"`
 	Name     string `db:"name"`
 	Surname  string `db:"surname"`
 	UserName string `db:"username"`
 	Password string `db:"password"`
 }
 
-// ToServer method sends response to the server.
-func (s *SignUpRes) ToServer() SignUpReq {
-	return SignUpReq{
-		GroupID:  s.GroupID,
-		Name:     s.Name,
-		Surname:  s.Surname,
-		UserName: s.UserName,
-		Password: s.Password,
-	}
-}
-
 // ToStorage method sends dto model to db storage.
-func (s *SignUpReq) ToStorage() SignUpRes {
+func (s *SignUpReq) ToStorage(roleID int) SignUpRes {
 	return SignUpRes{
+		RoleID:   &roleID,
 		GroupID:  s.GroupID,
 		Name:     s.Name,
 		Surname:  s.Surname,

@@ -24,13 +24,13 @@ func (s *Server) MapHandlers() error {
 	mwOps := mwMngr.NewMiddlewareManager(s.Cfg, s.CacheStore, s.Logger)
 
 	// roleHTTP is for app/role part of project.
-	roleHTTP.Routes(v1, s.DataStore, s.CacheStore)
+	roleHTTP.Routes(v1, s.DataStore)
 	// facultyHTTP  is for app/faculty part of project.
 	facultyHTTP.Routes(v1, mwOps, s.DataStore)
 	// groupHTTP route is for app/group part of project.
 	groupHTTP.Routes(v1, mwOps, s.DataStore)
 	// userHTTP route is for app/user part of project.
-	userHTTP.Routes(v1, mwOps, s.DataStore, s.CacheStore)
+	userHTTP.Routes(v1, mwOps, s.DataStore)
 
 	return nil
 }

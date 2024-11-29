@@ -79,7 +79,7 @@ const docTemplate = `{
         },
         "/auth/{role}/sign-up": {
             "post": {
-                "description": "create user func general func for creating users.",
+                "description": "create user func general func for creating users.You can use for role superadmin, admin, student.",
                 "consumes": [
                     "multipart/form-data"
                 ],

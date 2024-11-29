@@ -19,12 +19,11 @@ type TokenGeneratorOps interface {
 
 // MiddlewareManager struct takes all needed details for jwtToken from config.
 type MiddlewareManager struct {
-	redisRepo cache.Store
-	cfg       *config.Config
-	Logger    logger.Logger
+	cfg    *config.Config
+	Logger logger.Logger
 }
 
 // NewMiddlewareManager func creates and returns a new instance TokenOps.
 func NewMiddlewareManager(cfg *config.Config, redisRepo cache.Store, logger logger.Logger) *MiddlewareManager {
-	return &MiddlewareManager{cfg: cfg, redisRepo: redisRepo, Logger: logger}
+	return &MiddlewareManager{cfg: cfg, Logger: logger}
 }

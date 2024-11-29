@@ -122,7 +122,8 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: create user func general func for creating users.
+      description: create user func general func for creating users.You can use for
+        role superadmin, admin, student.
       operationId: create-user
       parameters:
       - description: role

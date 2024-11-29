@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -10,23 +8,17 @@ import (
 
 // GenerateAccessToken method for creating access token.
 func (mw *MiddlewareManager) GenerateTokens(userID, roleID int, username string) (string, string, error) {
-	accessTokenExTime := time.Now().Add(5 * time.Minute)
-	refreshTokenExTime := time.Now().Add(24 * time.Hour)
 	accessTokenclaims := token.AccessTokenClaims{
-		ID:       userID,
-		RoleID:   roleID,
-		UserName: username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(accessTokenExTime),
-		},
+		ID:               userID,
+		RoleID:           roleID,
+		UserName:         username,
+		RegisteredClaims: jwt.RegisteredClaims{},
 	}
 	refreshTokenClaims := token.RefreshTokenClaims{
-		ID:       userID,
-		RoleID:   roleID,
-		UserName: username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(refreshTokenExTime),
-		},
+		ID:               userID,
+		RoleID:           roleID,
+		UserName:         username,
+		RegisteredClaims: jwt.RegisteredClaims{},
 	}
 
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte(mw.cfg.JWT.AccessTokenName))

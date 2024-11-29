@@ -31,7 +31,7 @@ func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *
 
 // CreateUser handler creates a new user and returns id.
 // @Summary Create User.
-// @Description create user func general func for creating users.
+// @Description create user func general func for creating users.You can use for role superadmin, admin, student.
 // @Tags Users
 // @ID create-user
 // @Accept multipart/form-data
@@ -48,12 +48,8 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 		defer span.End()
 
 		role := c.Params("role")
+
 		var req userModel.SignUpReq
-
-		if role != "student" {
-			req.GroupID = 0
-		}
-
 		if err := reqvalidator.ReadRequest(c, &req); err != nil {
 			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
@@ -106,27 +102,5 @@ func (h *UserHandler) Login() fiber.Handler {
 
 		span.SetStatus(codes.Ok, "login successfully completed")
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
-	}
-}
-
-// RenewAccessToken handler func renews access token using refresh token.
-func (h *UserHandler) RenewAccessToken() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		_, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[RenewAccessToken]")
-		defer span.End()
-
-		refreshToken := c.FormValue("refresh_token")
-		if refreshToken == "" {
-			return errlst.NewUnauthorizedError("refresh token can not be empty")
-		}
-		
-		newAccessToken, newRefreshToken, err := h.service.RenewAccessToken(c, refreshToken)
-		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
-			return errlst.Response(c, err)
-		}
-
-		span.SetStatus(codes.Ok, "successfully handled new access Token")
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"newAccessToken": newAccessToken, "newRefreshToken": newRefreshToken})
 	}
 }

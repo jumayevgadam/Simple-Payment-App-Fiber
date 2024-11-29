@@ -2,12 +2,9 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
-	"github.com/jumayevgadam/tsu-toleg/internal/models/abstract"
 	roleModel "github.com/jumayevgadam/tsu-toleg/internal/models/role"
-	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
 	"go.opentelemetry.io/otel"
@@ -32,37 +29,13 @@ func (s *RoleService) GetRole(ctx context.Context, roleID int) (roleModel.DTO, e
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[GetRole]")
 	defer span.End()
 
-	cacheArgument := abstract.CacheArgument{
-		ObjectID:   roleID,
-		ObjectType: "role",
-	}
-
 	var roleDTO roleModel.DTO
-	cachedValue, err := s.cache.Get(ctx, cacheArgument)
-	if err == nil && json.Unmarshal(cachedValue, &roleDTO) == nil {
-		span.SetStatus(codes.Ok, "Successfully got role")
-		return roleDTO, nil
-	}
-
 	roleDAO, err := s.repo.RolesRepo().GetRole(ctx, roleID)
 	if err != nil {
 		tracing.ErrorTracer(span, err)
 		return roleModel.DTO{}, errlst.ParseErrors(err)
 	}
-
 	roleDTO = roleDAO.ToServer()
-
-	marshaledData, err := json.Marshal(roleDTO)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return roleDTO, errlst.ParseErrors(err)
-	}
-
-	err = s.cache.Set(ctx, cacheArgument, marshaledData, constants.RoleTimeDuration)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return roleDTO, errlst.ParseErrors(err)
-	}
 
 	span.SetStatus(codes.Ok, "Successfully got role")
 	return roleDTO, nil
@@ -98,18 +71,6 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 func (s *RoleService) DeleteRole(ctx context.Context, roleID int) error {
 	ctx, span := otel.Tracer("[RoleService]").Start(ctx, "[DeleteRole]")
 	defer span.End()
-
-	// define cache argument
-	cachedArgument := abstract.CacheArgument{
-		ObjectID:   roleID,
-		ObjectType: "role",
-	}
-
-	// delete from cache
-	if err := s.cache.Del(ctx, cachedArgument); err != nil {
-		tracing.ErrorTracer(span, err)
-		return errlst.ParseSQLErrors(err)
-	}
 
 	// delete from database
 	if err := s.repo.RolesRepo().DeleteRole(ctx, roleID); err != nil {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
@@ -37,8 +36,8 @@ type UserService struct {
 }
 
 // NewUserService creates and returns a new instance of UserRepository.
-func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore, cache cache.Store) *UserService {
-	return &UserService{mw: mw, repo: repo, cache: cache}
+func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore) *UserService {
+	return &UserService{mw: mw, repo: repo}
 }
 
 // CreateUser service insert a user into db and returns its id.
@@ -46,22 +45,46 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 	ctx, span := otel.Tracer("[UserService]").Start(ctx, "[CreateUser]")
 	defer span.End()
 
-	// check role that exist or not.
-	roleID, exists := RoleMap[role]
-	if !exists {
-		return -1, errlst.NewBadRequestError("invalid role provided")
-	}
+	var (
+		userID int
+		err    error
+	)
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		// Check that role exist or not in database, do not try with dynamic methods.
+		// Return id of that role
+		roleID, err := db.RolesRepo().GetRoleIDByRoleName(ctx, role)
+		if err != nil {
+			tracing.ErrorTracer(span, errlst.ErrNoSuchRole)
+			return errlst.ErrNoSuchRole
+		}
 
-	hashedPass, err := utils.HashPassword(request.Password)
-	if err != nil {
-		tracing.ErrorTracer(span, err)
-		return -1, errlst.ParseErrors(err)
-	}
-	request.Password = hashedPass
+		if roleID == 3 {
+			if request.GroupID == nil {
+				return errlst.NewBadRequestError("group id must need for student")
+			}
+		} else {
+			if request.GroupID != nil {
+				return errlst.NewBadRequestError("group id does not need for non-student roles")
+			}
+		}
 
-	userID, err := s.repo.UsersRepo().CreateUser(ctx, roleID, request.ToStorage())
+		hashedPass, err := utils.HashPassword(request.Password)
+		if err != nil {
+			tracing.ErrorTracer(span, err)
+			return errlst.ParseErrors(err)
+		}
+		request.Password = hashedPass
+
+		userID, err = s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(roleID))
+		if err != nil {
+			tracing.ErrorTracer(span, err)
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
 	if err != nil {
-		tracing.ErrorTracer(span, err)
+		tracing.ErrorTracer(span, errlst.ErrTransactionFailed)
 		return -1, errlst.ParseErrors(err)
 	}
 
@@ -131,18 +154,4 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 	}
 
 	return userWithToken, nil
-}
-
-// RenewAccessToken service checks some ops.
-func (s *UserService) RenewAccessToken(c *fiber.Ctx, refreshToken string) (string, string, error) {
-	_, span := otel.Tracer("[UserService]").Start(c.Context(), "[RenewAccessToken]")
-	defer span.End()
-
-	s.mw.Logger.Info(refreshToken)
-	newAccessToken, newRefreshToken, err := middleware.HandleNewAccessToken(c, s.mw, refreshToken)
-	if err != nil {
-		return "", "", errlst.NewInternalServerError("can not generate refresh and access tokens")
-	}
-
-	return newAccessToken, newRefreshToken, nil
 }

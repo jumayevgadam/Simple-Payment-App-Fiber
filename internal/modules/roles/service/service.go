@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/cache"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 )
@@ -13,11 +12,10 @@ var (
 
 // RoleService performs buisiness logic in role management.
 type RoleService struct {
-	repo  database.DataStore
-	cache cache.Store
+	repo database.DataStore
 }
 
 // NewRoleService creates and returns a new instance of RoleService.
-func NewRoleService(repo database.DataStore, cache cache.Store) *RoleService {
-	return &RoleService{repo: repo, cache: cache}
+func NewRoleService(repo database.DataStore) *RoleService {
+	return &RoleService{repo: repo}
 }

@@ -14,6 +14,10 @@ const (
 		FROM roles
 		WHERE id = $1;`
 
+	// getRoleIDByRoleName is.
+	getRoleIDByRoleName = `
+		SELECT id FROM roles WHERE name = $1;`
+
 	// getRolesQuery is.
 	getRolesQuery = `
 		SELECT *
