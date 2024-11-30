@@ -1,8 +1,6 @@
 package server
 
 import (
-	"github.com/gofiber/swagger"
-	_ "github.com/jumayevgadam/tsu-toleg/docs"
 	mwMngr "github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	facultyHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/routes"
 	groupHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/routes"
@@ -16,9 +14,6 @@ const (
 
 // MapHandlers function takes all http routes.
 func (s *Server) MapHandlers() error {
-	// docs.SwaggerInfo.Title = "TSU-TOLEG API"
-	s.Fiber.Get("/api-docs/tsu-toleg-api/*", swagger.HandlerDefault)
-
 	v1 := s.Fiber.Group(v1URL)
 
 	mwOps := mwMngr.NewMiddlewareManager(s.Cfg, s.Logger)

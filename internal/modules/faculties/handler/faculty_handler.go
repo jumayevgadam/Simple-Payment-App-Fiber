@@ -25,18 +25,7 @@ func NewFacultyHandler(service facultyOps.Service) *FacultyHandler {
 	return &FacultyHandler{service: service}
 }
 
-// AddFaculty handler processes requests and returns faculty's id.
-// @Summary Add a new faculty.
-// @Description Creates a new faculty and returns its id.
-// @Tags Faculties
-// @ID add-faculty
-// @Accept multipart/form-data
-// @Produce json
-// @Param facultyReq formData facultyModel.DTO true "faculty request for adding new one"
-// @Success 200 {integer} integer 1
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /faculty/create [post]
+// AddFaculty handler.
 func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var facultyReq facultyModel.DTO
@@ -54,17 +43,6 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 }
 
 // GetFaculty handler fetches faculty using identified id.
-// @Summary get-faculty.
-// @Description retrieve faculty using its id.
-// @Tags Faculties
-// @ID get-faculty
-// @Accept multipart/form-data
-// @Produce json
-// @Param id path int true "id"
-// @Success 200 {object} facultyModel.Faculty
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [get]
 func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))
@@ -82,15 +60,6 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 }
 
 // ListFaculties handler fetches a list of faculties.
-// @Summary List faculties.
-// @Description list faculties, pagination not setted.
-// @Tags Faculties
-// @ID list-faculties
-// @Produce json
-// @Success 200 {object} []facultyModel.Faculty
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /faculty/get-all [get]
 func (h *FacultyHandler) ListFaculties() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		faculties, err := h.service.ListFaculties(c.Context())
@@ -103,16 +72,6 @@ func (h *FacultyHandler) ListFaculties() fiber.Handler {
 }
 
 // DeleteFaculty handler deletes a faculty using identified id.
-// @Summary delete-faculty
-// @Description delete faculty using identified id.
-// @Tags Faculties
-// @ID delete-faculty
-// @Produce json
-// @Param id path int true "id"
-// @Success 200 {string} string "successfully deleted faculty"
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [delete]
 func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))
@@ -131,18 +90,6 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 }
 
 // UpdateFaculty handler updates a faculty using a new faculty data and identified id.
-// @Summary Update Faculty
-// @Description update faculty fields using identified faculty id
-// @Tags Faculties
-// @ID update-faculty
-// @Accept multipart/form-data
-// @Produce json
-// @Param id path int true "needed faculty id for update"
-// @Param inputReq formData facultyModel.UpdateInputReq true "update faculty request"
-// @Success 200 {string} string "successfully updated faculty ops"
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [put]
 func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))
