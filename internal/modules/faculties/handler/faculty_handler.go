@@ -7,10 +7,7 @@ import (
 	facultyModel "github.com/jumayevgadam/tsu-toleg/internal/models/faculty"
 	facultyOps "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 // Ensure FacultyHandler implements the facultyOps.Handlers interface.
@@ -42,22 +39,16 @@ func NewFacultyHandler(service facultyOps.Service) *FacultyHandler {
 // @Router /faculty/create [post]
 func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[AddFaculty]")
-		defer span.End()
-
 		var facultyReq facultyModel.DTO
 		if err := reqvalidator.ReadRequest(c, &facultyReq); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		resID, err := h.service.AddFaculty(ctx, &facultyReq)
+		resID, err := h.service.AddFaculty(c.Context(), &facultyReq)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "Successfully added faculty")
 		return c.Status(fiber.StatusOK).JSON(resID)
 	}
 }
@@ -76,22 +67,16 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 // @Router /faculty/{id} [get]
 func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[GetFaculty]")
-		defer span.End()
-
 		facultyID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrBadRequest.Error())
 			return errlst.Response(c, err)
 		}
 
-		faculty, err := h.service.GetFaculty(ctx, facultyID)
+		faculty, err := h.service.GetFaculty(c.Context(), facultyID)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "Successfully got faculty")
 		return c.Status(fiber.StatusOK).JSON(faculty)
 	}
 }
@@ -108,16 +93,11 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 // @Router /faculty/get-all [get]
 func (h *FacultyHandler) ListFaculties() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[ListFaculties]")
-		defer span.End()
-
-		faculties, err := h.service.ListFaculties(ctx)
+		faculties, err := h.service.ListFaculties(c.Context())
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully got all faculties")
 		return c.Status(fiber.StatusOK).JSON(faculties)
 	}
 }
@@ -135,21 +115,15 @@ func (h *FacultyHandler) ListFaculties() fiber.Handler {
 // @Router /faculty/{id} [delete]
 func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[DeleteFaculty]")
-		defer span.End()
-
 		facultyID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrBadQueryParams.Error())
 			return errlst.Response(c, err)
 		}
 
-		if err := h.service.DeleteFaculty(ctx, facultyID); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+		if err := h.service.DeleteFaculty(c.Context(), facultyID); err != nil {
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully deleted faculty")
 		return c.Status(fiber.StatusNoContent).JSON(fiber.Map{
 			"response": "successfully deleted faculty",
 		})
@@ -171,9 +145,6 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 // @Router /faculty/{id} [put]
 func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[FacultyHandler]").Start(c.Context(), "[UpdateFaculty]")
-		defer span.End()
-
 		facultyID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
@@ -187,17 +158,14 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 				return c.JSON(res)
 			}
 
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		res, err := h.service.UpdateFaculty(ctx, facultyID, &inputReq)
+		res, err := h.service.UpdateFaculty(c.Context(), facultyID, &inputReq)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully updated faculty")
 		return c.Status(fiber.StatusOK).JSON(res)
 	}
 }

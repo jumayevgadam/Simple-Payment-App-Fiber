@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/jumayevgadam/tsu-toleg/internal/common/jaeger"
 	"github.com/jumayevgadam/tsu-toleg/internal/common/metrics"
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
@@ -13,9 +12,6 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/server"
 	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
 // @title TSU-TOLEG API Documentation
@@ -41,28 +37,6 @@ func main() {
 	appLogger := logger.NewApiLogger(cfg)
 	appLogger.InitLogger()
 	appLogger.Infof("Mode: %s", cfg.Server.Mode)
-
-	// Initialize jaeger tracer here.
-	exporter, err := jaeger.NewJaegerConn(ctx, "http://localhost:16668/api/traces")
-	if err != nil {
-		appLogger.Errorf("cannot create a jaeger exporter: %v", err.Error())
-	}
-	defer exporter.Shutdown(ctx)
-
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("tsu-toleg-service"),
-		)),
-	)
-	// appLogger.Info("Jaeger connected!!")
-
-	defer func() {
-		if err := tp.Shutdown(ctx); err != nil {
-			appLogger.Errorf("error shutding down tracer provider: %v", err.Error())
-		}
-	}()
 
 	// PostgreSQL connection
 	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)

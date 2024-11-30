@@ -11,7 +11,7 @@ import (
 // Routes function for users in this place.
 func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.DataStore) {
 	// Init Service.
-	Service := service.NewUserService(mw, dataStore, redisStore)
+	Service := service.NewUserService(mw, dataStore)
 	// Init Handler.
 	Handler := handler.NewUserHandler(mw, Service)
 
@@ -19,7 +19,6 @@ func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.Dat
 	{
 		authGroup.Post("/:role/sign-up", Handler.CreateUser())
 		authGroup.Post("/:role/login", Handler.Login())
-		authGroup.Post("/renew-access-token", Handler.RenewAccessToken())
 		// authGroup.Post("/:role/logout", Handler.Logout())
 	}
 }

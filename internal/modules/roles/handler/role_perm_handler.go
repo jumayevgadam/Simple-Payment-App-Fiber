@@ -7,10 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	rolePermModel "github.com/jumayevgadam/tsu-toleg/internal/models/role"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 // AddRolePermission handler adds a new role permission.
@@ -27,26 +24,20 @@ import (
 // @Router /role-permission/create [post]
 func (h *RoleHandler) AddRolePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[AddRolePermission]")
-		defer span.End()
-
 		var req rolePermModel.RolePermissionReq
 		if err := reqvalidator.ReadRequest(c, &req); err != nil {
 			if req.PermissionID == 0 || req.RoleID == 0 {
 				return c.Status(fiber.StatusBadRequest).JSON("error: roleID or permissionID must be implement")
 			}
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 
 			return errlst.Response(c, err)
 		}
 
-		res, err := h.service.AddRolePermission(ctx, req)
+		res, err := h.service.AddRolePermission(c.Context(), req)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully created a new role-permission")
 		return c.Status(fiber.StatusOK).JSON(res)
 	}
 }
@@ -65,21 +56,16 @@ func (h *RoleHandler) AddRolePermission() fiber.Handler {
 // @Router /role-permission/{role_id} [get]
 func (h *RoleHandler) GetPermissionsByRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[GetRolePermissionByRole]")
-		defer span.End()
-
 		roleID, err := strconv.Atoi(c.Params("role_id"))
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		response, err := h.service.GetPermissionsByRole(ctx, roleID)
+		response, err := h.service.GetPermissionsByRole(c.Context(), roleID)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully retrieved permissions by role")
 		return c.Status(fiber.StatusOK).JSON(response)
 	}
 }
@@ -98,21 +84,16 @@ func (h *RoleHandler) GetPermissionsByRole() fiber.Handler {
 // @Router /role-permission/{permission_id} [get]
 func (h *RoleHandler) GetRolesByPermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[GetRolePermissionByPermission]")
-		defer span.End()
-
 		permissionID, err := strconv.Atoi(c.Params("permission_id"))
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		response, err := h.service.GetRolesByPermission(ctx, permissionID)
+		response, err := h.service.GetRolesByPermission(c.Context(), permissionID)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully got roles by permission id")
 		return c.Status(fiber.StatusOK).JSON(response)
 	}
 }
@@ -132,9 +113,6 @@ func (h *RoleHandler) GetRolesByPermission() fiber.Handler {
 // @Router /role-permission/{role_id}/and/{permission_id} [delete]
 func (h *RoleHandler) DeleteRolePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[RoleHandler]").Start(c.Context(), "[DeleteRolePermission]")
-		defer span.End()
-
 		role_id, err := strconv.Atoi(c.Params("role_id"))
 		if err != nil {
 			return errlst.Response(c, err)
@@ -144,13 +122,11 @@ func (h *RoleHandler) DeleteRolePermission() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		err = h.service.DeleteRolePermission(ctx, role_id, permission_id)
+		err = h.service.DeleteRolePermission(c.Context(), role_id, permission_id)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully removed role permission")
 		return c.Status(fiber.StatusOK).JSON(
 			fiber.Map{
 				"message": fmt.Sprintf("successfully removed role-permission with roleID: %d and permissionID: %d", role_id, permission_id),

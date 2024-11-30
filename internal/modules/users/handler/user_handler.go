@@ -6,11 +6,8 @@ import (
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	userOps "github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 // Ensure UserHandler implements the userOps.Handler interface.
@@ -44,24 +41,18 @@ func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *
 // @Router /auth/{role}/sign-up [post]
 func (h *UserHandler) CreateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[CreateUser]")
-		defer span.End()
-
 		role := c.Params("role")
 
 		var req userModel.SignUpReq
 		if err := reqvalidator.ReadRequest(c, &req); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		userID, err := h.service.CreateUser(ctx, req, role)
+		userID, err := h.service.CreateUser(c.Context(), req, role)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "Successfully created user")
 		return c.Status(fiber.StatusOK).JSON(userID)
 	}
 }
@@ -81,26 +72,21 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 // @Router /auth/{role}/login [post]
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[UserHandler]").Start(c.Context(), "[Login]")
-		defer span.End()
-
 		role := c.Params("role")
 
 		var loginReq userModel.LoginReq
 		if err := reqvalidator.ReadRequest(c, &loginReq); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
+
 			return errlst.Response(c, err)
 		}
 
-		userWithToken, err := h.service.Login(ctx, loginReq, role)
+		userWithToken, err := h.service.Login(c.Context(), loginReq, role)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
 		utils.SetAuthCookies(c, userWithToken.AccessToken, userWithToken.RefreshToken)
 
-		span.SetStatus(codes.Ok, "login successfully completed")
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
 	}
 }

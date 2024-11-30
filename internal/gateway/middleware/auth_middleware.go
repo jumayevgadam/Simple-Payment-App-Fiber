@@ -2,23 +2,12 @@ package middleware
 
 import (
 	"context"
-	"errors"
 	"os"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
-	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
-
-// create dynamic roles.
-var RoleMap = map[int]string{
-	1: "SuperAdmin",
-	2: "Admin",
-	3: "Student",
-}
 
 // Check this place. edit with silly codes.
 // RoleBasedMiddleware takes needed middleware permissions.
@@ -26,31 +15,14 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 	return func(c *fiber.Ctx) error {
 		// Retrieve the JWT token from cookie.
 		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
-		refreshToken := c.Cookies(os.Getenv("REFRESH_TOKEN_NAME"))
-
-		if accessToken == "" && refreshToken == "" {
+		if accessToken == "" {
 			return errlst.NewUnauthorizedError("missing access and refresh tokens")
 		}
 
-		// get claims.
-		var claims *token.AccessTokenClaims
-		var err error
-		claims, err = mw.ParseAccessToken(accessToken)
+		// get token claims.
+		claims, err := mw.ParseToken(accessToken)
 		if err != nil {
-			mw.Logger.Error("error in 41") // error in here
-			if errors.Is(err, errlst.ErrTokenExpired) && refreshToken != "" {
-				// clear accesstoken from cookie
-				utils.ClearAccessTokenCookie(c, mw.cfg, accessToken)
-
-				claims, err = mw.ParseAccessToken(accessToken)
-				if err != nil {
-					mw.Logger.Error("error in 52")
-					return errlst.NewUnauthorizedError("invalid refreshed access token")
-				}
-			} else {
-				mw.Logger.Error("Token error not expired")
-				return errlst.Response(c, err)
-			}
+			return errlst.NewUnauthorizedError("cannot verify token, error issued at this place")
 		}
 
 		// Fetch permissions for the user's role
@@ -68,14 +40,12 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 		}
 
 		if !hasPermission {
-			roleName, exists := RoleMap[claims.RoleID]
-			if !exists {
-				roleName = "Unknown role(" + strconv.Itoa(claims.RoleID) + ")"
-			}
-			return errlst.NewForbiddenError("access denied for role: " + roleName)
+			return errlst.NewForbiddenError("access denied for role  with those permissions")
 		}
 
-		c.Locals("user_claims", claims)
+		c.Locals("userRole", claims.RoleID)
+		c.Locals("userID", claims.ID)
+		c.Locals("username", claims.UserName)
 		return c.Next()
 	}
 }

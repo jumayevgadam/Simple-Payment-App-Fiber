@@ -9,10 +9,8 @@ import (
 	groupOps "github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst/tracing"
+
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 // Ensure GroupHandler implements the groupOps.Handler.
@@ -44,22 +42,16 @@ func NewGroupHandler(service groupOps.Service) *GroupHandler {
 // @Router /group/add [post]
 func (h *GroupHandler) AddGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[AddGroup]")
-		defer span.End()
-
 		var groupReq groupModel.GroupReq
 		if err := reqvalidator.ReadRequest(c, &groupReq); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		groupID, err := h.service.AddGroup(ctx, &groupReq)
+		groupID, err := h.service.AddGroup(c.Context(), &groupReq)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully added group")
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"groupID": groupID})
 	}
 }
@@ -78,21 +70,16 @@ func (h *GroupHandler) AddGroup() fiber.Handler {
 // @Router /group/{id} [get]
 func (h *GroupHandler) GetGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[GetGroup]")
-		defer span.End()
-
 		groupID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		group, err := h.service.GetGroup(ctx, groupID)
+		group, err := h.service.GetGroup(c.Context(), groupID)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully got group")
 		return c.Status(fiber.StatusOK).JSON(group)
 	}
 }
@@ -113,21 +100,16 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 // @Router /group/get-all [get]
 func (h *GroupHandler) ListGroups() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[ListGroups]")
-		defer span.End()
-
 		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		groups, err := h.service.ListGroups(ctx, paginationReq)
+		groups, err := h.service.ListGroups(c.Context(), paginationReq)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully listed groups")
 		return c.Status(fiber.StatusOK).JSON(groups)
 	}
 }
@@ -146,20 +128,16 @@ func (h *GroupHandler) ListGroups() fiber.Handler {
 // @Router /group/{id} [delete]
 func (h *GroupHandler) DeleteGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[DeleteGroup]")
-		defer span.End()
-
 		groupID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		if err := h.service.DeleteGroup(ctx, groupID); err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
+		err = h.service.DeleteGroup(c.Context(), groupID)
+		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "successfully deleted group")
 		return c.Status(fiber.StatusNoContent).JSON(fiber.Map{"res": fmt.Sprintf("successfully deleted group with id: %d", groupID)})
 	}
 }
@@ -179,9 +157,6 @@ func (h *GroupHandler) DeleteGroup() fiber.Handler {
 // @Router /group/{id} [put]
 func (h *GroupHandler) UpdateGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, span := otel.Tracer("[GroupHandler]").Start(c.Context(), "[UpdateGroup]")
-		defer span.End()
-
 		groupID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
@@ -194,17 +169,14 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 				return c.Status(fiber.StatusOK).JSON(updateRes)
 			}
 
-			tracing.EventErrorTracer(span, err, errlst.ErrFieldValidation.Error())
 			return errlst.Response(c, err)
 		}
 
-		updateRes, err := h.service.UpdateGroup(ctx, groupID, &groupReq)
+		updateRes, err := h.service.UpdateGroup(c.Context(), groupID, &groupReq)
 		if err != nil {
-			tracing.EventErrorTracer(span, err, errlst.ErrInternalServer.Error())
 			return errlst.Response(c, err)
 		}
 
-		span.SetStatus(codes.Ok, "Successfully updated (edited) group params")
 		return c.Status(fiber.StatusOK).JSON(updateRes)
 	}
 }
