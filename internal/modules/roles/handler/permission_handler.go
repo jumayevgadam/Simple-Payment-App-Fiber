@@ -12,17 +12,6 @@ import (
 )
 
 // AddPermission method adds a new permission.
-// @Summary AddPermission.
-// @Description add a new permission for roles.
-// @Tags Permissions
-// @ID add-permission
-// @Accept multipart/form-data
-// @Produce json
-// @Param req formData permissionModel.PermissionReq true "permission request payload"
-// @Success 200 {integer} integer
-// @Failure 400 {object} errlst.RestErr
-// @Failure 500 {object} errlst.RestErr
-// @Router /permission/add [post]
 func (h *RoleHandler) AddPermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req permissionModel.PermissionReq

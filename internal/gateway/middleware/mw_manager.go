@@ -15,7 +15,7 @@ var _ TokenGeneratorOps = (*MiddlewareManager)(nil)
 
 // TokenGeneratorOps interface for generating tokens.
 type TokenGeneratorOps interface {
-	GenerateToken(userID, roleID int, username string) (string, error)
+	GenerateToken(userID, roleID int, username string, expirationTime time.Duration) (string, error)
 	ParseToken(accessToken string) (*token.AccessTokenClaims, error)
 }
 
@@ -31,13 +31,14 @@ func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *MiddlewareM
 }
 
 // GenerateAccessToken method for creating access token.
-func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username string) (string, error) {
+func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username string, expirationTime time.Duration) (string, error) {
 	accessTokenclaims := token.AccessTokenClaims{
 		ID:       userID,
 		RoleID:   roleID,
 		UserName: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expirationTime * time.Minute)),
 		},
 	}
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte(mw.cfg.JWT.AccessTokenName))

@@ -51,10 +51,10 @@ CREATE TYPE payment_status_enum AS ENUM ('In Progress', 'Rejected', 'Accepted');
 CREATE TYPE payment_type_enum AS ENUM ('1', '2', '3');
 
 -- create type for course_year
-CREATE TYPE course_year_enum AS ENUM (1, 2, 3, 4, 5);
+-- CREATE TYPE course_year_enum AS ENUM (1, 2, 3, 4, 5);
 
 -- create type for semester
-CREATE TYPE semester_enum AS ENUM ('first', 'second');
+-- CREATE TYPE semester_enum AS ENUM ('first', 'second');
 
 -- payments table is
 CREATE TABLE IF NOT EXISTS payments (
@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS payments (
     student_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     payment_type payment_type_enum NOT NULL,
     payment_status payment_status_enum NOT NULL DEFAULT 'In Progress',
-    course_year course_year_enum NOT NULL DEFAULT 1,
+    course_year INT NOT NULL,
+    payment_amount INT NOT NULL,
     check_photo VARCHAR(100) NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

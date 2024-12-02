@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Pagination struct for sending request pagination ops.
+// PaginationQuery struct for sending request pagination ops.
 type PaginationQuery struct {
 	Limit   int    `form:"limit" json:"limit" validate:"required,gte=0,lt=101"`
 	Page    int    `form:"page" json:"page" validate:"required,gte=0"`
@@ -21,7 +21,7 @@ type PaginationData struct {
 	OrderBy string `db:"order_by"`
 }
 
-// PaginatedResponse model for responsing any model.
+// PaginatedResponse model for uses generics.
 type PaginatedResponse[T any] struct {
 	Items      []T `json:"items"`
 	Limit      int `json:"limit"`
@@ -48,7 +48,8 @@ func (p *PaginationQuery) ToStorage() PaginationData {
 	}
 }
 
-// we use fiber context for getting params in query Param.
+// We use fiber context for getting params in query Param.
+
 func (pq *PaginationQuery) SetLimit(limit string) error {
 	if limit == "" {
 		pq.Limit = 10

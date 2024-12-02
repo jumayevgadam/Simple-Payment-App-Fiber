@@ -102,14 +102,22 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 			return errlst.ParseErrors(err)
 		}
 
-		// generate accessToken here.
-		accessToken, err := s.mw.GenerateToken(userDAO.ID, userDAO.RoleID, userDAO.Username)
-		if err != nil {
-			return errlst.ParseErrors(err)
+		// Generate token
+		var token string
+		if userDAO.RoleID == 3 {
+			token, err = s.mw.GenerateToken(userDAO.ID, userDAO.RoleID, userDAO.Username, 10)
+			if err != nil {
+				return errlst.NewUnauthorizedError("cannot generate token for student")
+			}
+		} else {
+			token, err = s.mw.GenerateToken(userDAO.ID, userDAO.RoleID, userDAO.Username, 0)
+			if err != nil {
+				return errlst.NewUnauthorizedError("cannot generate token for non student roles")
+			}
 		}
 
 		// Putting all values to UserWithToken model
-		userWithToken.AccessToken = accessToken
+		userWithToken.AccessToken = token
 		userWithToken.User = userDAO.ToServer()
 
 		return nil

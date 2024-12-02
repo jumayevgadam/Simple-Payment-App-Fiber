@@ -66,3 +66,31 @@ func (h *UserHandler) Login() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
 	}
 }
+
+// ListUsers handler.
+func (h *UserHandler) ListUsers() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
+
+// DeleteUser handler.
+func (h *UserHandler) DeleteUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
+
+// UpdateUser handler.
+func (h *UserHandler) UpdateUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
+
+// GetUser handler.
+func (h *UserHandler) GetUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
