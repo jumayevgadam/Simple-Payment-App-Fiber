@@ -12,6 +12,17 @@ import (
 )
 
 // AddPermission method adds a new permission.
+// @Summary AddPermission.
+// @Description add a new permission for roles.
+// @Tags Permissions
+// @ID add-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param req formData permissionModel.PermissionReq true "permission request payload"
+// @Success 200 {integer} integer
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /permission/add [post]
 func (h *RoleHandler) AddPermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req permissionModel.PermissionReq
@@ -29,6 +40,17 @@ func (h *RoleHandler) AddPermission() fiber.Handler {
 }
 
 // GetPermission handler retrieve permission using by identified id.
+// @Summary Get-PermissionBYID
+// @Description retrieve permission by using identified id.
+// @Tags Permissions
+// @ID get-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {object} permissionModel.Permission
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /permission/{id} [get]
 func (h *RoleHandler) GetPermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		permissionID, err := strconv.Atoi(c.Params("id"))
@@ -46,6 +68,19 @@ func (h *RoleHandler) GetPermission() fiber.Handler {
 }
 
 // ListPermissions handler retrieve all permissions.
+// @Summary List-Permissions
+// @Description list permissions by pagination
+// @Tags Permissions
+// @ID list-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param page query int false "page number" Format(page)
+// @Param limit query int false "number of objects per page" Format(limit)
+// @Param orderBy query string false "filter name" Format(orderBy)
+// @Success 200 {object} []permissionModel.Permission
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /permission/list-all [get]
 func (h *RoleHandler) ListPermissions() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
@@ -63,6 +98,17 @@ func (h *RoleHandler) ListPermissions() fiber.Handler {
 }
 
 // DeletePermission handler deletes a permission using identified id.
+// @Summary Delete-Permission.
+// @Description deletes a permission using identified id.
+// @Tags Permissions
+// @ID delete-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {string} string "permission deleted successfully"
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /permission/{id} [delete]
 func (h *RoleHandler) DeletePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		permissionID, err := strconv.Atoi(c.Params("id"))
@@ -82,6 +128,18 @@ func (h *RoleHandler) DeletePermission() fiber.Handler {
 }
 
 // UpdatePermission handler edits permission using  by identified id.
+// @Summary Update-Permission
+// @Description editing a permissions by using id.
+// @Tags Permissions
+// @ID update-permission
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "id"
+// @Param updateReq formData permissionModel.PermissionReq true "update permission request"
+// @Success 200 {string} string "successfully edited permission"
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /permission/{id} [put]
 func (h *RoleHandler) UpdatePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		permissionID, err := strconv.Atoi(c.Params("id"))

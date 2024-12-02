@@ -8,6 +8,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
+	"github.com/samber/lo"
 )
 
 // Ensure GroupService implements the groups.Service interface.
@@ -50,25 +51,45 @@ func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.G
 }
 
 // ListGroups service fetches a list of groups from db and returns it.
-func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.PaginationQuery) ([]*groupModel.GroupDTO, error) {
-	var groupDTOs []*groupModel.GroupDTO
-	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		groupDAOs, err := db.GroupsRepo().ListGroups(ctx, pagination.ToStorage())
+func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.PaginationQuery) (abstract.PaginatedRequest[*groupModel.GroupDTO], error) {
+	var (
+		groupAllDatas     []*groupModel.GroupDAO
+		err               error
+		groupListResponse abstract.PaginatedRequest[*groupModel.GroupDTO]
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		var count int
+		count, err = db.GroupsRepo().CountGroups(ctx)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		for _, res := range groupDAOs {
-			groupDTOs = append(groupDTOs, res.ToServer())
+		groupListResponse.TotalItems = count
+
+		groupAllDatas, err = db.GroupsRepo().ListGroups(ctx, pagination.ToStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return nil, errlst.ParseErrors(err)
+		return abstract.PaginatedRequest[*groupModel.GroupDTO]{}, errlst.ParseErrors(err)
 	}
 
-	return groupDTOs, nil
+	groupList := lo.Map(
+		groupAllDatas,
+		func(item *groupModel.GroupDAO, _ int) *groupModel.GroupDTO {
+			return item.ToServer()
+		},
+	)
+
+	groupListResponse.Items = groupList
+	groupListResponse.Page = pagination.Page
+	groupListResponse.Limit = int(len(groupList))
+
+	return groupListResponse, nil
 }
 
 // DeleteGroup service deletes a group from db using identified id.

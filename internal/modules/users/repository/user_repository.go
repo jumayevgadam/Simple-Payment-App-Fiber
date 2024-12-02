@@ -45,18 +45,19 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRe
 }
 
 // GetUserByUsername fetches user by using identified username.
-func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (userModel.AllUserDAO, error) {
-	var userDAO userModel.AllUserDAO
+func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*userModel.Details, error) {
+	var details userModel.Details
 
-	if err := r.psqlDB.Get(
+	err := r.psqlDB.Get(
 		ctx,
 		r.psqlDB,
-		&userDAO,
-		getUserByUsernameQuery,
+		&details,
+		getDetailsByUsernameQuery,
 		username,
-	); err != nil {
-		return userModel.AllUserDAO{}, errlst.ParseSQLErrors(err)
+	)
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
 	}
 
-	return userDAO, nil
+	return &details, nil
 }

@@ -80,7 +80,7 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 
 // Login service for login.
 func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, role string) (userModel.UserWithTokens, error) {
-	var userWithToken userModel.UserWithTokens
+	var token string
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// check role exist or not.
 		roleID, exist := RoleMap[role]
@@ -88,37 +88,25 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 			return errlst.NewBadRequestError("invalid role provided")
 		}
 
-		userDAO, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
+		userDetails, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		if userDAO.RoleID != roleID {
+		if userDetails.RoleID != roleID {
 			return errlst.NewConflictError("provided roleID does not match with taken roleID from db.")
 		}
 
 		// Compare passwords.
-		if err := utils.CheckAndComparePassword(loginReq.Password, userDAO.Password); err != nil {
+		if err := utils.CheckAndComparePassword(loginReq.Password, userDetails.Password); err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		// Generate token
-		var token string
-		if userDAO.RoleID == 3 {
-			token, err = s.mw.GenerateToken(userDAO.ID, userDAO.RoleID, userDAO.Username, 10)
-			if err != nil {
-				return errlst.NewUnauthorizedError("cannot generate token for student")
-			}
-		} else {
-			token, err = s.mw.GenerateToken(userDAO.ID, userDAO.RoleID, userDAO.Username, 0)
-			if err != nil {
-				return errlst.NewUnauthorizedError("cannot generate token for non student roles")
-			}
+		// Generate token.
+		token, err = s.mw.GenerateToken(userDetails.ID, userDetails.RoleID, userDetails.Username)
+		if err != nil {
+			return errlst.NewUnauthorizedError("cannot generate token with this user details")
 		}
-
-		// Putting all values to UserWithToken model
-		userWithToken.AccessToken = token
-		userWithToken.User = userDAO.ToServer()
 
 		return nil
 	})
@@ -126,5 +114,5 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 		return userModel.UserWithTokens{}, errlst.ParseErrors(err)
 	}
 
-	return userWithToken, nil
+	return userModel.UserWithTokens{Token: token}, nil
 }

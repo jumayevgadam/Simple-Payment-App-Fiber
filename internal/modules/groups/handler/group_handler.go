@@ -29,6 +29,17 @@ func NewGroupHandler(service groupOps.Service) *GroupHandler {
 }
 
 // AddGroup handler.
+// @Summary Add a new group.
+// @Description Creates a new group and returns its id.
+// @Tags Groups
+// @ID add-group
+// @Accept multipart/form-data
+// @Produce json
+// @Param groupReq formData groupModel.GroupReq true "Group request payload"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /group/add [post]
 func (h *GroupHandler) AddGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var groupReq groupModel.GroupReq
@@ -46,6 +57,17 @@ func (h *GroupHandler) AddGroup() fiber.Handler {
 }
 
 // GetGroup handler fetches group by using identified id.
+// @Summary Get one group by its id.
+// @Description Retrieve a group using by identified id.
+// @Tags Groups
+// @ID get-group
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {object} groupModel.GroupDTO
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /group/{id} [get]
 func (h *GroupHandler) GetGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		groupID, err := strconv.Atoi(c.Params("id"))
@@ -63,6 +85,19 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 }
 
 // ListGroups handler fetches a list of groups.
+// @Summary List groups.
+// @Description Listing groups by pagination.
+// @Tags Groups
+// @ID list-group
+// @Accept multipart/form-data
+// @Produce json
+// @Param page query int false "page number" Format(page)
+// @Param limit query int false "number of elements per page" Format(limit)
+// @Param orderBy query string false "filter name" Format(orderBy)
+// @Success 200 {object} []groupModel.GroupDTO
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /group/get-all [get]
 func (h *GroupHandler) ListGroups() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
@@ -80,6 +115,17 @@ func (h *GroupHandler) ListGroups() fiber.Handler {
 }
 
 // DeleteGroup handler deletes a group using identified id.
+// @Summary Delete group.
+// @Description Delete group by id
+// @Tags Groups
+// @ID delete-group
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {string} string "ok"
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /group/{id} [delete]
 func (h *GroupHandler) DeleteGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		groupID, err := strconv.Atoi(c.Params("id"))
@@ -97,6 +143,18 @@ func (h *GroupHandler) DeleteGroup() fiber.Handler {
 }
 
 // UpdateGroup handler update group with a new data and identified id.
+// @Summary Update a group.
+// @Description update a group details using their fields.
+// @Tags Groups
+// @ID update-group
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path int true "needed group id for update"
+// @Param groupReq formData groupModel.UpdateGroupReq true "update group request"
+// @Success 200 {string} string "updated group"
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /group/{id} [put]
 func (h *GroupHandler) UpdateGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		groupID, err := strconv.Atoi(c.Params("id"))

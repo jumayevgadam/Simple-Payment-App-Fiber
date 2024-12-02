@@ -1,4 +1,5 @@
 run:	
+	swag init --output ./docs --parseDependency --generalInfo ./cmd/main.go
 	go run cmd/main.go
 
 tidy:

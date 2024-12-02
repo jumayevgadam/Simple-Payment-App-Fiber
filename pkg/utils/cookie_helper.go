@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,23 +10,23 @@ import (
 // ClearAccessTokenCookie
 func ClearTokenCookie(c *fiber.Ctx, cfg *config.Config, accessToken string) {
 	c.Cookie(&fiber.Cookie{
-		Name:     cfg.JWT.AccessTokenName,
+		Name:     "access_token",
 		Value:    accessToken,
 		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: false,
+		HTTPOnly: true,
 		Secure:   false,
 		Domain:   "",
 	})
 }
 
 // SetAuthCookies
-func SetAuthCookies(c *fiber.Ctx, accessToken, refreshToken string) {
+func SetAuthCookies(c *fiber.Ctx, token string) {
 	c.Cookie(&fiber.Cookie{
-		Name:     os.Getenv("ACCESS_TOKEN_NAME"),
-		Value:    accessToken,
+		Name:     "access_token",
+		Value:    token,
 		Path:     "/",
+		HTTPOnly: true,
 		Secure:   false,
-		HTTPOnly: false,
-		Domain:   "localhost",
+		Domain:   "",
 	})
 }

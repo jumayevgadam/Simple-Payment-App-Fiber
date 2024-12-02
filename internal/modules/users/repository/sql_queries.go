@@ -8,8 +8,12 @@ const (
 		RETURNING id;`
 
 	// getUserByUsernameQuery is.
-	getUserByUsernameQuery = `
-		SELECT *
+	getDetailsByUsernameQuery = `
+		SELECT 
+			id, 
+			role_id,
+			username,
+			password
 		FROM users
 		WHERE username = $1;`
 )

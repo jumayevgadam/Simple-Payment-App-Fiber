@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS faculties (
 CREATE TABLE IF NOT EXISTS groups (
     id SERIAL PRIMARY KEY,
     faculty_id INT REFERENCES faculties (id) NOT NULL,
-    group_code VARCHAR(50) UNIQUE NOT NULL
+    group_code VARCHAR(50) NOT NULL,
+    course_year INT NOT NULL CHECK (course_year > 0)
 );
 
 -- users table is
@@ -50,19 +51,12 @@ CREATE TYPE payment_status_enum AS ENUM ('In Progress', 'Rejected', 'Accepted');
 -- create type for payment_type
 CREATE TYPE payment_type_enum AS ENUM ('1', '2', '3');
 
--- create type for course_year
--- CREATE TYPE course_year_enum AS ENUM (1, 2, 3, 4, 5);
-
--- create type for semester
--- CREATE TYPE semester_enum AS ENUM ('first', 'second');
-
 -- payments table is
 CREATE TABLE IF NOT EXISTS payments (
     id SERIAL PRIMARY KEY,
     student_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     payment_type payment_type_enum NOT NULL,
     payment_status payment_status_enum NOT NULL DEFAULT 'In Progress',
-    course_year INT NOT NULL,
     payment_amount INT NOT NULL,
     check_photo VARCHAR(100) NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -72,7 +66,7 @@ CREATE TABLE IF NOT EXISTS payments (
 -- indexes for payment table
 CREATE INDEX idx_payments_status ON payments (payment_status);
 CREATE INDEX idx_payments_student ON payments (student_id);
-CREATE INDEX idx_payments_semester ON payments (semester);
+CREATE INDEX idx_payments_type ON payments (payment_type);
 
 -- indexes for users table
 CREATE INDEX idx_group_id ON users (group_id) WHERE group_id IS NOT NULL;
@@ -81,3 +75,31 @@ CREATE INDEX idx_name ON users (name);
 CREATE INDEX idx_name_lower ON users (LOWER(name));
 CREATE INDEX idx_surname ON users (surname);
 CREATE INDEX idx_surname_lower ON users (LOWER(surname));
+
+-- indexes for faculties table 
+CREATE INDEX idx_faculty_name ON faculties (name);
+CREATE INDEX idx_faculty_code ON faculties (faculty_code);
+
+-- indexes for groups table 
+CREATE INDEX idx_group_code ON groups (group_code);
+
+-- VIEWS
+CREATE OR REPLACE VIEW payment_details AS
+SELECT 
+    p.id AS payment_id,
+    p.student_id,
+    p.payment_type,
+    p.payment_status,
+    p.payment_amount,
+    p.check_photo,
+    p.uploaded_at,
+    p.updated_at,
+    u.name AS student_name,
+    u.surname AS student_surname,
+    g.course_year -- Using the course_year column from groups table now
+FROM 
+    payments p
+JOIN 
+    users u ON p.student_id = u.id
+JOIN 
+    groups g ON u.group_id = g.id;

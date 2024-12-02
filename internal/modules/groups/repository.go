@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error)
 	GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDAO, error)
+	CountGroups(ctx context.Context) (int, error)
 	ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.GroupDAO, error)
 	DeleteGroup(ctx context.Context, groupID int) error
 	UpdateGroup(ctx context.Context, groupModel *groupModel.GroupDAO) (string, error)

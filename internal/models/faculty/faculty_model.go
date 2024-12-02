@@ -12,7 +12,7 @@ type DTO struct {
 // DAO model is data access object.
 type DAO struct {
 	Name string `db:"name"`
-	Code string `db:"code"`
+	Code string `db:"faculty_code"`
 }
 
 // ToServer method sends DAO model to Server.
@@ -42,7 +42,7 @@ type Faculty struct {
 type FacultyData struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
-	Code string `db:"code"`
+	Code string `db:"faculty_code"`
 }
 
 func (f *Faculty) ToStorage() *FacultyData {

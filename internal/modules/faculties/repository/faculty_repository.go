@@ -6,6 +6,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	facultyModel "github.com/jumayevgadam/tsu-toleg/internal/models/faculty"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -58,19 +59,40 @@ func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*fac
 }
 
 // ListFaculties repo fetches a list of faculties from DB.
-func (f *FacultyRepository) ListFaculties(ctx context.Context) ([]*facultyModel.FacultyData, error) {
+func (f *FacultyRepository) ListFaculties(ctx context.Context, paginationData abstract.PaginationData) ([]*facultyModel.FacultyData, error) {
 	var facultyDAOs []*facultyModel.FacultyData
+	offset := (paginationData.Page - 1) * paginationData.Limit
 
 	if err := f.psqlDB.Select(
 		ctx,
 		f.psqlDB,
 		&facultyDAOs,
 		listFacultiesQuery,
+		paginationData.OrderBy,
+		offset,
+		paginationData.Limit,
 	); err != nil {
 		return nil, errlst.ParseSQLErrors(err)
 	}
 
 	return facultyDAOs, nil
+}
+
+// CountFaculties give number of faculties.
+func (f *FacultyRepository) CountFaculties(ctx context.Context) (int, error) {
+	var totalCount int
+
+	err := f.psqlDB.Get(
+		ctx,
+		f.psqlDB,
+		&totalCount,
+		countFacultiesQuery,
+	)
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
 }
 
 // DeleteFaculty repo deletes faculty from DB using identified faculty id.

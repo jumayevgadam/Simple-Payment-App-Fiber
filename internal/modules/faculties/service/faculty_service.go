@@ -6,7 +6,9 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	facultyModel "github.com/jumayevgadam/tsu-toleg/internal/models/faculty"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
+	"github.com/samber/lo"
 )
 
 // Ensure FacultyService implements the faculties.Service interface.
@@ -45,19 +47,45 @@ func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facult
 }
 
 // ListFaculties service fetches a list of faculties from DB and returns it.
-func (s *FacultyService) ListFaculties(ctx context.Context) ([]*facultyModel.Faculty, error) {
-	var facultyDTOs []*facultyModel.Faculty
+func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.PaginationQuery) (abstract.PaginatedRequest[*facultyModel.Faculty], error) {
+	var (
+		facultyAllData      []*facultyModel.FacultyData
+		err                 error
+		facultyListResponse abstract.PaginatedRequest[*facultyModel.Faculty]
+	)
 
-	faculties, err := s.repo.FacultiesRepo().ListFaculties(ctx)
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		var count int
+		count, err = db.FacultiesRepo().CountFaculties(ctx)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		facultyListResponse.TotalItems = count
+
+		facultyAllData, err = db.FacultiesRepo().ListFaculties(ctx, pagination.ToStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
 	if err != nil {
-		return nil, errlst.ParseErrors(err)
+		return abstract.PaginatedRequest[*facultyModel.Faculty]{}, errlst.ParseErrors(err)
 	}
 
-	for _, facultyRes := range faculties {
-		facultyDTOs = append(facultyDTOs, facultyRes.ToServer())
-	}
+	facultyList := lo.Map(
+		facultyAllData,
+		func(item *facultyModel.FacultyData, _ int) *facultyModel.Faculty {
+			return item.ToServer()
+		},
+	)
 
-	return facultyDTOs, nil
+	facultyListResponse.Items = facultyList
+	facultyListResponse.Page = pagination.Page
+	facultyListResponse.Limit = int(len(facultyList))
+
+	return facultyListResponse, nil
 }
 
 // DeleteFaculty service deletes faculty from DB using identified id.

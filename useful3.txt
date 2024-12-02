@@ -1,0 +1,126 @@
+SELECT gcm.course_year
+FROM users u
+JOIN groups g ON u.group_id = g.id
+JOIN group_course_mapping gcm ON g.group_code = gcm.group_code
+WHERE u.id = $1;
+
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"time"
+
+	_ "github.com/lib/pq" // PostgreSQL driver
+)
+
+type Payment struct {
+	StudentID     int    `json:"student_id"`
+	PaymentType   string `json:"payment_type"`
+	PaymentAmount int    `json:"payment_amount"`
+	PaymentStatus string `json:"payment_status"`
+	CheckPhoto    string `json:"check_photo"`
+}
+
+func getCourseYear(db *sql.DB, studentID int) (int, error) {
+	// Query to get the course year of the student based on their group
+	query := `
+		SELECT gcm.course_year
+		FROM users u
+		JOIN groups g ON u.group_id = g.id
+		JOIN group_course_mapping gcm ON g.group_code = gcm.group_code
+		WHERE u.id = $1;
+	`
+	var courseYear int
+	err := db.QueryRow(query, studentID).Scan(&courseYear)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get course year: %v", err)
+	}
+	return courseYear, nil
+}
+
+func insertPayment(db *sql.DB, payment Payment) error {
+	// Get the course year for the student
+	courseYear, err := getCourseYear(db, payment.StudentID)
+	if err != nil {
+		return err
+	}
+
+	// Insert the payment details, including the course year
+	query := `
+		INSERT INTO payments (student_id, payment_type, payment_status, course_year, payment_amount, check_photo, uploaded_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`
+	_, err = db.Exec(query, payment.StudentID, payment.PaymentType, payment.PaymentStatus, courseYear, payment.PaymentAmount, payment.CheckPhoto, time.Now())
+	if err != nil {
+		return fmt.Errorf("failed to insert payment: %v", err)
+	}
+
+	return nil
+}
+
+func main() {
+	// Connect to the database
+	dsn := "user=your_user password=your_password dbname=your_db sslmode=disable"
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatal("Failed to connect to the database:", err)
+	}
+	defer db.Close()
+
+	// Example payment request
+	payment := Payment{
+		StudentID:     1,               // example student ID
+		PaymentType:   "1",             // example payment type
+		PaymentAmount: 1000,            // example payment amount
+		PaymentStatus: "In Progress",   // example payment status
+		CheckPhoto:    "photo_link",    // example check photo link
+	}
+
+	// Insert the payment into the database
+	if err := insertPayment(db, payment); err != nil {
+		log.Fatal("Error inserting payment:", err)
+	}
+
+	fmt.Println("Payment inserted successfully.")
+}
+
+To automatically set the course_year when making a payment request based on the student_id, you can perform the following steps in your Go application:
+
+Query the course_year based on the student_id.
+Use this course_year in the payment request.
+Insert the payment details with the correct course_year.
+
+
+To automatically set the course_year when making a payment request based on the student_id, you can perform the following steps in your Go application:
+
+Query the course_year based on the student_id.
+Use this course_year in the payment request.
+Insert the payment details with the correct course_year.
+Steps:
+When a student performs a payment, you can fetch the course_year from the group_course_mapping table based on the student's group_id (which indirectly links to the group_code and the course_year).
+Add the fetched course_year into the payment request when inserting a new payment record.
+
+Explanation of the Go Code:
+getCourseYear Function:
+
+This function queries the database to retrieve the course_year for a student based on their student_id.
+The course_year is retrieved by joining the users, groups, and group_course_mapping tables.
+insertPayment Function:
+
+This function first fetches the course_year for the student using the getCourseYear function.
+It then inserts a new payment record into the payments table, including the course_year as part of the payment record.
+Database Insertion:
+
+The INSERT INTO payments query inserts the payment details, including the automatically fetched course_year, into the payments table.
+Main Function:
+
+The main function demonstrates how to call insertPayment with a sample payment request.
+
+
+Summary:
+When a student performs a payment, you automatically determine their course_year by querying the group_course_mapping table based on their group_id.
+This course_year is then inserted into the payments table along with the payment details (like payment_type, payment_amount, etc.).
+This way, you ensure that the course_year is always correctly linked to the payment without manual entry.
+This approach ensures that the course_year is always accurately fetched based on the student's current group and inserted into the payment record.

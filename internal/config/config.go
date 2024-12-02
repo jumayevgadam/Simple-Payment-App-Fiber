@@ -47,8 +47,7 @@ type RedisDB struct {
 }
 
 type JWTOps struct {
-	AccessTokenSecret string `envconfig:"ACCESS_JWT_SECRET_KEY" validate:"required"`
-	AccessTokenName   string `envconfig:"ACCESS_TOKEN_NAME" validate:"required"`
+	AccessTokenSecret string `envconfig:"JWT_SECRET_KEY" validate:"required"`
 }
 
 // Logger config options.

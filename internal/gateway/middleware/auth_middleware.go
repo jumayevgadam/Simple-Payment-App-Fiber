@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"os"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
@@ -14,15 +14,17 @@ import (
 func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore database.DataStore) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Retrieve the JWT token from cookie.
-		accessToken := c.Cookies(os.Getenv("ACCESS_TOKEN_NAME"))
+		accessToken := c.Cookies("access_token")
 		if accessToken == "" {
 			return errlst.NewUnauthorizedError("missing access and refresh tokens")
 		}
+		fmt.Println("accessToken gelman yatyr diyyanmi " + accessToken)
 
 		// get token claims.
 		claims, err := mw.ParseToken(accessToken)
 		if err != nil {
-			return errlst.NewUnauthorizedError("cannot verify token, error issued at this place")
+			// error occured in this place
+			return errlst.NewUnauthorizedError(err.Error())
 		}
 
 		// Fetch permissions for the user's role

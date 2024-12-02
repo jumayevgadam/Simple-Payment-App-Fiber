@@ -33,7 +33,8 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Gro
 		ctx,
 		addGroupQuery,
 		groupDAO.FacultyID,
-		groupDAO.ClassCode,
+		groupDAO.GroupCode,
+		groupDAO.CourseYear,
 	).Scan(&groupID); err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
@@ -56,6 +57,23 @@ func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupMode
 	}
 
 	return &groupDAO, nil
+}
+
+// CountGroups repo method gives totalCount of groups.
+func (r *GroupRepository) CountGroups(ctx context.Context) (int, error) {
+	var totalCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCount,
+		countGroupsQuery,
+	)
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
 }
 
 // ListGroups repo fetches a list of groups.
@@ -100,7 +118,8 @@ func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.
 		ctx,
 		updateGroupQuery,
 		groupDAO.FacultyID,
-		groupDAO.ClassCode,
+		groupDAO.GroupCode,
+		groupDAO.CourseYear,
 		groupDAO.ID,
 	).Scan(&res); err != nil {
 		return "", errlst.ParseSQLErrors(err)

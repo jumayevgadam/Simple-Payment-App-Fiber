@@ -27,6 +27,18 @@ func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *
 }
 
 // CreateUser handler creates a new user and returns id.
+// @Summary Create User.
+// @Description create user func general func for creating users.
+// @Tags Users
+// @ID create-user
+// @Accept multipart/form-data
+// @Produce json
+// @Param role path string true "role"
+// @Param req formData userModel.SignUpReq true "create user payload"
+// @Success 200 {int} int
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /auth/{role}/sign-up [post]
 func (h *UserHandler) CreateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		role := c.Params("role")
@@ -46,6 +58,18 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 }
 
 // Login handler method for login.
+// @Summary Login
+// @Description login func for all users.
+// @Tags Users
+// @ID login
+// @Accept multipart/form-data
+// @Produce json
+// @Param role path string true "role"
+// @Param loginReq formData userModel.LoginReq true "login request payload"
+// @Success 200 {object} userModel.UserWithTokens
+// @Failure 400 {object} errlst.RestErr
+// @Failure 500 {object} errlst.RestErr
+// @Router /auth/{role}/login [post]
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		role := c.Params("role")
@@ -61,7 +85,7 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		utils.SetAuthCookies(c, userWithToken.AccessToken, userWithToken.RefreshToken)
+		utils.SetAuthCookies(c, userWithToken.Token)
 
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
 	}
