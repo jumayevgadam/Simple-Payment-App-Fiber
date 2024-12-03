@@ -85,7 +85,7 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		utils.SetAuthCookies(c, userWithToken.Token)
+		utils.SetAuthCookies(c, role, userWithToken.Token)
 
 		return c.Status(fiber.StatusOK).JSON(userWithToken)
 	}

@@ -8,9 +8,10 @@ import (
 )
 
 // ClearAccessTokenCookie
-func ClearTokenCookie(c *fiber.Ctx, cfg *config.Config, accessToken string) {
+func ClearTokenCookie(c *fiber.Ctx, cfg *config.Config, role, accessToken string) {
+	CookieName := role + "_" + "token"
 	c.Cookie(&fiber.Cookie{
-		Name:     "access_token",
+		Name:     CookieName,
 		Value:    accessToken,
 		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,
@@ -20,9 +21,10 @@ func ClearTokenCookie(c *fiber.Ctx, cfg *config.Config, accessToken string) {
 }
 
 // SetAuthCookies
-func SetAuthCookies(c *fiber.Ctx, token string) {
+func SetAuthCookies(c *fiber.Ctx, role, token string) {
+	CookieName := role + "_" + "token"
 	c.Cookie(&fiber.Cookie{
-		Name:     "access_token",
+		Name:     CookieName,
 		Value:    token,
 		Path:     "/",
 		HTTPOnly: true,

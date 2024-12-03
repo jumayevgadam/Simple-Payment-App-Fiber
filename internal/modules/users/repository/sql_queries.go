@@ -16,4 +16,18 @@ const (
 			password
 		FROM users
 		WHERE username = $1;`
+
+	// getStudentInfoDetailsQuery is.
+	getStudentInfoDetailsQuery = `
+		SELECT
+			g.course_year AS course_year,
+			g.group_code AS group_code,
+			CONCAT(u.name, '-', u.surname) AS full_name,
+			u.username AS username
+		FROM 
+			users AS u 
+		INNER JOIN
+			groups AS g ON u.group_id = g.id
+		WHERE 
+			u.id = $1 AND u.group_id IS NOT NULL;`
 )

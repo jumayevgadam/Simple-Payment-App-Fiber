@@ -61,8 +61,8 @@ func (r *RoleRepository) GetRolesByPermissionID(ctx context.Context, permissionI
 }
 
 // GetRolesByPermission repo takes roles from identified permission,we will use this in role based middleware.
-func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionType string) ([]int, error) {
-	var roles []int
+func (r *RoleRepository) GetRolesByPermission(ctx context.Context, permissionType string) ([]rolePermModel.DAO, error) {
+	var roles []rolePermModel.DAO
 
 	err := r.psqlDB.Select(
 		ctx,

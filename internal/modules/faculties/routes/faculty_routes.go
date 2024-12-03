@@ -18,10 +18,10 @@ func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.Dat
 	// facultyGroup is.
 	facultyGroup := f.Group("/faculty")
 	{
-		facultyGroup.Post("/create", Handler.AddFaculty())
-		facultyGroup.Get("/get-all", Handler.ListFaculties())
-		facultyGroup.Get("/:id", Handler.GetFaculty())
-		facultyGroup.Delete("/:id", Handler.DeleteFaculty())
-		facultyGroup.Put("/:id", Handler.UpdateFaculty())
+		facultyGroup.Post("/create", mwMngr.RoleBasedMiddleware(mw, "add:faculty", dataStore), Handler.AddFaculty())
+		facultyGroup.Get("/get-all", mwMngr.RoleBasedMiddleware(mw, "list:faculties", dataStore), Handler.ListFaculties())
+		facultyGroup.Get("/:id", mwMngr.RoleBasedMiddleware(mw, "get:faculty", dataStore), Handler.GetFaculty())
+		facultyGroup.Delete("/:id", mwMngr.RoleBasedMiddleware(mw, "delete:faculty", dataStore), Handler.DeleteFaculty())
+		facultyGroup.Put("/:id", mwMngr.RoleBasedMiddleware(mw, "update:faculty", dataStore), Handler.UpdateFaculty())
 	}
 }

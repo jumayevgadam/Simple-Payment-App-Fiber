@@ -43,12 +43,12 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// Check that role exist or not in database, do not try with dynamic methods.
 		// Return id of that role
-		roleID, err := db.RolesRepo().GetRoleIDByRoleName(ctx, role)
+		roles, err := db.RolesRepo().GetRoleByRoleName(ctx, role)
 		if err != nil {
 			return errlst.ErrNoSuchRole
 		}
 
-		if roleID == 3 {
+		if roles.RoleName == "student" {
 			if request.GroupID == nil {
 				return errlst.NewBadRequestError("group id must need for student")
 			}
@@ -64,7 +64,7 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 		}
 		request.Password = hashedPass
 
-		userID, err = s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(roleID))
+		userID, err = s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(roles.ID))
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -83,9 +83,10 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 	var token string
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// check role exist or not.
-		roleID, exist := RoleMap[role]
-		if !exist {
-			return errlst.NewBadRequestError("invalid role provided")
+		// do not check dynamically because every time can be deleted role in db, but fixed names can be in db: superadmin, admin, student
+		roles, err := db.RolesRepo().GetRoleByRoleName(ctx, role)
+		if err != nil {
+			return errlst.ParseErrors(err)
 		}
 
 		userDetails, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
@@ -93,7 +94,7 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 			return errlst.ParseErrors(err)
 		}
 
-		if userDetails.RoleID != roleID {
+		if userDetails.RoleID != roles.ID {
 			return errlst.NewConflictError("provided roleID does not match with taken roleID from db.")
 		}
 
@@ -103,7 +104,7 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, ro
 		}
 
 		// Generate token.
-		token, err = s.mw.GenerateToken(userDetails.ID, userDetails.RoleID, userDetails.Username)
+		token, err = s.mw.GenerateToken(userDetails.ID, userDetails.RoleID, userDetails.Username, roles.RoleName)
 		if err != nil {
 			return errlst.NewUnauthorizedError("cannot generate token with this user details")
 		}

@@ -18,7 +18,7 @@ type Repository interface {
 type RoleRepoOps interface {
 	AddRole(ctx context.Context, roleDAO roleModel.DAO) (int, error)
 	GetRole(ctx context.Context, roleID int) (roleModel.DAO, error)
-	GetRoleIDByRoleName(ctx context.Context, role string) (int, error)
+	GetRoleByRoleName(ctx context.Context, role string) (roleModel.DAO, error)
 	GetRoles(ctx context.Context) ([]roleModel.DAO, error)
 	DeleteRole(ctx context.Context, roleID int) error
 	UpdateRole(ctx context.Context, roleDAO roleModel.DAO) (string, error)
@@ -38,7 +38,7 @@ type RolePermRepoOps interface {
 	AddRolePermission(ctx context.Context, data roleModel.RolePermissionRes) (string, error)
 	GetPermissionsByRole(ctx context.Context, roleID int) ([]roleModel.RolePermissionRes, error)
 	GetRolesByPermissionID(ctx context.Context, permissionID int) ([]roleModel.RolePermissionRes, error)
-	GetRolesByPermission(ctx context.Context, permissionType string) ([]int, error) // for middleware need.
+	GetRolesByPermission(ctx context.Context, permissionType string) ([]roleModel.DAO, error) // for middleware need.
 	DeleteRolePermission(ctx context.Context, roleID, permissionID int) error
 	// UpdateRolePermission(ctx context.Context, roleID, permissionID int) (string, error)
 }

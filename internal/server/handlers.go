@@ -6,6 +6,7 @@ import (
 	mwMngr "github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	facultyHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/routes"
 	groupHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/routes"
+	paymentHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/routes"
 	roleHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/routes"
 	userHTTP "github.com/jumayevgadam/tsu-toleg/internal/modules/users/routes"
 )
@@ -30,6 +31,8 @@ func (s *Server) MapHandlers() error {
 	groupHTTP.Routes(v1, mwOps, s.DataStore)
 	// userHTTP route is for app/user part of project.
 	userHTTP.Routes(v1, mwOps, s.DataStore)
+	// paymentHTTP route is for app/payment part of project.
+	paymentHTTP.Routes(v1, mwOps, s.DataStore)
 
 	return nil
 }

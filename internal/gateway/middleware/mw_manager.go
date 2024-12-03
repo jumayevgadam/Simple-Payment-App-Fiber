@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -16,7 +17,7 @@ var _ TokenGeneratorOps = (*MiddlewareManager)(nil)
 
 // TokenGeneratorOps interface for generating tokens.
 type TokenGeneratorOps interface {
-	GenerateToken(userID, roleID int, username string) (string, error)
+	GenerateToken(userID, roleID int, username, rolename string) (string, error)
 	ParseToken(accessToken string) (*token.AccessTokenClaims, error)
 }
 
@@ -32,7 +33,7 @@ func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *MiddlewareM
 }
 
 // GenerateAccessToken method for creating access token.
-func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username string) (string, error) {
+func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, rolename string) (string, error) {
 	var claims jwt.RegisteredClaims
 
 	if roleID == 3 {
@@ -50,10 +51,11 @@ func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username string) 
 		ID:               userID,
 		RoleID:           roleID,
 		UserName:         username,
+		Role:             rolename,
 		RegisteredClaims: claims,
 	}
 
-	tokenStr, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte("access_token"))
+	tokenStr, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 	if err != nil {
 		return "", errlst.NewInternalServerError("error creating accessToken")
 	}
@@ -70,7 +72,7 @@ func (mw *MiddlewareManager) ParseToken(accessToken string) (*token.AccessTokenC
 			return nil, errlst.ErrInvalidJWTMethod
 		}
 
-		return []byte(mw.cfg.JWT.AccessTokenSecret), nil
+		return []byte(mw.cfg.JWT.TokenSecret), nil
 	})
 	mw.Logger.Info(tokenStr)
 	if err != nil {

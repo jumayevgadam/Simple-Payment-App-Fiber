@@ -15,8 +15,8 @@ const (
 		WHERE id = $1;`
 
 	// getRoleIDByRoleName is.
-	getRoleIDByRoleName = `
-		SELECT id FROM roles WHERE name = $1;`
+	getRoleByRoleName = `
+		SELECT id, name FROM roles WHERE name = $1;`
 
 	// getRolesQuery is.
 	getRolesQuery = `
@@ -107,9 +107,13 @@ const (
 		WHERE permission_id = $1;`
 
 	getRolesByPermissionQuery = `
-		SELECT rp.role_id
-		FROM role_permissions rp
-		JOIN permissions p ON rp.permission_id = p.id 
+		SELECT 
+			rp.role_id AS id, r.name AS name
+		FROM roles AS r
+		INNER JOIN 
+			role_permissions AS rp ON rp.role_id = r.id 
+		INNER JOIN 
+			permissions AS p ON p.id = rp.permission_id
 		WHERE p.permission_type = $1;`
 
 	// deleteRolePermissionQuery is.

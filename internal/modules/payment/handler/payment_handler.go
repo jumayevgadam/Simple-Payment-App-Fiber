@@ -1,8 +1,14 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
+	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	paymentOps "github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
+	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
+	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
 
 // Ensure PaymentHandler implements the paymentOps.Handler interface.
@@ -23,7 +29,36 @@ func NewPaymentHandler(service paymentOps.Service) *PaymentHandler {
 // AddPayment for students.
 func (h *PaymentHandler) AddPayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+		if c.Locals("role") == nil && c.Locals("userRoleID") == nil && c.Locals("userID") == nil && c.Locals("username") == nil {
+			return errlst.Response(c, errors.New("unauthorized access to this source"))
+		}
+
+		role, ok := c.Locals("role").(string)
+		if !ok || role != "student" {
+			return errlst.NewUnauthorizedError("only student role can perform payment")
+		}
+
+		studentID, ok := c.Locals("userID").(int)
+		if !ok {
+			return errlst.NewUnauthorizedError("cannot find student id in context")
+		}
+
+		var paymenRequest paymentModel.Request
+		if err := reqvalidator.ReadRequest(c, &paymenRequest); err != nil {
+			return errlst.Response(c, err)
+		}
+
+		checkPhoto, err := utils.ReadImage(c, "check-photo")
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		paymentID, err := h.service.AddPayment(c, studentID, checkPhoto, &paymenRequest)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(200).JSON(paymentID)
 	}
 }
 

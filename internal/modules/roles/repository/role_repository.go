@@ -40,21 +40,21 @@ func (r *RoleRepository) GetRole(ctx context.Context, roleID int) (roleModel.DAO
 }
 
 // GetRoleIDByRoleName method gives roleID for identified that role.
-func (r *RoleRepository) GetRoleIDByRoleName(ctx context.Context, role string) (int, error) {
-	var roleID int
+func (r *RoleRepository) GetRoleByRoleName(ctx context.Context, role string) (roleModel.DAO, error) {
+	var roleDAO roleModel.DAO
 
 	err := r.psqlDB.Get(
 		ctx,
 		r.psqlDB,
-		&roleID,
-		getRoleIDByRoleName,
+		&roleDAO,
+		getRoleByRoleName,
 		role,
 	)
 	if err != nil {
-		return -1, errlst.ErrNotFound
+		return roleModel.DAO{}, errlst.ErrNotFound
 	}
 
-	return roleID, nil
+	return roleDAO, nil
 }
 
 // GetRoles repo fetches a list of all roles from database.

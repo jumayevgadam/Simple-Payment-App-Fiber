@@ -10,4 +10,5 @@ import (
 type Repository interface {
 	CreateUser(ctx context.Context, res userModel.SignUpRes) (int, error)
 	GetUserByUsername(ctx context.Context, username string) (*userModel.Details, error)
+	GetStudentDetailsForPayment(ctx context.Context, studentID int) (*userModel.StudentInfoData, error)
 }

@@ -110,3 +110,11 @@ func (a *AllUserDAO) ToServer() AllUserDTO {
 		Password: a.Password,
 	}
 }
+
+// StudentInfo model for Payment Model.
+type StudentInfoData struct {
+	CourseYear int    `db:"course_year"`
+	FullName   string `db:"full_name"`
+	Username   string `db:"username"`
+	GroupCode  string `db:"group_code"`
+}
