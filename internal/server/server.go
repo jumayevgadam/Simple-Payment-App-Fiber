@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,8 +26,13 @@ func NewServer(
 	dataStore database.DataStore,
 	logger logger.Logger,
 ) *Server {
+	httpServer := fiber.Config{
+		ReadTimeout:  cfg.Server.ReadTimeOut,
+		WriteTimeout: cfg.Server.WriteTimeOut,
+	}
+
 	server := &Server{
-		Fiber:     fiber.New(),
+		Fiber:     fiber.New(httpServer),
 		Cfg:       cfg,
 		DataStore: dataStore,
 		Logger:    logger,
@@ -37,13 +43,24 @@ func NewServer(
 
 // Run method for running application.
 func (s *Server) Run() error {
-	if err := s.MapHandlers(); err != nil {
+	err := s.MapHandlers()
+	if err != nil {
 		return errlst.ParseErrors(err)
 	}
 
-	err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
+	err = s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
 	if err != nil {
 		return fmt.Errorf("failed to listen app: %w", err)
+	}
+
+	return nil
+}
+
+// Stop server.
+func (s *Server) Stop(ctx context.Context) error {
+	err := s.Fiber.Shutdown()
+	if err != nil {
+		return errlst.ParseErrors(err)
 	}
 
 	return nil

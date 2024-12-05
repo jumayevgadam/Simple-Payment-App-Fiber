@@ -8,6 +8,6 @@ import (
 
 // Service interface for performing actions in this layer.
 type Service interface {
-	CreateUser(ctx context.Context, req userModel.SignUpReq, role string) (int, error)
-	Login(ctx context.Context, loginReq userModel.LoginReq, role string) (userModel.UserWithTokens, error)
+	Register(ctx context.Context, req userModel.SignUpReq) (int, error)
+	Login(ctx context.Context, loginReq userModel.LoginReq) (string, error)
 }

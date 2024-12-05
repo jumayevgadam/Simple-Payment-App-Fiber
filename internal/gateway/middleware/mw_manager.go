@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"fmt"
 	"os"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
@@ -17,7 +15,7 @@ var _ TokenGeneratorOps = (*MiddlewareManager)(nil)
 
 // TokenGeneratorOps interface for generating tokens.
 type TokenGeneratorOps interface {
-	GenerateToken(userID, roleID int, username, rolename string) (string, error)
+	GenerateToken(userID, roleID int, username, rolename string, permissions []string) (string, error)
 	ParseToken(accessToken string) (*token.AccessTokenClaims, error)
 }
 
@@ -33,25 +31,15 @@ func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *MiddlewareM
 }
 
 // GenerateAccessToken method for creating access token.
-func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, rolename string) (string, error) {
+func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, role string, permissions []string) (string, error) {
 	var claims jwt.RegisteredClaims
-
-	if roleID == 3 {
-		claims = jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
-		}
-	} else {
-		// For non-student roles , do not set expiration.
-		claims = jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(100 * 365 * 24 * time.Hour)), // Optional, a long duration (100 years)
-		}
-	}
 
 	accessTokenclaims := token.AccessTokenClaims{
 		ID:               userID,
 		RoleID:           roleID,
 		UserName:         username,
-		Role:             rolename,
+		Role:             role,
+		Permissions:      permissions,
 		RegisteredClaims: claims,
 	}
 
@@ -66,7 +54,7 @@ func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, rolenam
 // ParseAccessToken method parses accessToken using claims.
 func (mw *MiddlewareManager) ParseToken(accessToken string) (*token.AccessTokenClaims, error) {
 	tokenStr, err := jwt.ParseWithClaims(accessToken, &token.AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		// check jwt signing method
+		// check jwt signing method.
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, errlst.ErrInvalidJWTMethod
@@ -74,7 +62,6 @@ func (mw *MiddlewareManager) ParseToken(accessToken string) (*token.AccessTokenC
 
 		return []byte(mw.cfg.JWT.TokenSecret), nil
 	})
-	mw.Logger.Info(tokenStr)
 	if err != nil {
 		return nil, errlst.NewUnauthorizedError("invalid access token")
 	}
@@ -84,9 +71,6 @@ func (mw *MiddlewareManager) ParseToken(accessToken string) (*token.AccessTokenC
 		mw.Logger.Info("error in tokenStr.Claims...")
 		return nil, errlst.ErrInvalidJWTClaims
 	}
-
-	// Log the useful claim data for debugging
-	mw.Logger.Info(fmt.Sprintf("Parsed Token: userID=%d, roleID=%d, username=%s", claims.ID, claims.RoleID, claims.UserName))
 
 	return claims, nil
 }

@@ -58,3 +58,10 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 		return errlst.NewForbiddenError("access denied for role this permission")
 	}
 }
+
+func AuthMiddleware(mw *MiddlewareManager, dataStore database.DataStore, permission string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		return nil
+	}
+}

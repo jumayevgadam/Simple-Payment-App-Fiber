@@ -4,7 +4,7 @@ import "github.com/gofiber/fiber/v2"
 
 // Handler interface for performing users operations.
 type Handler interface {
-	CreateUser() fiber.Handler
+	Register() fiber.Handler
 	Login() fiber.Handler
 	ListUsers() fiber.Handler
 	DeleteUser() fiber.Handler

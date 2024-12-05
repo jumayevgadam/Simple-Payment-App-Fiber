@@ -43,8 +43,8 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.NewUnauthorizedError("cannot find student id in context")
 		}
 
-		var paymenRequest paymentModel.Request
-		if err := reqvalidator.ReadRequest(c, &paymenRequest); err != nil {
+		var request paymentModel.Request
+		if err := reqvalidator.ReadRequest(c, &request); err != nil {
 			return errlst.Response(c, err)
 		}
 
@@ -53,7 +53,7 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		paymentID, err := h.service.AddPayment(c, studentID, checkPhoto, &paymenRequest)
+		paymentID, err := h.service.AddPayment(c, studentID, checkPhoto, &request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

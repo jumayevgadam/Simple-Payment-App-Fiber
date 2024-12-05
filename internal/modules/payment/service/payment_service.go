@@ -48,7 +48,7 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 		}
 
 		// save into payments table using studentID, courseYear, and return response
-		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToDBStorage(studentID, checkPhotoUrl, "In Progress"))
+		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToDBStorage(studentID, checkPhotoUrl))
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}

@@ -121,4 +121,12 @@ const (
 		DELETE FROM role_permissions
 		WHERE 
 			role_id = $1 AND permission_id = $2;`
+
+	// getPermissionsByRoleQuery is.
+	getPermissionsByRoleIDQuery = `
+		SELECT p.permission_type
+		FROM permissions p 
+		INNER JOIN role_permissions rp ON rp.permission_id = p.id
+		INNER JOIN roles r ON r.id = rp.role_id
+		WHERE r.id = $1;`
 )

@@ -92,3 +92,20 @@ func (r *RoleRepository) DeleteRolePermission(ctx context.Context, roleID, permi
 
 	return nil
 }
+
+func (r *RoleRepository) GetPermissionsByRoleID(ctx context.Context, roleID int) ([]string, error) {
+	var permissions []string
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&permissions,
+		getPermissionsByRoleIDQuery,
+		roleID,
+	)
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return permissions, nil
+}

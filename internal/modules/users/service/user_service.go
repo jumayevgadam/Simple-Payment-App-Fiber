@@ -16,13 +16,6 @@ var (
 	_ users.Service = (*UserService)(nil)
 )
 
-// Creating dynamic roleMap.
-var RoleMap = map[string]int{
-	"superadmin": 1,
-	"admin":      2,
-	"student":    3,
-}
-
 // UserService manages buisiness logic for modules/user part of application.
 type UserService struct {
 	mw   *middleware.MiddlewareManager
@@ -35,42 +28,8 @@ func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore) *
 }
 
 // CreateUser service insert a user into db and returns its id.
-func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpReq, role string) (int, error) {
-	var (
-		userID int
-		err    error
-	)
-	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		// Check that role exist or not in database, do not try with dynamic methods.
-		// Return id of that role
-		roles, err := db.RolesRepo().GetRoleByRoleName(ctx, role)
-		if err != nil {
-			return errlst.ErrNoSuchRole
-		}
-
-		if roles.RoleName == "student" {
-			if request.GroupID == nil {
-				return errlst.NewBadRequestError("group id must need for student")
-			}
-		} else {
-			if request.GroupID != nil {
-				return errlst.NewBadRequestError("group id does not need for non-student roles")
-			}
-		}
-
-		hashedPass, err := utils.HashPassword(request.Password)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-		request.Password = hashedPass
-
-		userID, err = s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(roles.ID))
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		return nil
-	})
+func (s *UserService) Register(ctx context.Context, request userModel.SignUpReq) (int, error) {
+	userID, err := s.repo.UsersRepo().CreateUser(ctx, request.ToStorage())
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
 	}
@@ -79,41 +38,48 @@ func (s *UserService) CreateUser(ctx context.Context, request userModel.SignUpRe
 }
 
 // Login service for login.
-func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq, role string) (userModel.UserWithTokens, error) {
-	var token string
-	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		// check role exist or not.
-		// do not check dynamically because every time can be deleted role in db, but fixed names can be in db: superadmin, admin, student
-		roles, err := db.RolesRepo().GetRoleByRoleName(ctx, role)
+func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (string, error) {
+	var (
+		token string
+		err   error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		// get user details by username.
+		user, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
 		if err != nil {
 			return errlst.ParseErrors(err)
-		}
-
-		userDetails, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		if userDetails.RoleID != roles.ID {
-			return errlst.NewConflictError("provided roleID does not match with taken roleID from db.")
 		}
 
 		// Compare passwords.
-		if err := utils.CheckAndComparePassword(loginReq.Password, userDetails.Password); err != nil {
+		err = utils.CheckAndComparePassword(loginReq.Password, user.Password)
+		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		// Generate token.
-		token, err = s.mw.GenerateToken(userDetails.ID, userDetails.RoleID, userDetails.Username, roles.RoleName)
+		// getRole by roleID.
+		role, err := db.RolesRepo().GetRole(ctx, user.RoleID)
 		if err != nil {
-			return errlst.NewUnauthorizedError("cannot generate token with this user details")
+			return errlst.ParseErrors(err)
+		}
+
+		// get Permissions by roleID.
+		permissions, err := db.RolesRepo().GetPermissionsByRoleID(ctx, role.ID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		// generate token.
+		token, err = s.mw.GenerateToken(user.ID, user.RoleID, user.Username, role.RoleName, permissions)
+		if err != nil {
+			return errlst.ParseErrors(err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return userModel.UserWithTokens{}, errlst.ParseErrors(err)
+		return "", errlst.ParseErrors(err)
 	}
 
-	return userModel.UserWithTokens{Token: token}, nil
+	return token, nil
 }

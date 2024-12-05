@@ -7,7 +7,6 @@ import (
 	userOps "github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
-	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
 
 // Ensure UserHandler implements the userOps.Handler interface.
@@ -27,28 +26,26 @@ func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *
 }
 
 // CreateUser handler creates a new user and returns id.
-// @Summary Create User.
+// @Summary Register User.
 // @Description create user func general func for creating users.
 // @Tags Users
-// @ID create-user
+// @ID register-user
 // @Accept multipart/form-data
 // @Produce json
-// @Param role path string true "role"
-// @Param req formData userModel.SignUpReq true "create user payload"
+// @Param req formData userModel.SignUpReq true "register user payload"
 // @Success 200 {int} int
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /auth/{role}/sign-up [post]
-func (h *UserHandler) CreateUser() fiber.Handler {
+func (h *UserHandler) Register() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role := c.Params("role")
-
-		var req userModel.SignUpReq
-		if err := reqvalidator.ReadRequest(c, &req); err != nil {
+		var request userModel.SignUpReq
+		err := reqvalidator.ReadRequest(c, &request)
+		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		userID, err := h.service.CreateUser(c.Context(), req, role)
+		userID, err := h.service.Register(c.Context(), request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -66,28 +63,24 @@ func (h *UserHandler) CreateUser() fiber.Handler {
 // @Produce json
 // @Param role path string true "role"
 // @Param loginReq formData userModel.LoginReq true "login request payload"
-// @Success 200 {object} userModel.UserWithTokens
+// @Success 200 {object} string
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /auth/{role}/login [post]
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role := c.Params("role")
-
 		var loginReq userModel.LoginReq
-		if err := reqvalidator.ReadRequest(c, &loginReq); err != nil {
-
-			return errlst.Response(c, err)
-		}
-
-		userWithToken, err := h.service.Login(c.Context(), loginReq, role)
+		err := reqvalidator.ReadRequest(c, &loginReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		utils.SetAuthCookies(c, role, userWithToken.Token)
+		token, err := h.service.Login(c.Context(), loginReq)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
 
-		return c.Status(fiber.StatusOK).JSON(userWithToken)
+		return c.Status(fiber.StatusOK).JSON(token)
 	}
 }
 

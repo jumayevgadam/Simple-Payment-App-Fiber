@@ -63,7 +63,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_user.UserWithTokens"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -89,16 +89,9 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Create User.",
-                "operationId": "create-user",
+                "summary": "Register User.",
+                "operationId": "register-user",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "role",
-                        "name": "role",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "name": "group-id",
@@ -1288,14 +1281,6 @@ const docTemplate = `{
                 },
                 "roleID": {
                     "type": "integer"
-                }
-            }
-        },
-        "github_com_jumayevgadam_tsu-toleg_internal_models_user.UserWithTokens": {
-            "type": "object",
-            "properties": {
-                "Token": {
-                    "type": "string"
                 }
             }
         }

@@ -71,6 +71,7 @@ type RestError struct {
 }
 
 // ---------- IMPLEMENTING RestErr methods -------------
+
 // Status is
 func (e RestError) Status() int {
 	return e.ErrStatus
@@ -88,6 +89,7 @@ func (e RestError) Error() string {
 }
 
 // ------------------- FACTORY FUNCTIONS FOR CREATING ERRORS ---------------------
+
 // NewBadRequestError creates a new 400 bad request error
 func NewBadRequestError(cause interface{}) RestErr {
 	return &RestError{

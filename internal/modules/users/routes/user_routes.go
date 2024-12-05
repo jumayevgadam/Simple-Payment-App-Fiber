@@ -17,8 +17,8 @@ func Routes(f fiber.Router, mw *mwMngr.MiddlewareManager, dataStore database.Dat
 
 	authGroup := f.Group("/auth")
 	{
-		authGroup.Post("/:role/sign-up", Handler.CreateUser())
-		authGroup.Post("/:role/login", Handler.Login())
+		authGroup.Post("/register", Handler.Register())
+		authGroup.Post("/login", Handler.Login())
 		// authGroup.Post("/:role/logout", Handler.Logout())
 	}
 }

@@ -40,5 +40,5 @@ type RolePermRepoOps interface {
 	GetRolesByPermissionID(ctx context.Context, permissionID int) ([]roleModel.RolePermissionRes, error)
 	GetRolesByPermission(ctx context.Context, permissionType string) ([]roleModel.DAO, error) // for middleware need.
 	DeleteRolePermission(ctx context.Context, roleID, permissionID int) error
-	// UpdateRolePermission(ctx context.Context, roleID, permissionID int) (string, error)
+	GetPermissionsByRoleID(ctx context.Context, roleID int) ([]string, error)
 }
