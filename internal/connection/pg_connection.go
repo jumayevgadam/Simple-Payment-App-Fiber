@@ -19,6 +19,7 @@ var _ DB = (*Database)(nil)
 type Querier interface {
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
+	Exec(ctx context.Context, query string, args ...interface{}) (pgconn.CommandTag, error)
 }
 
 var (
@@ -28,11 +29,9 @@ var (
 
 // DB interface for general database operations.
 type DB interface {
+	Querier
 	Get(ctx context.Context, db Querier, dest interface{}, query string, args ...interface{}) error
 	Select(ctx context.Context, db Querier, dest interface{}, query string, args ...interface{}) error
-	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
-	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
-	Exec(ctx context.Context, query string, args ...interface{}) (pgconn.CommandTag, error)
 }
 
 // DBOps interface with Transaction.

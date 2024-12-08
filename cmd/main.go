@@ -19,7 +19,9 @@ import (
 // @host localhost:4000
 // @BasePath /api/v1
 func main() {
-	err := application.BootStrap(context.Background())
+	ctx := context.Background()
+
+	err := application.BootStrap(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

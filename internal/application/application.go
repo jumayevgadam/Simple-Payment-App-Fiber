@@ -3,9 +3,7 @@ package application
 import (
 	"context"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
+	"runtime"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
@@ -26,6 +24,11 @@ func BootStrap(ctx context.Context) error {
 	appLogger.InitLogger()
 	appLogger.Infof("Mode: %s", cfg.Server.Mode)
 
+	numCPUs := runtime.NumCPU()
+	appLogger.Infof("Number of CPU's: %d", numCPUs)
+
+	runtime.GOMAXPROCS(numCPUs)
+
 	// PostgreSQL connection
 	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)
 	if err != nil {
@@ -41,30 +44,15 @@ func BootStrap(ctx context.Context) error {
 	dataStore := postgres.NewDataStore(psqlDB)
 	source := server.NewServer(cfg, dataStore, appLogger)
 
-	serverErrors := make(chan error, 1)
-	go func() {
-		if err := source.Run(); err != nil {
-			serverErrors <- err
-		}
-	}()
 	appLogger.Info("Server Started\n")
 
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	case sig := <-shutdown:
-		appLogger.Infof("Caught Signal: %v, graceful shutdown....\n", sig)
-	case err := <-serverErrors:
-		appLogger.Errorf("Server error: %v\n", err.Error())
+	err = source.MapHandlers()
+	if err != nil {
 		return errlst.ParseErrors(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, cfg.Server.CtxDefaultTimeOut)
-	defer cancel()
-
-	if err := source.Stop(ctx); err != nil {
-		appLogger.Errorf("Can not stop server")
+	err = source.Run()
+	if err != nil {
 		return errlst.ParseErrors(err)
 	}
 

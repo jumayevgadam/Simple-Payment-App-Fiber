@@ -22,9 +22,10 @@ type SignUpRes struct {
 }
 
 // ToStorage method sends dto model to db storage.
-func (s *SignUpReq) ToStorage() SignUpRes {
+func (s *SignUpReq) ToStorage(roleID int) SignUpRes {
 	return SignUpRes{
 		GroupID:  s.GroupID,
+		RoleID:   &roleID,
 		Name:     s.Name,
 		Surname:  s.Surname,
 		UserName: s.UserName,

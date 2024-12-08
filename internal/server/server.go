@@ -43,14 +43,12 @@ func NewServer(
 
 // Run method for running application.
 func (s *Server) Run() error {
-	err := s.MapHandlers()
-	if err != nil {
-		return errlst.ParseErrors(err)
-	}
+	
 
-	err = s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
+	err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
 	if err != nil {
-		return fmt.Errorf("failed to listen app: %w", err)
+		s.Logger.Errorf("error: listening port: %v", err.Error())
+		return errlst.ParseErrors(err)
 	}
 
 	return nil
@@ -58,10 +56,10 @@ func (s *Server) Run() error {
 
 // Stop server.
 func (s *Server) Stop(ctx context.Context) error {
-	err := s.Fiber.Shutdown()
-	if err != nil {
-		return errlst.ParseErrors(err)
+	if err := s.Fiber.ShutdownWithContext(ctx); err != nil {
+		return fmt.Errorf("failed to shut down Fiber server: %w", err)
 	}
 
+	s.Logger.Info("Server stopped gracefully")
 	return nil
 }

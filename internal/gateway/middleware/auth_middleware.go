@@ -61,6 +61,10 @@ func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore dat
 
 func AuthMiddleware(mw *MiddlewareManager, dataStore database.DataStore, permission string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		token := c.Get("Authorization")
+		if token == "" {
+			return errlst.NewUnauthorizedError("token not found in authorization header.")
+		}
 
 		return nil
 	}

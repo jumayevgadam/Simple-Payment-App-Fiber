@@ -29,7 +29,13 @@ func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore) *
 
 // CreateUser service insert a user into db and returns its id.
 func (s *UserService) Register(ctx context.Context, request userModel.SignUpReq) (int, error) {
-	userID, err := s.repo.UsersRepo().CreateUser(ctx, request.ToStorage())
+	hashedPass, err := utils.HashPassword(request.Password)
+	if err != nil {
+		return -1, errlst.ParseErrors(err)
+	}
+	request.Password = hashedPass
+
+	userID, err := s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(3))
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
 	}

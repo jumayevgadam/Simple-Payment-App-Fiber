@@ -66,7 +66,6 @@ func (pq *PaginationQuery) SetLimit(limit string) error {
 func (pq *PaginationQuery) SetPage(page string) error {
 	if page == "" {
 		pq.Page = 1
-		pq.Limit = 10
 		return nil
 	}
 
