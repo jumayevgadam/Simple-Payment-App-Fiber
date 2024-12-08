@@ -28,7 +28,7 @@ func NewCache(ctx context.Context, cfgs config.RedisDB) (*Redis, error) {
 	rdb := redis.NewClient(options)
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		return nil, errlst.NewBadRequestError("error in rdb.Ping")
-	}
+	}	
 
 	return &Redis{redis: rdb}, nil
 }
