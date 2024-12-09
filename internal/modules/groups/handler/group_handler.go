@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	groupModel "github.com/jumayevgadam/tsu-toleg/internal/models/group"
 	groupOps "github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
@@ -15,16 +16,16 @@ import (
 
 // Ensure GroupHandler implements the groupOps.Handler.
 var (
-	_ groupOps.Handler = (*GroupHandler)(nil)
+	_ groupOps.Handlers = (*GroupHandler)(nil)
 )
 
 // GroupHandler performs http request actions and call methods from service.
 type GroupHandler struct {
-	service groupOps.Service
+	service services.DataService
 }
 
 // NewGroupHandler creates and returns a new instance of GroupHandler.
-func NewGroupHandler(service groupOps.Service) *GroupHandler {
+func NewGroupHandler(service services.DataService) *GroupHandler {
 	return &GroupHandler{service: service}
 }
 
@@ -47,7 +48,7 @@ func (h *GroupHandler) AddGroup() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		groupID, err := h.service.AddGroup(c.Context(), &groupReq)
+		groupID, err := h.service.GroupService().AddGroup(c.Context(), &groupReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -75,7 +76,7 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		group, err := h.service.GetGroup(c.Context(), groupID)
+		group, err := h.service.GroupService().GetGroup(c.Context(), groupID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -105,7 +106,7 @@ func (h *GroupHandler) ListGroups() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		groups, err := h.service.ListGroups(c.Context(), paginationReq)
+		groups, err := h.service.GroupService().ListGroups(c.Context(), paginationReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -133,7 +134,7 @@ func (h *GroupHandler) DeleteGroup() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		err = h.service.DeleteGroup(c.Context(), groupID)
+		err = h.service.GroupService().DeleteGroup(c.Context(), groupID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -172,7 +173,7 @@ func (h *GroupHandler) UpdateGroup() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		updateRes, err := h.service.UpdateGroup(c.Context(), groupID, &groupReq)
+		updateRes, err := h.service.GroupService().UpdateGroup(c.Context(), groupID, &groupReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

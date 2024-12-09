@@ -1,71 +1,54 @@
 package middleware
 
 import (
-	"context"
-	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
 
-// RoleBasedMiddleware takes needed middleware permissions.
-func RoleBasedMiddleware(mw *MiddlewareManager, permission string, dataStore database.DataStore) fiber.Handler {
+// RoleBasedMiddleware middleware system built with permissions.
+func (mw *MiddlewareManager) RoleBasedMiddleware(requiredPermission string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// retrieve roles by permission
-		roles, err := dataStore.RolesRepo().GetRolesByPermission(context.Background(), permission)
-		if err != nil {
-			return errlst.NewBadRequestError("can not find roles decided that permission")
-		}
+		// Extract token from header.
+		bearerHeader := c.Get("Authorization")
 
-		fmt.Println("roles fetched with permission: ", permission, roles)
+		mw.Logger.Infof("auth middleware bearerHeader %s", bearerHeader)
 
-		roleMatched := false
-		for _, role := range roles {
-			fmt.Println(role.RoleName)
-			Token := c.Cookies(role.RoleName + "_" + "token")
-			fmt.Println("Tokens and roles:: ", Token, role.RoleName)
-			if Token == "" {
-				utils.ClearTokenCookie(c, mw.cfg, role.RoleName, Token)
-				continue
+		if bearerHeader != "" {
+			headerParts := strings.Split(bearerHeader, " ")
+			if len(headerParts) != 2 {
+				mw.Logger.Error("[authRoleBasedMiddleware], headerParts, len(headerParts) != 2")
+				return errlst.Response(c, errlst.NewUnauthorizedError(errlst.ErrUnauthorized))
 			}
 
-			// get token claims.
-			claims, err := mw.ParseToken(Token)
+			tokenString := headerParts[1]
+
+			claims, err := mw.ParseToken(tokenString)
 			if err != nil {
-				utils.ClearTokenCookie(c, mw.cfg, role.RoleName, Token)
-				fmt.Println("invalid token for role:", role.RoleName, "Error", err)
-				continue
+				mw.Logger.Errorf("middleware ParseToken: %v", err.Error())
+				return errlst.Response(c, err)
 			}
 
-			if claims.RoleID == role.ID {
-				c.Locals("userRoleID", claims.RoleID)
-				c.Locals("userID", claims.ID)
-				c.Locals("username", claims.UserName)
-				c.Locals("role", claims.Role)
-				fmt.Println("Middleware set locals: ", claims)
-
-				roleMatched = true
-				break
+			hasPermission := false
+			for _, perm := range claims.Permissions {
+				if perm == requiredPermission {
+					hasPermission = true
+					break
+				}
 			}
-		}
 
-		if roleMatched {
+			if !hasPermission {
+				return errlst.NewUnauthorizedError("access denied for this permission")
+			}
+
+			c.Locals("user_id", claims.ID)
+			c.Locals("role_id", claims.RoleID)
+			c.Locals("role_type", claims.Role)
+			c.Locals("username", claims.UserName)
 			return c.Next()
 		}
 
-		return errlst.NewForbiddenError("access denied for role this permission")
-	}
-}
-
-func AuthMiddleware(mw *MiddlewareManager, dataStore database.DataStore, permission string) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		token := c.Get("Authorization")
-		if token == "" {
-			return errlst.NewUnauthorizedError("token not found in authorization header.")
-		}
-
-		return nil
+		return errlst.NewForbiddenError("authorization header not provided")
 	}
 }

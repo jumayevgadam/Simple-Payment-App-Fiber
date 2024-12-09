@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	facultyModel "github.com/jumayevgadam/tsu-toleg/internal/models/faculty"
 	facultyOps "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
@@ -18,11 +19,11 @@ var (
 
 // FacultyHandler for performing http request in handler layer calling methods from service.
 type FacultyHandler struct {
-	service facultyOps.Service
+	service services.DataService
 }
 
 // NewFacultyHandler creates and returns a new instance of FacultyHandler.
-func NewFacultyHandler(service facultyOps.Service) *FacultyHandler {
+func NewFacultyHandler(service services.DataService) *FacultyHandler {
 	return &FacultyHandler{service: service}
 }
 
@@ -45,7 +46,7 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		resID, err := h.service.AddFaculty(c.Context(), &facultyReq)
+		resID, err := h.service.FacultyService().AddFaculty(c.Context(), &facultyReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -73,7 +74,7 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		faculty, err := h.service.GetFaculty(c.Context(), facultyID)
+		faculty, err := h.service.FacultyService().GetFaculty(c.Context(), facultyID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -102,7 +103,7 @@ func (h *FacultyHandler) ListFaculties() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		faculties, err := h.service.ListFaculties(c.Context(), paginationReq)
+		faculties, err := h.service.FacultyService().ListFaculties(c.Context(), paginationReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -129,7 +130,8 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		if err := h.service.DeleteFaculty(c.Context(), facultyID); err != nil {
+		err = h.service.FacultyService().DeleteFaculty(c.Context(), facultyID)
+		if err != nil {
 			return errlst.Response(c, err)
 		}
 
@@ -170,7 +172,7 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		res, err := h.service.UpdateFaculty(c.Context(), facultyID, &inputReq)
+		res, err := h.service.FacultyService().UpdateFaculty(c.Context(), facultyID, &inputReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

@@ -33,7 +33,7 @@ func (h *RoleHandler) AddRolePermission() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		res, err := h.service.AddRolePermission(c.Context(), req)
+		res, err := h.service.RoleService().AddRolePermission(c.Context(), req)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -61,7 +61,7 @@ func (h *RoleHandler) GetPermissionsByRole() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		response, err := h.service.GetPermissionsByRole(c.Context(), roleID)
+		response, err := h.service.RoleService().GetPermissionsByRole(c.Context(), roleID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -89,7 +89,7 @@ func (h *RoleHandler) GetRolesByPermission() fiber.Handler {
 			return errlst.ParseErrors(err)
 		}
 
-		response, err := h.service.GetRolesByPermission(c.Context(), permissionID)
+		response, err := h.service.RoleService().GetRolesByPermission(c.Context(), permissionID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -122,7 +122,7 @@ func (h *RoleHandler) DeleteRolePermission() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		err = h.service.DeleteRolePermission(c.Context(), role_id, permission_id)
+		err = h.service.RoleService().DeleteRolePermission(c.Context(), role_id, permission_id)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

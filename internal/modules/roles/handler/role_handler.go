@@ -28,7 +28,7 @@ func (h *RoleHandler) AddRole() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		roleID, err := h.service.AddRole(c.Context(), roleReq)
+		roleID, err := h.service.RoleService().AddRole(c.Context(), roleReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -58,7 +58,7 @@ func (h *RoleHandler) GetRole() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		role, err := h.service.GetRole(c.Context(), roleID)
+		role, err := h.service.RoleService().GetRole(c.Context(), roleID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -79,7 +79,7 @@ func (h *RoleHandler) GetRole() fiber.Handler {
 // @Router /role/get-all [get]
 func (h *RoleHandler) GetRoles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		roles, err := h.service.GetRoles(c.Context())
+		roles, err := h.service.RoleService().GetRoles(c.Context())
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -107,7 +107,7 @@ func (h *RoleHandler) DeleteRole() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		if err := h.service.DeleteRole(c.Context(), roleID); err != nil {
+		if err := h.service.RoleService().DeleteRole(c.Context(), roleID); err != nil {
 			return errlst.Response(c, err)
 		}
 
@@ -145,7 +145,7 @@ func (h *RoleHandler) UpdateRole() fiber.Handler {
 		}
 		roleReq.ID = roleID
 
-		res, err := h.service.UpdateRole(c.Context(), roleReq)
+		res, err := h.service.RoleService().UpdateRole(c.Context(), roleReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

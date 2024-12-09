@@ -1,6 +1,9 @@
 package handler
 
-import roleOps "github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+import (
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
+	roleOps "github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+)
 
 // Ensuring RoleHandler implements methods of roleOps.Handlers.
 var (
@@ -9,10 +12,10 @@ var (
 
 // RoleHandler is for calling methods from service.
 type RoleHandler struct {
-	service roleOps.Service
+	service services.DataService
 }
 
 // NewRoleHandler creates and returns a new instance of RoleHandler.
-func NewRoleHandler(service roleOps.Service) *RoleHandler {
+func NewRoleHandler(service services.DataService) *RoleHandler {
 	return &RoleHandler{service: service}
 }

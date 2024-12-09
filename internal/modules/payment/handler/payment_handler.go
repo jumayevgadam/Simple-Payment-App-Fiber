@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	paymentOps "github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -13,16 +14,16 @@ import (
 
 // Ensure PaymentHandler implements the paymentOps.Handler interface.
 var (
-	_ paymentOps.Handler = (*PaymentHandler)(nil)
+	_ paymentOps.Handlers = (*PaymentHandler)(nil)
 )
 
 // PaymentHandler for working with http requests.
 type PaymentHandler struct {
-	service paymentOps.Service
+	service services.DataService
 }
 
 // NewPaymentHandler creates and returns a new instance of PaymentHandler.
-func NewPaymentHandler(service paymentOps.Service) *PaymentHandler {
+func NewPaymentHandler(service services.DataService) *PaymentHandler {
 	return &PaymentHandler{service: service}
 }
 
@@ -53,7 +54,7 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		paymentID, err := h.service.AddPayment(c, studentID, checkPhoto, &request)
+		paymentID, err := h.service.PaymentService().AddPayment(c, studentID, checkPhoto, &request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

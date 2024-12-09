@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
@@ -18,13 +17,12 @@ var (
 
 // UserService manages buisiness logic for modules/user part of application.
 type UserService struct {
-	mw   *middleware.MiddlewareManager
 	repo database.DataStore
 }
 
 // NewUserService creates and returns a new instance of UserRepository.
-func NewUserService(mw *middleware.MiddlewareManager, repo database.DataStore) *UserService {
-	return &UserService{mw: mw, repo: repo}
+func NewUserService(repo database.DataStore) *UserService {
+	return &UserService{repo: repo}
 }
 
 // CreateUser service insert a user into db and returns its id.
@@ -64,19 +62,7 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (s
 		}
 
 		// getRole by roleID.
-		role, err := db.RolesRepo().GetRole(ctx, user.RoleID)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// get Permissions by roleID.
-		permissions, err := db.RolesRepo().GetPermissionsByRoleID(ctx, role.ID)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// generate token.
-		token, err = s.mw.GenerateToken(user.ID, user.RoleID, user.Username, role.RoleName, permissions)
+		_, err = db.RolesRepo().GetRole(ctx, user.RoleID)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}

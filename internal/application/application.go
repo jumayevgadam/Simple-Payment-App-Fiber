@@ -46,11 +46,6 @@ func BootStrap(ctx context.Context) error {
 
 	appLogger.Info("Server Started\n")
 
-	err = source.MapHandlers()
-	if err != nil {
-		return errlst.ParseErrors(err)
-	}
-
 	err = source.Run()
 	if err != nil {
 		return errlst.ParseErrors(err)

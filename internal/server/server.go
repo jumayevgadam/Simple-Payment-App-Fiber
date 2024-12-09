@@ -43,8 +43,6 @@ func NewServer(
 
 // Run method for running application.
 func (s *Server) Run() error {
-	
-
 	err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
 	if err != nil {
 		s.Logger.Errorf("error: listening port: %v", err.Error())

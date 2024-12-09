@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	userOps "github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -11,18 +11,17 @@ import (
 
 // Ensure UserHandler implements the userOps.Handler interface.
 var (
-	_ userOps.Handler = (*UserHandler)(nil)
+	_ userOps.Handlers = (*UserHandler)(nil)
 )
 
 // UserHandler manages http request methods and calls methods from service and config.
 type UserHandler struct {
-	mw      *middleware.MiddlewareManager
-	service userOps.Service
+	service services.DataService
 }
 
 // NewUserHandler creates and returns a new instance of UserHandler.
-func NewUserHandler(mw *middleware.MiddlewareManager, service userOps.Service) *UserHandler {
-	return &UserHandler{mw: mw, service: service}
+func NewUserHandler(service services.DataService) *UserHandler {
+	return &UserHandler{service: service}
 }
 
 // CreateUser handler creates a new user and returns id.
@@ -45,7 +44,7 @@ func (h *UserHandler) Register() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		userID, err := h.service.Register(c.Context(), request)
+		userID, err := h.service.UserService().Register(c.Context(), request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -75,7 +74,7 @@ func (h *UserHandler) Login() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		token, err := h.service.Login(c.Context(), loginReq)
+		token, err := h.service.UserService().Login(c.Context(), loginReq)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
