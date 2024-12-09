@@ -46,7 +46,9 @@ func (s *RoleService) GetPermissionsByRole(ctx context.Context, roleID int) ([]r
 }
 
 // GetRolesByPermission service retrieve all roles that can do that permission.
-func (s *RoleService) GetRolesByPermission(ctx context.Context, permissionID int) ([]rolePermModel.RolePermissionReq, error) {
+func (s *RoleService) GetRolesByPermission(ctx context.Context, permissionID int) (
+	[]rolePermModel.RolePermissionReq, error,
+) {
 	var rolePermDTOs []rolePermModel.RolePermissionReq
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		_, err := db.RolesRepo().GetPermission(ctx, permissionID)

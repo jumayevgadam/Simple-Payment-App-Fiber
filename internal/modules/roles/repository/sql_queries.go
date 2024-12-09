@@ -66,7 +66,7 @@ const (
 			id,
 			permission_type
 		FROM permissions
-		ORDER BY COALESCE(NULLIF($1, ''), permission_type) DESC OFFSET $2 LIMIT $3;`
+		ORDER BY id DESC OFFSET $2 LIMIT $3;`
 
 	// deletePermissionQuery is.
 	deletePermissionQuery = `

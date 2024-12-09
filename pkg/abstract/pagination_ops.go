@@ -9,16 +9,14 @@ import (
 
 // PaginationQuery struct for sending request pagination ops.
 type PaginationQuery struct {
-	Limit   int    `form:"limit" json:"limit" validate:"required,gte=0,lt=101"`
-	Page    int    `form:"page" json:"page" validate:"required,gte=0"`
-	OrderBy string `form:"orderBy" json:"orderBy"`
+	Limit int `form:"limit" json:"limit" validate:"required,gte=0,lt=101"`
+	Page  int `form:"page" json:"page" validate:"required,gte=0"`
 }
 
 // PaginationData struct is db model, we use in repo layer.
 type PaginationData struct {
-	Limit   int    `db:"limit"`
-	Page    int    `db:"page"`
-	OrderBy string `db:"order_by"`
+	Limit int `db:"limit"`
+	Page  int `db:"page"`
 }
 
 // PaginatedResponse model for uses generics.
@@ -40,9 +38,8 @@ type PaginatedResponseData[T any] struct {
 // ToStorage func sends Pagination request to db.
 func (p *PaginationQuery) ToStorage() PaginationData {
 	return PaginationData{
-		Limit:   p.Limit,
-		Page:    p.Page,
-		OrderBy: p.OrderBy,
+		Limit: p.Limit,
+		Page:  p.Page,
 	}
 }
 
@@ -65,7 +62,7 @@ func (pq *PaginationQuery) SetLimit(limit string) error {
 
 func (pq *PaginationQuery) SetPage(page string) error {
 	if page == "" {
-		pq.Page = 1	
+		pq.Page = 1
 		return nil
 	}
 
@@ -78,10 +75,6 @@ func (pq *PaginationQuery) SetPage(page string) error {
 	return nil
 }
 
-func (pq *PaginationQuery) SetOrderBy(orderBy string) {
-	pq.OrderBy = orderBy
-}
-
 func GetPaginationFromFiberCtx(c *fiber.Ctx) (PaginationQuery, error) {
 	pq := PaginationQuery{}
 	if err := pq.SetPage(c.Query("page")); err != nil {
@@ -90,7 +83,6 @@ func GetPaginationFromFiberCtx(c *fiber.Ctx) (PaginationQuery, error) {
 	if err := pq.SetLimit(c.Query("limit")); err != nil {
 		return pq, fmt.Errorf("error: setting limit in query: %w", err)
 	}
-	pq.SetOrderBy(c.Query("orderBy"))
 
 	return pq, nil
 }

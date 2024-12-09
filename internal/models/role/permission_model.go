@@ -1,6 +1,6 @@
 package role
 
-// PermissionReq struct for permissions
+// PermissionReq struct for permissions.
 type PermissionReq struct {
 	PermissionType string `form:"permission-type" json:"permissionType"`
 }

@@ -113,23 +113,26 @@ func (h *RoleHandler) GetRolesByPermission() fiber.Handler {
 // @Router /role-permission/{role_id}/and/{permission_id} [delete]
 func (h *RoleHandler) DeleteRolePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role_id, err := strconv.Atoi(c.Params("role_id"))
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-		permission_id, err := strconv.Atoi(c.Params("permission_id"))
+		roleID, err := strconv.Atoi(c.Params("role_id"))
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		err = h.service.RoleService().DeleteRolePermission(c.Context(), role_id, permission_id)
+		permissionID, err := strconv.Atoi(c.Params("permission_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		err = h.service.RoleService().DeleteRolePermission(c.Context(), roleID, permissionID)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
 		return c.Status(fiber.StatusOK).JSON(
 			fiber.Map{
-				"message": fmt.Sprintf("successfully removed role-permission with roleID: %d and permissionID: %d", role_id, permission_id),
+				"message": fmt.Sprintf(
+					"successfully removed role-permission with roleID: %d and permissionID: %d",
+					roleID, permissionID),
 			},
 		)
 	}

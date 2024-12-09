@@ -3,7 +3,12 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	_ "github.com/jumayevgadam/tsu-toleg/docs"
 	"github.com/jumayevgadam/tsu-toleg/internal/application"
 )
 
@@ -19,10 +24,31 @@ import (
 // @host localhost:4000
 // @BasePath /api/v1
 func main() {
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	defer stop()
 
-	err := application.BootStrap(ctx)
+	// Start the application.
+	server, err := application.BootStrap(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error during application bootstrap")
 	}
+
+	// Wait for termination signal.
+	<-ctx.Done()
+
+	log.Println("Shutdown signal received")
+
+	gracefulCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := server.Stop(gracefulCtx); err != nil {
+		server.Logger.Errorf("error shutting down application: %v", err.Error())
+	}
+
+	server.Logger.Info("Application gracefully stopped")
 }

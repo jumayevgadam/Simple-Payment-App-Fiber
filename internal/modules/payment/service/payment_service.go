@@ -42,7 +42,12 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 		}
 
 		// save image dynamic folder using groupCode, name_surname
-		checkPhotoUrl, err := utils.SaveImage(c, checkPhoto, studentDataForPayment.GroupCode, studentDataForPayment.FullName, studentDataForPayment.Username)
+		checkPhotoUrl, err := utils.SaveImage(
+			c, checkPhoto,
+			studentDataForPayment.GroupCode,
+			studentDataForPayment.FullName,
+			studentDataForPayment.Username,
+		)
 		if err != nil {
 			return errlst.NewBadRequestError("can not save check photo that directory")
 		}

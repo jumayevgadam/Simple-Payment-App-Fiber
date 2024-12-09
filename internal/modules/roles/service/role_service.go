@@ -42,6 +42,7 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 		for _, role := range roleDAOs {
 			roleDTOs = append(roleDTOs, role.ToServer())
 		}
+
 		return nil
 	})
 	if err != nil {

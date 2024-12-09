@@ -8,7 +8,7 @@ import (
 )
 
 // RoleBasedMiddleware middleware system built with permissions.
-func (mw *MiddlewareManager) RoleBasedMiddleware(requiredPermission string) fiber.Handler {
+func (mw *Manager) RoleBasedMiddleware(requiredPermission string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Extract token from header.
 		bearerHeader := c.Get("Authorization")
@@ -46,6 +46,7 @@ func (mw *MiddlewareManager) RoleBasedMiddleware(requiredPermission string) fibe
 			c.Locals("role_id", claims.RoleID)
 			c.Locals("role_type", claims.Role)
 			c.Locals("username", claims.UserName)
+
 			return c.Next()
 		}
 

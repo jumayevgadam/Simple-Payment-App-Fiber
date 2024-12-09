@@ -18,7 +18,7 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 		return errlst.ErrTypeAssertInTransaction
 	}
 
-	//begin transaction in this place.
+	// begin transaction in this place.
 	tx, err := db.Begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		log.Println("error in db.Begin[WithTransaction]")

@@ -27,7 +27,7 @@ func NewGroupService(repo database.DataStore) *GroupService {
 }
 
 // AddGroup service insert a group to db and returns id.
-func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.GroupReq) (int, error) {
+func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.Req) (int, error) {
 	groupID, err := s.repo.GroupsRepo().AddGroup(ctx, groupRequest.ToStorage())
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
@@ -37,8 +37,8 @@ func (s *GroupService) AddGroup(ctx context.Context, groupRequest *groupModel.Gr
 }
 
 // GetGroup service fetches a group from db using identified id.
-func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDTO, error) {
-	var groupDTO *groupModel.GroupDTO
+func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.DTO, error) {
+	var groupDTO *groupModel.DTO
 
 	groupDAO, err := s.repo.GroupsRepo().GetGroup(ctx, groupID)
 	if err != nil {
@@ -51,11 +51,13 @@ func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.G
 }
 
 // ListGroups service fetches a list of groups from db and returns it.
-func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.PaginationQuery) (abstract.PaginatedRequest[*groupModel.GroupDTO], error) {
+func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.PaginationQuery) (
+	abstract.PaginatedRequest[*groupModel.DTO], error,
+) {
 	var (
-		groupAllDatas     []*groupModel.GroupDAO
+		groupAllDatas     []*groupModel.DAO
 		err               error
-		groupListResponse abstract.PaginatedRequest[*groupModel.GroupDTO]
+		groupListResponse abstract.PaginatedRequest[*groupModel.DTO]
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
@@ -75,19 +77,19 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 		return nil
 	})
 	if err != nil {
-		return abstract.PaginatedRequest[*groupModel.GroupDTO]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedRequest[*groupModel.DTO]{}, errlst.ParseErrors(err)
 	}
 
 	groupList := lo.Map(
 		groupAllDatas,
-		func(item *groupModel.GroupDAO, _ int) *groupModel.GroupDTO {
+		func(item *groupModel.DAO, _ int) *groupModel.DTO {
 			return item.ToServer()
 		},
 	)
 
 	groupListResponse.Items = groupList
 	groupListResponse.Page = pagination.Page
-	groupListResponse.Limit = int(len(groupList))
+	groupListResponse.Limit = len(groupList)
 
 	return groupListResponse, nil
 }
@@ -102,7 +104,9 @@ func (s *GroupService) DeleteGroup(ctx context.Context, groupID int) error {
 }
 
 // UpdateGroup service edits group data with a new group data using identified group id.
-func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue *groupModel.UpdateGroupReq) (string, error) {
+func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue *groupModel.UpdateGroupReq) (
+	string, error,
+) {
 	var (
 		resFromDB string
 		err       error

@@ -23,7 +23,7 @@ const (
 			name,
 			faculty_code
 		FROM faculties
-		ORDER BY COALESCE(NULLIF($1, ''), name) OFFSET $2 LIMIT $3;`
+		ORDER BY id DESC OFFSET $2 LIMIT $3;`
 
 	// countFacultiesQuery is.
 	countFacultiesQuery = `

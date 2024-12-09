@@ -20,10 +20,9 @@ type Config struct {
 	Logger   Logger
 }
 
-// ServerConfig keeps all needed details about Server
+// ServerConfig keeps all needed details about Server.
 type ServerConfig struct {
 	HTTPPort          string        `envconfig:"HTTP_PORT" validate:"required"`
-	MetricsPort       string        `envconfig:"METRICS_PORT" validate:"required"`
 	Mode              string        `envconfig:"SERVER_MODE" validate:"required"`
 	ReadTimeOut       time.Duration `envconfig:"READ_TIMEOUT" validate:"required"`
 	WriteTimeOut      time.Duration `envconfig:"WRITE_TIMEOUT" validate:"required"`

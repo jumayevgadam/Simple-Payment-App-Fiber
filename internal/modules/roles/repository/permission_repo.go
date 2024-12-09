@@ -52,7 +52,6 @@ func (r *RoleRepository) ListPermissions(ctx context.Context, paginationData abs
 		r.psqlDB,
 		&permissionDatas,
 		listPermissionsQuery,
-		paginationData.OrderBy,
 		offset,
 		paginationData.Limit,
 	)

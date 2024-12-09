@@ -1,31 +1,22 @@
 package group
 
 // GroupReq model is request model for adding group to DB.
-type GroupReq struct {
+type Req struct {
 	FacultyID  int    `form:"faculty-id" json:"facultyID" validate:"required"`
 	GroupCode  string `form:"group-code" json:"groupCode" validate:"required"`
 	CourseYear int    `form:"course-year" json:"courseYear" validate:"required,lte=5,gte=1"`
 }
 
 // GroupRes model is response model which get from DB.
-type GroupRes struct {
+type Res struct {
 	FacultyID  int    `db:"faculty_id"`
 	GroupCode  string `db:"group_code"`
 	CourseYear int    `db:"course_year"`
 }
 
-// ToServer method for sending DB model to server.
-func (g *GroupRes) ToServer() *GroupReq {
-	return &GroupReq{
-		FacultyID:  g.FacultyID,
-		GroupCode:  g.GroupCode,
-		CourseYear: g.CourseYear,
-	}
-}
-
 // ToStorage method for sending request model to storage.
-func (g *GroupReq) ToStorage() *GroupRes {
-	return &GroupRes{
+func (g *Req) ToStorage() *Res {
+	return &Res{
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
 		CourseYear: g.CourseYear,
@@ -33,7 +24,7 @@ func (g *GroupReq) ToStorage() *GroupRes {
 }
 
 // GroupData model is db model.
-type GroupDAO struct {
+type DAO struct {
 	ID         int    `db:"id"`
 	FacultyID  int    `db:"faculty_id"`
 	GroupCode  string `db:"group_code"`
@@ -41,7 +32,7 @@ type GroupDAO struct {
 }
 
 // GroupDTO model for service and handler layer performing request actions.
-type GroupDTO struct {
+type DTO struct {
 	ID         int    `json:"groupID"`
 	FacultyID  int    `json:"facultyID"`
 	GroupCode  string `json:"groupCode"`
@@ -49,8 +40,8 @@ type GroupDTO struct {
 }
 
 // ToStorage method for sending DTO model to storage.
-func (g *GroupDTO) ToStorage() *GroupDAO {
-	return &GroupDAO{
+func (g *DTO) ToStorage() *DAO {
+	return &DAO{
 		ID:         g.ID,
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
@@ -59,8 +50,8 @@ func (g *GroupDTO) ToStorage() *GroupDAO {
 }
 
 // ToServer method for sending DAO to server.
-func (g *GroupDAO) ToServer() *GroupDTO {
-	return &GroupDTO{
+func (g *DAO) ToServer() *DTO {
+	return &DTO{
 		ID:         g.ID,
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
@@ -75,8 +66,8 @@ type UpdateGroupReq struct {
 	CourseYear int    `form:"course-year"`
 }
 
-func (u *UpdateGroupReq) ToStorage(groupID int) *GroupDAO {
-	return &GroupDAO{
+func (u *UpdateGroupReq) ToStorage(groupID int) *DAO {
+	return &DAO{
 		ID:         groupID,
 		FacultyID:  u.FacultyID,
 		GroupCode:  u.GroupCode,

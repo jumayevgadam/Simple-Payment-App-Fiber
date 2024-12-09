@@ -43,7 +43,7 @@ func NewGroupHandler(service services.DataService) *GroupHandler {
 // @Router /group/add [post]
 func (h *GroupHandler) AddGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var groupReq groupModel.GroupReq
+		var groupReq groupModel.Req
 		if err := reqvalidator.ReadRequest(c, &groupReq); err != nil {
 			return errlst.Response(c, err)
 		}
@@ -139,7 +139,10 @@ func (h *GroupHandler) DeleteGroup() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusNoContent).JSON(fiber.Map{"res": fmt.Sprintf("successfully deleted group with id: %d", groupID)})
+		return c.Status(fiber.StatusNoContent).JSON(
+			fiber.Map{"res": fmt.Sprintf(
+				"successfully deleted group with id: %d", groupID,
+			)})
 	}
 }
 

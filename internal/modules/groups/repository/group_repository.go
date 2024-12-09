@@ -26,7 +26,7 @@ func NewGroupRepository(psqlDB connection.DB) *GroupRepository {
 }
 
 // AddGroup repo insert group data into db and returns id.
-func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error) {
+func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Res) (int, error) {
 	var groupID int
 
 	if err := r.psqlDB.QueryRow(
@@ -43,8 +43,8 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Gro
 }
 
 // GetGroup repo fetches a group using identified id.
-func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDAO, error) {
-	var groupDAO groupModel.GroupDAO
+func (r *GroupRepository) GetGroup(ctx context.Context, groupID int) (*groupModel.DAO, error) {
+	var groupDAO groupModel.DAO
 
 	if err := r.psqlDB.Get(
 		ctx,
@@ -77,8 +77,10 @@ func (r *GroupRepository) CountGroups(ctx context.Context) (int, error) {
 }
 
 // ListGroups repo fetches a list of groups.
-func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.GroupDAO, error) {
-	var groupDAOs []*groupModel.GroupDAO
+func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.PaginationData) (
+	[]*groupModel.DAO, error,
+) {
+	var groupDAOs []*groupModel.DAO
 	offset := (pagination.Page - 1) * pagination.Limit
 
 	if err := r.psqlDB.Select(
@@ -86,7 +88,6 @@ func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.Pa
 		r.psqlDB,
 		&groupDAOs,
 		listGroupsQuery,
-		pagination.OrderBy,
 		offset,
 		pagination.Limit,
 	); err != nil {
@@ -111,7 +112,7 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 }
 
 // UpdateGroup repo updates group data with a new group data and identified id.
-func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.GroupDAO) (string, error) {
+func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.DAO) (string, error) {
 	var res string
 
 	if err := r.psqlDB.QueryRow(

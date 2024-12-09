@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"errors"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
@@ -30,10 +28,6 @@ func NewPaymentHandler(service services.DataService) *PaymentHandler {
 // AddPayment for students.
 func (h *PaymentHandler) AddPayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		if c.Locals("role") == nil && c.Locals("userRoleID") == nil && c.Locals("userID") == nil && c.Locals("username") == nil {
-			return errlst.Response(c, errors.New("unauthorized access to this source"))
-		}
-
 		role, ok := c.Locals("role").(string)
 		if !ok || role != "student" {
 			return errlst.NewUnauthorizedError("only student role can perform payment")

@@ -18,6 +18,7 @@ const v1URL = "/api/v1"
 func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init Swagger Doc details.
 	docs.SwaggerInfo.Title = "API DOCUMENTATION OF TSU-TOLEG"
+
 	s.Fiber.Get("/api-docs/tsu-toleg-api/*", swagger.HandlerDefault)
 
 	// Init v1 Path.

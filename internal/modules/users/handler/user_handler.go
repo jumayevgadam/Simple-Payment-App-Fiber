@@ -39,6 +39,7 @@ func NewUserHandler(service services.DataService) *UserHandler {
 func (h *UserHandler) Register() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var request userModel.SignUpReq
+
 		err := reqvalidator.ReadRequest(c, &request)
 		if err != nil {
 			return errlst.Response(c, err)
@@ -69,6 +70,7 @@ func (h *UserHandler) Register() fiber.Handler {
 func (h *UserHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var loginReq userModel.LoginReq
+
 		err := reqvalidator.ReadRequest(c, &loginReq)
 		if err != nil {
 			return errlst.Response(c, err)

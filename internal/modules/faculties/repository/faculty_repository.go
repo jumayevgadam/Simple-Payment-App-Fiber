@@ -68,7 +68,6 @@ func (f *FacultyRepository) ListFaculties(ctx context.Context, paginationData ab
 		f.psqlDB,
 		&facultyDAOs,
 		listFacultiesQuery,
-		paginationData.OrderBy,
 		offset,
 		paginationData.Limit,
 	); err != nil {

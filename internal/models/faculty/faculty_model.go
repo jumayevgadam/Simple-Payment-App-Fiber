@@ -61,7 +61,7 @@ func (f *FacultyData) ToServer() *Faculty {
 	}
 }
 
-// UpdateInputReq model for updating fields of faculties
+// UpdateInputReq model for updating fields of faculties.
 type UpdateInputReq struct {
 	Name string `form:"faculty-name"`
 	Code string `form:"faculty-code"`

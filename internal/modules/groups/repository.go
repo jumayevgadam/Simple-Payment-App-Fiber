@@ -9,10 +9,10 @@ import (
 
 // Repository interface for performing actions in groups repo (layer).
 type Repository interface {
-	AddGroup(ctx context.Context, groupDAO *groupModel.GroupRes) (int, error)
-	GetGroup(ctx context.Context, groupID int) (*groupModel.GroupDAO, error)
+	AddGroup(ctx context.Context, groupDAO *groupModel.Res) (int, error)
+	GetGroup(ctx context.Context, groupID int) (*groupModel.DAO, error)
 	CountGroups(ctx context.Context) (int, error)
-	ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.GroupDAO, error)
+	ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.DAO, error)
 	DeleteGroup(ctx context.Context, groupID int) error
-	UpdateGroup(ctx context.Context, groupModel *groupModel.GroupDAO) (string, error)
+	UpdateGroup(ctx context.Context, groupModel *groupModel.DAO) (string, error)
 }

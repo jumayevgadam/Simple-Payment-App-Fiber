@@ -1,29 +1,57 @@
 linters:
   disable-all: true
   enable:
-    - govet
-    - goimports
-    - err113
     - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - typecheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - decorder
     - errname
     - errorlint
-    - gci
+    - exhaustive
+    - exportloopref
+    - forcetypeassert
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
     - godot
-    - godox
-    - gofmt
-    - wsl
-    - unused
-    - tenv
-    - spancheck
+    - goimports
+    - gomnd
+    - lll
+    - makezero
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - nolintlint
+    - nosprintfhostport
+    - paralleltest
+    - prealloc
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
     - sqlclosecheck
-    - intrange
-    - iface
-    - cyclop
-    - contextcheck
-    - dupword
-    - dupl
-    - durationcheck
-    - copyloopvar
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+    # - wastedassign - запрещает делать short declare
+    # - gosec
+    # - funlen
+    # - gochecknoglobals
+    # - depguard
+    # - dupl
+    # - exhaustruct
 
 linters-settings:
   errcheck:
@@ -32,11 +60,15 @@ linters-settings:
   goconst:
     min-len: 2
     min-occurrences: 2
-  nlreturn: 
+  nakedret:
     block-size: 4
+  nlreturn:
+    block-size: 4
+  govet:
+    check-shadowing: false
   nolintlint:
     require-explanation: true
-    require-specific: true          
+    require-specific: true
   wsl:
     allow-cuddle-declarations: true
     force-err-cuddling: true
@@ -46,8 +78,5 @@ linters-settings:
 
 run:
   timeout: 5m
-
-issues:
-  exclude-dirs:
-    - pkg
-          
+  skip-dirs:
+    pkg

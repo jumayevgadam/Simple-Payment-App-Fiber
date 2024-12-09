@@ -23,12 +23,12 @@ type Transaction struct {
 }
 
 // Get method implements TxOps interface.
-func (tx *Transaction) Get(ctx context.Context, db Querier, dest interface{}, query string, args ...interface{}) error {
+func (tx *Transaction) Get(ctx context.Context, _ Querier, dest interface{}, query string, args ...interface{}) error {
 	return pgxscan.Get(ctx, tx.Tx, dest, query, args...)
 }
 
 // Select method implements TxOps interface.
-func (tx *Transaction) Select(ctx context.Context, db Querier, dest interface{}, query string, args ...interface{}) error {
+func (tx *Transaction) Select(ctx context.Context, _ Querier, dest interface{}, query string, args ...interface{}) error {
 	return pgxscan.Select(ctx, tx.Tx, dest, query, args...)
 }
 

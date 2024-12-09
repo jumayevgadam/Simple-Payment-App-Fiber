@@ -11,7 +11,7 @@ import (
 )
 
 // Ensure TokenOps implements the TokenGeneratorOps interface.
-var _ TokenGeneratorOps = (*MiddlewareManager)(nil)
+var _ TokenGeneratorOps = (*Manager)(nil)
 
 // TokenGeneratorOps interface for generating tokens.
 type TokenGeneratorOps interface {
@@ -20,18 +20,18 @@ type TokenGeneratorOps interface {
 }
 
 // MiddlewareManager struct takes all needed details for jwtToken from config.
-type MiddlewareManager struct {
+type Manager struct {
 	cfg    *config.Config
 	Logger logger.Logger
 }
 
 // NewMiddlewareManager func creates and returns a new instance TokenOps.
-func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *MiddlewareManager {
-	return &MiddlewareManager{cfg: cfg, Logger: logger}
+func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *Manager {
+	return &Manager{cfg: cfg, Logger: logger}
 }
 
 // GenerateAccessToken method for creating access token.
-func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, role string, permissions []string) (string, error) {
+func (mw *Manager) GenerateToken(userID, roleID int, username, role string, permissions []string) (string, error) {
 	var claims jwt.RegisteredClaims
 
 	accessTokenclaims := token.AccessTokenClaims{
@@ -43,7 +43,11 @@ func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, role st
 		RegisteredClaims: claims,
 	}
 
-	tokenStr, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	tokenStr, err := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		accessTokenclaims,
+	).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+
 	if err != nil {
 		return "", errlst.NewInternalServerError("error creating accessToken")
 	}
@@ -52,16 +56,17 @@ func (mw *MiddlewareManager) GenerateToken(userID, roleID int, username, role st
 }
 
 // ParseAccessToken method parses accessToken using claims.
-func (mw *MiddlewareManager) ParseToken(accessToken string) (*token.AccessTokenClaims, error) {
-	tokenStr, err := jwt.ParseWithClaims(accessToken, &token.AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		// check jwt signing method.
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			return nil, errlst.ErrInvalidJWTMethod
-		}
+func (mw *Manager) ParseToken(accessToken string) (*token.AccessTokenClaims, error) {
+	tokenStr, err := jwt.ParseWithClaims(
+		accessToken, &token.AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+			// check jwt signing method.
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				return nil, errlst.ErrInvalidJWTMethod
+			}
 
-		return []byte(mw.cfg.JWT.TokenSecret), nil
-	})
+			return []byte(mw.cfg.JWT.TokenSecret), nil
+		})
 	if err != nil {
 		return nil, errlst.NewUnauthorizedError("invalid access token")
 	}

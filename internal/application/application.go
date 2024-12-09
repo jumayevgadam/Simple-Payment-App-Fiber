@@ -2,19 +2,20 @@ package application
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
 	"runtime"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database/postgres"
 	"github.com/jumayevgadam/tsu-toleg/internal/server"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
 // BootStrap application.
-func BootStrap(ctx context.Context) error {
+func BootStrap(ctx context.Context) (*server.Server, error) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Printf("error in main.LoadConfig: %v", err.Error())
@@ -32,25 +33,28 @@ func BootStrap(ctx context.Context) error {
 	// PostgreSQL connection
 	psqlDB, err := connection.GetDBConnection(ctx, cfg.Postgres)
 	if err != nil {
-		log.Printf("error in getting DB connection: %v", err.Error())
+		appLogger.Infof("error in getting DB connection: %v", err.Error())
 	}
 
 	defer func() {
 		if err := psqlDB.Close(); err != nil {
-			log.Printf("error in closing DB: %v", err.Error())
+			appLogger.Infof("error in closing DB: %v", err.Error())
 		}
 	}()
 
 	dataStore := postgres.NewDataStore(psqlDB)
 	source := server.NewServer(cfg, dataStore, appLogger)
+	source.MapHandlers(dataStore)
 
 	appLogger.Info("Server Started\n")
 
-	err = source.Run()
-	if err != nil {
-		return errlst.ParseErrors(err)
-	}
+	go func() {
+		if err := source.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			appLogger.Errorf("error occured when running http server: %v", err.Error())
+		}
+	}()
 
 	appLogger.Info("Server stopped gracefully...\n")
-	return nil
+
+	return source, nil
 }

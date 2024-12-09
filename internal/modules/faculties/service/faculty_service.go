@@ -47,7 +47,9 @@ func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facult
 }
 
 // ListFaculties service fetches a list of faculties from DB and returns it.
-func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.PaginationQuery) (abstract.PaginatedRequest[*facultyModel.Faculty], error) {
+func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.PaginationQuery) (
+	abstract.PaginatedRequest[*facultyModel.Faculty], error,
+) {
 	var (
 		facultyAllData      []*facultyModel.FacultyData
 		err                 error
@@ -56,6 +58,7 @@ func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		var count int
+
 		count, err = db.FacultiesRepo().CountFaculties(ctx)
 		if err != nil {
 			return errlst.ParseErrors(err)
@@ -83,7 +86,7 @@ func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.
 
 	facultyListResponse.Items = facultyList
 	facultyListResponse.Page = pagination.Page
-	facultyListResponse.Limit = int(len(facultyList))
+	facultyListResponse.Limit = len(facultyList)
 
 	return facultyListResponse, nil
 }
@@ -98,7 +101,9 @@ func (s *FacultyService) DeleteFaculty(ctx context.Context, facultyID int) error
 }
 
 // UpdateFaculty service updates faculty data using a new faculty data and id.
-func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyID int, updateReq *facultyModel.UpdateInputReq) (string, error) {
+func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyID int, updateReq *facultyModel.UpdateInputReq) (
+	string, error,
+) {
 	var updateRes string
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// Check faculty exist in that id.

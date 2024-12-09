@@ -3,6 +3,7 @@ package connection
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -48,12 +49,12 @@ type Database struct {
 
 // GetDBConnection from config for working with PostgreSQL.
 func GetDBConnection(ctx context.Context, cfg config.PostgresDB) (*Database, error) {
+	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
 	db, err := pgxpool.New(ctx, fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		"postgres://%s:%s@%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
-		cfg.Host,
-		cfg.Port,
+		hostPort,
 		cfg.Name,
 		cfg.SslMode,
 	))

@@ -63,7 +63,9 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, username string)
 }
 
 // GetStudentDetailsForPayment repository method for Payment.
-func (r *UserRepository) GetStudentDetailsForPayment(ctx context.Context, studentID int) (*userModel.StudentInfoData, error) {
+func (r *UserRepository) GetStudentDetailsForPayment(ctx context.Context, studentID int) (
+	*userModel.StudentInfoData, error,
+) {
 	var studentInfo userModel.StudentInfoData
 
 	err := r.psqlDB.Get(

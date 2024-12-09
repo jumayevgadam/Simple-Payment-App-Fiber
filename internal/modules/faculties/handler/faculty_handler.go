@@ -38,7 +38,7 @@ func NewFacultyHandler(service services.DataService) *FacultyHandler {
 // @Success 200 {integer} integer 1
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /faculty/create [post]
+// @Router /faculty/create [post].
 func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var facultyReq facultyModel.DTO
@@ -66,7 +66,7 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 // @Success 200 {object} facultyModel.Faculty
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [get]
+// @Router /faculty/{id} [get].
 func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))
@@ -95,7 +95,7 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 // @Success 200 {object} []facultyModel.Faculty
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /faculty/get-all [get]
+// @Router /faculty/get-all [get].
 func (h *FacultyHandler) ListFaculties() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
