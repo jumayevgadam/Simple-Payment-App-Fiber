@@ -14,7 +14,7 @@ func init() {
 	validate = validator.New()
 }
 
-// ValidateStruct validates the struct
+// ValidateStruct validates the struct.
 func ValidateStruct(ctx context.Context, s interface{}) error {
 	return validate.StructCtx(ctx, s)
 }

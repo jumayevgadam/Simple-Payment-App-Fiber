@@ -25,7 +25,9 @@ func (r *RoleRepository) AddRolePermission(ctx context.Context, data rolePermMod
 }
 
 // GetRolePermissionByRole repo retrieve all permissions of identified role.
-func (r *RoleRepository) GetPermissionsByRole(ctx context.Context, roleID int) ([]rolePermModel.RolePermissionRes, error) {
+func (r *RoleRepository) GetPermissionsByRole(ctx context.Context, roleID int) (
+	[]rolePermModel.RolePermissionRes, error,
+) {
 	var res []rolePermModel.RolePermissionRes
 
 	err := r.psqlDB.Select(
@@ -43,7 +45,9 @@ func (r *RoleRepository) GetPermissionsByRole(ctx context.Context, roleID int) (
 }
 
 // GetRolesByPermission repo retrieve all roles of identifided permission.
-func (r *RoleRepository) GetRolesByPermissionID(ctx context.Context, permissionID int) ([]rolePermModel.RolePermissionRes, error) {
+func (r *RoleRepository) GetRolesByPermissionID(ctx context.Context, permissionID int) (
+	[]rolePermModel.RolePermissionRes, error,
+) {
 	var res []rolePermModel.RolePermissionRes
 
 	err := r.psqlDB.Select(

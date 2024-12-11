@@ -29,6 +29,7 @@ func ReadImage(c *fiber.Ctx, field string) (*multipart.FileHeader, error) {
 func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName, username string) (string, error) {
 	// Base directory
 	basePath := "./internal/uploads"
+
 	err := os.MkdirAll(basePath, 0755)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create base directory: %s", err.Error()))
@@ -36,6 +37,7 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName,
 
 	// Build subdirectory path
 	subDir := fmt.Sprintf("%s/%s", basePath, groupCode)
+
 	err = os.MkdirAll(subDir, 0755)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create group directory: %s", err.Error()))

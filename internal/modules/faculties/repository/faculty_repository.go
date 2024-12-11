@@ -26,14 +26,14 @@ func NewFacultyRepository(psqlDB connection.DB) *FacultyRepository {
 }
 
 // AddFaculty repo insert faculty data into db and returns id.
-func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO *facultyModel.DAO) (int, error) {
+func (f *FacultyRepository) AddFaculty(ctx context.Context, res *facultyModel.Res) (int, error) {
 	var facultyID int
 
 	if err := f.psqlDB.QueryRow(
 		ctx,
 		addFacultyQuery,
-		facultyDAO.Name,
-		facultyDAO.Code,
+		res.Name,
+		res.Code,
 	).Scan(&facultyID); err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
@@ -42,8 +42,8 @@ func (f *FacultyRepository) AddFaculty(ctx context.Context, facultyDAO *facultyM
 }
 
 // GetFaculty repo fetches faculty by using identified id.
-func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.FacultyData, error) {
-	var facultyDAO facultyModel.FacultyData
+func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.DAO, error) {
+	var facultyDAO facultyModel.DAO
 
 	if err := f.psqlDB.Get(
 		ctx,
@@ -59,8 +59,10 @@ func (f *FacultyRepository) GetFaculty(ctx context.Context, facultyID int) (*fac
 }
 
 // ListFaculties repo fetches a list of faculties from DB.
-func (f *FacultyRepository) ListFaculties(ctx context.Context, paginationData abstract.PaginationData) ([]*facultyModel.FacultyData, error) {
-	var facultyDAOs []*facultyModel.FacultyData
+func (f *FacultyRepository) ListFaculties(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*facultyModel.DAO, error,
+) {
+	var facultyDAOs []*facultyModel.DAO
 	offset := (paginationData.Page - 1) * paginationData.Limit
 
 	if err := f.psqlDB.Select(
@@ -109,7 +111,7 @@ func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) er
 }
 
 // UpdateFaculty repo updates faculty data using a new data and identified faculty id.
-func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO *facultyModel.FacultyData) (string, error) {
+func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO *facultyModel.DAO) (string, error) {
 	var res string
 
 	if err := f.psqlDB.QueryRow(

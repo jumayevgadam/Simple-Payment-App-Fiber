@@ -20,7 +20,7 @@ type PaginationData struct {
 }
 
 // PaginatedResponse model for uses generics.
-type PaginatedRequest[T any] struct {
+type PaginatedResponse[T any] struct {
 	Items      []T `json:"items"`
 	Limit      int `json:"limit"`
 	Page       int `json:"page"`
@@ -36,7 +36,7 @@ type PaginatedResponseData[T any] struct {
 }
 
 // ToStorage func sends Pagination request to db.
-func (p *PaginationQuery) ToStorage() PaginationData {
+func (p *PaginationQuery) ToPsqlDBStorage() PaginationData {
 	return PaginationData{
 		Limit: p.Limit,
 		Page:  p.Page,
@@ -45,9 +45,9 @@ func (p *PaginationQuery) ToStorage() PaginationData {
 
 // We use fiber context for getting params in query Param.
 
-func (pq *PaginationQuery) SetLimit(limit string) error {
+func (p *PaginationQuery) SetLimit(limit string) error {
 	if limit == "" {
-		pq.Limit = 10
+		p.Limit = 10
 		return nil
 	}
 
@@ -55,14 +55,14 @@ func (pq *PaginationQuery) SetLimit(limit string) error {
 	if err != nil {
 		return fmt.Errorf("error in string convert to int: %w", err)
 	}
-	pq.Limit = n
+	p.Limit = n
 
 	return nil
 }
 
-func (pq *PaginationQuery) SetPage(page string) error {
+func (p *PaginationQuery) SetPage(page string) error {
 	if page == "" {
-		pq.Page = 1
+		p.Page = 1
 		return nil
 	}
 
@@ -70,7 +70,7 @@ func (pq *PaginationQuery) SetPage(page string) error {
 	if err != nil {
 		return fmt.Errorf("error in string convert to int: %w", err)
 	}
-	pq.Page = n
+	p.Page = n
 
 	return nil
 }
@@ -80,6 +80,7 @@ func GetPaginationFromFiberCtx(c *fiber.Ctx) (PaginationQuery, error) {
 	if err := pq.SetPage(c.Query("page")); err != nil {
 		return pq, fmt.Errorf("error: setting page in query: %w", err)
 	}
+
 	if err := pq.SetLimit(c.Query("limit")); err != nil {
 		return pq, fmt.Errorf("error: setting limit in query: %w", err)
 	}

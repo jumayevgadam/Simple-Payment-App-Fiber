@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-// ParseSQLErrors returns corresponding RestErr
+// ParseSQLErrors returns corresponding RestErr.
 func ParseSQLErrors(err error) RestErr {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {

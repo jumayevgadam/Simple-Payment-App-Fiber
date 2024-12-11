@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
@@ -27,12 +28,12 @@ type ServiceManager struct {
 }
 
 // NewServiceManager creates and returns a new instance of ServiceManager.
-func NewServiceManager(dataStore database.DataStore) services.DataService {
+func NewServiceManager(dataStore database.DataStore, mw *middleware.Manager) services.DataService {
 	return &ServiceManager{
 		role:    roleService.NewRoleService(dataStore),
 		faculty: facultyService.NewFacultyService(dataStore),
 		group:   groupService.NewGroupService(dataStore),
-		user:    userService.NewUserService(dataStore),
+		user:    userService.NewUserService(mw, dataStore),
 		payment: paymentService.NewPaymentService(dataStore),
 	}
 }

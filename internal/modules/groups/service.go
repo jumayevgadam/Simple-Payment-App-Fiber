@@ -12,7 +12,7 @@ type Service interface {
 	AddGroup(ctx context.Context, groupDTO *groupModel.Req) (int, error)
 	GetGroup(ctx context.Context, groupID int) (*groupModel.DTO, error)
 	ListGroups(ctx context.Context, pagination abstract.PaginationQuery) (
-		abstract.PaginatedRequest[*groupModel.DTO], error)
+		abstract.PaginatedResponse[*groupModel.DTO], error)
 	DeleteGroup(ctx context.Context, groupID int) error
 	UpdateGroup(ctx context.Context, groupID int, updateInput *groupModel.UpdateGroupReq) (string, error)
 }

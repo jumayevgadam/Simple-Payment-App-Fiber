@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/models/token"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
@@ -32,24 +33,22 @@ func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *Manager {
 
 // GenerateAccessToken method for creating access token.
 func (mw *Manager) GenerateToken(userID, roleID int, username, role string, permissions []string) (string, error) {
-	var claims jwt.RegisteredClaims
-
 	accessTokenclaims := token.AccessTokenClaims{
-		ID:               userID,
-		RoleID:           roleID,
-		UserName:         username,
-		Role:             role,
-		Permissions:      permissions,
-		RegisteredClaims: claims,
+		ID:          userID,
+		RoleID:      roleID,
+		UserName:    username,
+		Role:        role,
+		Permissions: permissions,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(constants.TokenExpiryTime * time.Hour)),
+		},
 	}
 
-	tokenStr, err := jwt.NewWithClaims(
-		jwt.SigningMethodHS256,
-		accessTokenclaims,
-	).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenclaims)
 
+	tokenStr, err := token.SignedString([]byte(mw.cfg.JWT.TokenSecret))
 	if err != nil {
-		return "", errlst.NewInternalServerError("error creating accessToken")
+		return "", errlst.NewUnauthorizedError("cannot get token string" + err.Error())
 	}
 
 	return tokenStr, nil

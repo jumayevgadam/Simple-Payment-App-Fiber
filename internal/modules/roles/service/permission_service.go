@@ -30,10 +30,12 @@ func (s *RoleService) GetPermission(ctx context.Context, permissionID int) (*per
 }
 
 // ListPermissions service method retrieve a list of permissions by using pagination.
-func (s *RoleService) ListPermissions(ctx context.Context, paginationReq abstract.PaginationQuery) ([]*permissionModel.Permission, error) {
+func (s *RoleService) ListPermissions(ctx context.Context, paginationReq abstract.PaginationQuery) (
+	[]*permissionModel.Permission, error,
+) {
 	var permissions []*permissionModel.Permission
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		permissionDAOs, err := db.RolesRepo().ListPermissions(ctx, paginationReq.ToStorage())
+		permissionDAOs, err := db.RolesRepo().ListPermissions(ctx, paginationReq.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -44,6 +46,7 @@ func (s *RoleService) ListPermissions(ctx context.Context, paginationReq abstrac
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, errlst.ParseErrors(err)
 	}
@@ -62,7 +65,9 @@ func (s *RoleService) DeletePermission(ctx context.Context, permissionID int) er
 }
 
 // UpdatePermission service edits fields of permissions using identified id.
-func (s *RoleService) UpdatePermission(ctx context.Context, permissionID int, updateReq permissionModel.PermissionReq) (string, error) {
+func (s *RoleService) UpdatePermission(ctx context.Context, permissionID int, updateReq permissionModel.PermissionReq) (
+	string, error,
+) {
 	var (
 		res string
 		err error

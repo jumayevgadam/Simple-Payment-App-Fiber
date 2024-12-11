@@ -99,8 +99,8 @@ func (a *AllUserDTO) ToStorage() AllUserDAO {
 }
 
 // ToServer method sends AllUserDAO model to server.
-func (a *AllUserDAO) ToServer() AllUserDTO {
-	return AllUserDTO{
+func (a *AllUserDAO) ToServer() *AllUserDTO {
+	return &AllUserDTO{
 		ID:       a.ID,
 		RoleID:   a.RoleID,
 		GroupID:  a.GroupID,

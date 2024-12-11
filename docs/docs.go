@@ -24,60 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/{role}/login": {
-            "post": {
-                "description": "login func for all users.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Login",
-                "operationId": "login",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "role",
-                        "name": "role",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/auth/{role}/sign-up": {
+        "/auth/register": {
             "post": {
                 "description": "create user func general func for creating users.",
                 "consumes": [
@@ -128,6 +75,59 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "int"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/auth/{role}/login": {
+            "post": {
+                "description": "login func for all users.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "role",
+                        "name": "role",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -227,7 +227,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty"
+                                "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO"
                             }
                         }
                     },
@@ -269,7 +269,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty"
+                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO"
                         }
                     },
                     "400": {
@@ -465,7 +465,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO"
+                                "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO"
                             }
                         }
                     },
@@ -507,7 +507,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO"
+                            "$ref": "#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO"
                         }
                     },
                     "400": {
@@ -1216,7 +1216,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty": {
+        "github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO": {
             "type": "object",
             "required": [
                 "faculty-code",
@@ -1234,7 +1234,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO": {
+        "github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO": {
             "type": "object",
             "properties": {
                 "courseYear": {

@@ -11,53 +11,42 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
-// ParseErrors parses common errors (like SQL errors) into the RestErr
+// ParseErrors parses common errors (like SQL errors) into the RestErr.
 func ParseErrors(err error) RestErr {
-	logger := logger.NewApiLogger(&config.Config{})
-	logger.InitLogger()
-
 	switch {
 	// pgx specific errors
 	case errors.Is(err, pgx.ErrNoRows):
-		logger.Warn("Not found error: ", err)
 		return NewNotFoundError(err.Error())
 	case errors.Is(err, pgx.ErrTooManyRows):
-		logger.Warn("Conflict error: ", err)
 		return NewConflictError(err.Error())
 
 	// SQLSTATE error
 	case strings.Contains(err.Error(), "SQLSTATE"):
-		logger.Error("SQL error: ", err)
 		return ParseSQLErrors(err)
 
 	// Handle strconv.Atoi errors
 	case strings.Contains(err.Error(), ErrSyntax.Error()),
 		strings.Contains(err.Error(), ErrRange.Error()):
-		logger.Warn("bad request error: ", err)
 		return NewBadRequestError(err.Error())
 
 		// Handle Validation errors from go-validator/v10
 	case errors.As(err, &validator.ValidationErrors{}):
-		logger.Warn("Validation error: ", err)
 		return ParseValidatorError(err)
 
 	// Handle Token or Cookie errors
 	case
 		strings.Contains(strings.ToLower(err.Error()), ErrInvalidJWTToken.Error()),
 		strings.Contains(strings.ToLower(err.Error()), ErrInvalidJWTClaims.Error()):
-		logger.Warn("Unauthorized error: ", err)
 		return NewUnauthorizedError(ErrUnauthorized.Error() + err.Error())
 
 	default:
 		// If already a RestErr, return as-is
-		if restErr, ok := err.(RestErr); ok {
-			logger.Info("Custom RestErr: ", restErr)
+		var restErr RestErr
+		if errors.As(err, &restErr) {
 			return restErr
 		}
 
-		// For any other errors
-		logger.Error("Internal server error: ", err)
-		return NewInternalServerError(err.Error())
+		return NewInternalServerError("internal server error: [ParseErrors]" + err.Error())
 	}
 }
 
@@ -65,10 +54,11 @@ func ParseErrors(err error) RestErr {
 // Because in every package i call this errlst package httpError, serviceErr, repoErr.
 // Then easily call this httpError.Response(err), serviceErr.Response(err), repoErr.Response(err).
 func Response(c *fiber.Ctx, err error) error {
-	logger := logger.NewApiLogger(&config.Config{})
+	logger := logger.NewAPILogger(&config.Config{})
 	logger.InitLogger()
 
 	errStatus, errResponse := ParseErrors(err).Status(), ParseErrors(err)
 	logger.Error("HTTP Error Response: ", err, c.Context().RemoteAddr())
+
 	return c.Status(errStatus).JSON(errResponse)
 }

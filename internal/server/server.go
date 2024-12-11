@@ -1,13 +1,9 @@
 package server
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
-	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
@@ -42,22 +38,9 @@ func NewServer(
 
 // Run method for running application.
 func (s *Server) Run() error {
-	err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort)
-	if err != nil {
-		s.Logger.Errorf("error: listening port: %v", err.Error())
-		return errlst.ParseErrors(err)
+	if err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort); err != nil {
+		s.Logger.Errorf("error listening port: %s", s.Cfg.Server.HTTPPort)
 	}
-
-	return nil
-}
-
-// Stop server.
-func (s *Server) Stop(ctx context.Context) error {
-	if err := s.Fiber.ShutdownWithContext(ctx); err != nil {
-		return fmt.Errorf("failed to shut down Fiber server: %w", err)
-	}
-
-	s.Logger.Info("Server stopped gracefully")
 
 	return nil
 }

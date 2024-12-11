@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	_ "github.com/jumayevgadam/tsu-toleg/docs"
-	"github.com/jumayevgadam/tsu-toleg/internal/application"
+	"github.com/jumayevgadam/tsu-toleg/internal/config"
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database/postgres"
+	"github.com/jumayevgadam/tsu-toleg/internal/server"
+	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
 // @title TSU-TOLEG API Documentation
@@ -24,31 +24,53 @@ import (
 // @host localhost:4000
 // @BasePath /api/v1
 func main() {
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
-	defer stop()
-
-	// Start the application.
-	server, err := application.BootStrap(ctx)
+	// INITIALIZE CONFIG.
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Println("error during application bootstrap")
+		log.Printf("error in main.LoadConfig: %v", err.Error())
 	}
 
-	// Wait for termination signal.
-	<-ctx.Done()
+	// INITIALIZE LOGGER.
+	appLogger := logger.NewAPILogger(cfg)
+	appLogger.InitLogger()
+	appLogger.Infof("Mode: %s", cfg.Server.Mode)
 
-	log.Println("Shutdown signal received")
-
-	gracefulCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := server.Stop(gracefulCtx); err != nil {
-		server.Logger.Errorf("error shutting down application: %v", err.Error())
+	// INITIALIZE PSQLDB CONNECTION.
+	psqlDB, err := connection.GetDBConnection(context.Background(), cfg.Postgres)
+	if err != nil {
+		appLogger.Errorf("[main][connection][GetDBConnection]: error: %v", err.Error())
 	}
 
-	server.Logger.Info("Application gracefully stopped")
+	// INITIALIZE DATASTORE.
+	dataStore := postgres.NewDataStore(psqlDB)
+
+	// INITIALIZE SERVER AND HANDLERS.
+	srv := server.NewServer(cfg, dataStore, appLogger)
+	srv.MapHandlers(dataStore)
+
+	// INITIALIZE SRV.RUN() WITH GOROUTINE.
+	if err := srv.Fiber.Listen(":" + cfg.Server.HTTPPort); err != nil {
+		appLogger.Errorf("error listening on http port: %v", err.Error())
+	}
+
+	// HANDLE GRACEFUL SHUTDOWN.
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	// This blocks the main thread until an interrupt is received.
+	// <-quit
+
+	// gracefulCtx, cancel := context.WithTimeout(context.Background(), constants.CtxDefaultTimeOut)
+	// defer cancel()
+
+	if err := srv.Fiber.ShutdownWithContext(context.Background()); err != nil {
+		appLogger.Errorf("error occured when shutting down application")
+	}
+
+	appLogger.Info("application successfully shutdown.")
+
+	// CLOSE psqlDB.
+	if err := psqlDB.Close(); err != nil {
+		appLogger.Errorf("error closing psqlDB: %v", err.Error())
+	}
 }

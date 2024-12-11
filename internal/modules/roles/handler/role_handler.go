@@ -84,7 +84,7 @@ func (h *RoleHandler) GetRoles() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(200).JSON(roles)
+		return c.Status(fiber.StatusOK).JSON(roles)
 	}
 }
 

@@ -1,6 +1,6 @@
 package repository
 
-// WE WRITE QUERIES IN THIS PLACE FOR ROLES
+// WE WRITE QUERIES IN THIS PLACE FOR ROLES.
 const (
 	// addRoleQuery is.
 	addRoleQuery = `

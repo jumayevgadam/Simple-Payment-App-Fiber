@@ -21,6 +21,7 @@ func (s *RoleService) AddRole(ctx context.Context, roleDTO roleModel.DTO) (int, 
 // GetRole Service retrieves a role by its id from the database and returns it.
 func (s *RoleService) GetRole(ctx context.Context, roleID int) (roleModel.DTO, error) {
 	var roleDTO roleModel.DTO
+
 	roleDAO, err := s.repo.RolesRepo().GetRole(ctx, roleID)
 	if err != nil {
 		return roleModel.DTO{}, errlst.ParseErrors(err)
@@ -45,6 +46,7 @@ func (s *RoleService) GetRoles(ctx context.Context) ([]roleModel.DTO, error) {
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, errlst.ParseErrors(err)
 	}

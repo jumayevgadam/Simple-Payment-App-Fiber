@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ReadRequest body and validate
+// ReadRequest body and validate.
 func ReadRequest(ctx *fiber.Ctx, request interface{}) error {
 	if err := ctx.BodyParser(request); err != nil {
 		return fmt.Errorf("error in reading request: %w", err)

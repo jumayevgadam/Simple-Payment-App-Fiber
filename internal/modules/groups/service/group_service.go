@@ -52,16 +52,17 @@ func (s *GroupService) GetGroup(ctx context.Context, groupID int) (*groupModel.D
 
 // ListGroups service fetches a list of groups from db and returns it.
 func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.PaginationQuery) (
-	abstract.PaginatedRequest[*groupModel.DTO], error,
+	abstract.PaginatedResponse[*groupModel.DTO], error,
 ) {
 	var (
 		groupAllDatas     []*groupModel.DAO
 		err               error
-		groupListResponse abstract.PaginatedRequest[*groupModel.DTO]
+		groupListResponse abstract.PaginatedResponse[*groupModel.DTO]
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		var count int
+
 		count, err = db.GroupsRepo().CountGroups(ctx)
 		if err != nil {
 			return errlst.ParseErrors(err)
@@ -69,7 +70,7 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 
 		groupListResponse.TotalItems = count
 
-		groupAllDatas, err = db.GroupsRepo().ListGroups(ctx, pagination.ToStorage())
+		groupAllDatas, err = db.GroupsRepo().ListGroups(ctx, pagination.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -77,7 +78,7 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 		return nil
 	})
 	if err != nil {
-		return abstract.PaginatedRequest[*groupModel.DTO]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedResponse[*groupModel.DTO]{}, errlst.ParseErrors(err)
 	}
 
 	groupList := lo.Map(
@@ -125,6 +126,7 @@ func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue 
 
 		return nil
 	})
+
 	if err != nil {
 		return "", errlst.ParseErrors(err)
 	}

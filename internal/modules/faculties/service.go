@@ -9,10 +9,10 @@ import (
 
 // Service interface for performing methods in Service layer.
 type Service interface {
-	AddFaculty(ctx context.Context, facultyDTO *facultyModel.DTO) (int, error)
-	GetFaculty(ctx context.Context, facultyID int) (*facultyModel.Faculty, error)
+	AddFaculty(ctx context.Context, request *facultyModel.Req) (int, error)
+	GetFaculty(ctx context.Context, facultyID int) (*facultyModel.DTO, error)
 	ListFaculties(ctx context.Context, pagination abstract.PaginationQuery) (
-		abstract.PaginatedRequest[*facultyModel.Faculty], error)
+		abstract.PaginatedResponse[*facultyModel.DTO], error)
 	DeleteFaculty(ctx context.Context, facultyID int) error
 	UpdateFaculty(ctx context.Context, facultyID int, facultyModel *facultyModel.UpdateInputReq) (string, error)
 }

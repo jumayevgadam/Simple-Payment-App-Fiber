@@ -1,5 +1,5 @@
 // --- THIS GO FILE CONTAINS ALL NEEDED ENDPOINTS FOR THIS PROJECT --- //
-// When request comes to server, then server -> infrastructure -> domain
+// When request comes to server, then server -> infrastructure -> domain.
 
 package server
 
@@ -24,14 +24,14 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init v1 Path.
 	v1 := s.Fiber.Group(v1URL)
 
+	// Init Middlewares.
+	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
+
 	// Init Services.
-	Services := serviceManager.NewServiceManager(dataStore)
+	Services := serviceManager.NewServiceManager(dataStore, mdwManager)
 
 	// Init Handlers.
 	Handlers := handlerManager.NewHandlerManager(Services)
-
-	// Init Middlewares.
-	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
 
 	// Init Roles.
 	roleGroup := v1.Group("/role")
@@ -87,11 +87,16 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 			Handlers.RoleHandler().DeleteRolePermission())
 	}
 
-	// Init Users
+	// Init Users.
 	authGroup := v1.Group("/auth")
 	{
 		authGroup.Post("/register", Handlers.UserHandler().Register())
 		authGroup.Post("/login", Handlers.UserHandler().Login())
+	}
+
+	usersGroup := v1.Group("/users")
+	{
+		usersGroup.Get("/list", Handlers.UserHandler().ListUsers())
 	}
 
 	// Init Faculties.

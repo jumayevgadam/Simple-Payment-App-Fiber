@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"log"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -28,6 +30,8 @@ func NewUserRepository(psqlDB connection.DB) *UserRepository {
 func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
 	var userID int
 
+	log.Println("Before query, checking pool state:", r.psqlDB)
+
 	if err := r.psqlDB.QueryRow(
 		ctx,
 		createUserQuery,
@@ -38,6 +42,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRe
 		user.UserName,
 		user.Password,
 	).Scan(&userID); err != nil {
+		log.Println("[UserRepository][CreateUser]", err)
 		return -1, errlst.ParseSQLErrors(err)
 	}
 
@@ -80,4 +85,51 @@ func (r *UserRepository) GetStudentDetailsForPayment(ctx context.Context, studen
 	}
 
 	return &studentInfo, nil
+}
+
+// CountAllUsers repo.
+func (r *UserRepository) CountAllUsers(ctx context.Context) (int, error) {
+	var totalCountOfAllUser int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCountOfAllUser,
+		totalCountOfAllUserQuery,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCountOfAllUser, nil
+}
+
+// UpdateUser repo.
+func (r *UserRepository) UpdateUser(ctx context.Context, userID int) error {
+	return nil
+}
+
+// CountAllUsers repo.
+func (r *UserRepository) ListAllUsers(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*userModel.AllUserDAO, error,
+) {
+	var allUsers []*userModel.AllUserDAO
+
+	offset := (paginationData.Page - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&allUsers,
+		listAllUsersQuery,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return allUsers, nil
 }

@@ -14,7 +14,7 @@ type Repository interface {
 	RolePermRepoOps // Role Permissions repository ops.
 }
 
-// RoleOps interface handles repo methods for roles
+// RoleOps interface handles repo methods for roles.
 type RoleRepoOps interface {
 	AddRole(ctx context.Context, roleDAO roleModel.DAO) (int, error)
 	GetRole(ctx context.Context, roleID int) (roleModel.DAO, error)

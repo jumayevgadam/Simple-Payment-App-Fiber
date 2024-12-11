@@ -16,17 +16,15 @@ type Config struct {
 	Server   ServerConfig
 	Postgres PostgresDB
 	JWT      JWTOps
-	Redis    RedisDB
 	Logger   Logger
 }
 
 // ServerConfig keeps all needed details about Server.
 type ServerConfig struct {
-	HTTPPort          string        `envconfig:"HTTP_PORT" validate:"required"`
-	Mode              string        `envconfig:"SERVER_MODE" validate:"required"`
-	ReadTimeOut       time.Duration `envconfig:"READ_TIMEOUT" validate:"required"`
-	WriteTimeOut      time.Duration `envconfig:"WRITE_TIMEOUT" validate:"required"`
-	CtxDefaultTimeOut time.Duration `envconfig:"CTX_DEFAULT_TIMEOUT" validate:"required"`
+	HTTPPort     string        `envconfig:"HTTP_PORT" validate:"required"`
+	Mode         string        `envconfig:"SERVER_MODE" validate:"required"`
+	ReadTimeOut  time.Duration `envconfig:"READ_TIMEOUT" default:"10s" validate:"required"`
+	WriteTimeOut time.Duration `envconfig:"WRITE_TIMEOUT" default:"10s" validate:"required"`
 }
 
 // PostgresDB options for this project.
@@ -38,13 +36,6 @@ type PostgresDB struct {
 	Password string `envconfig:"DB_PASSWORD" validate:"required"`
 	SslMode  string `envconfig:"DB_SSLMODE" validate:"required"`
 }
-
-// RedisDB options for this project.
-type RedisDB struct {
-	Address  string `envconfig:"REDIS_ADDRESS" validate:"required"`
-	Password string `envconfig:"REDIS_PASSWORD"`
-}
-
 type JWTOps struct {
 	TokenSecret string `envconfig:"JWT_SECRET_KEY" validate:"required"`
 }

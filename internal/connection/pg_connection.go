@@ -58,6 +58,7 @@ func GetDBConnection(ctx context.Context, cfg config.PostgresDB) (*Database, err
 		cfg.Name,
 		cfg.SslMode,
 	))
+
 	if err != nil {
 		return nil, fmt.Errorf("connection[pgxpool.New]: %w", err)
 	}
@@ -117,5 +118,6 @@ func (d *Database) Begin(ctx context.Context, txOpts pgx.TxOptions) (TxOps, erro
 // Close closes the database connection pool.
 func (d *Database) Close() error {
 	d.Db.Close()
+
 	return nil
 }

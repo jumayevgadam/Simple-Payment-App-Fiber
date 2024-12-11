@@ -36,11 +36,11 @@ func NewGroupHandler(service services.DataService) *GroupHandler {
 // @ID add-group
 // @Accept multipart/form-data
 // @Produce json
-// @Param groupReq formData groupModel.GroupReq true "Group request payload"
+// @Param groupReq formData groupModel.Req true "Group request payload"
 // @Success 200 {integer} integer 1
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /group/add [post]
+// @Router /group/add [post].
 func (h *GroupHandler) AddGroup() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var groupReq groupModel.Req
@@ -65,7 +65,7 @@ func (h *GroupHandler) AddGroup() fiber.Handler {
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} groupModel.GroupDTO
+// @Success 200 {object} groupModel.DTO
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /group/{id} [get]
@@ -95,7 +95,7 @@ func (h *GroupHandler) GetGroup() fiber.Handler {
 // @Param page query int false "page number" Format(page)
 // @Param limit query int false "number of elements per page" Format(limit)
 // @Param orderBy query string false "filter name" Format(orderBy)
-// @Success 200 {object} []groupModel.GroupDTO
+// @Success 200 {object} []groupModel.DTO
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /group/get-all [get]

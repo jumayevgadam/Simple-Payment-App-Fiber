@@ -4,57 +4,49 @@ package faculty
 // DTO and DAO models.
 
 // DTO model is data transfer object.
-type DTO struct {
+type Req struct {
 	Name string `form:"faculty-name" json:"facultyName" validate:"required"`
 	Code string `form:"faculty-code" json:"faculty-code" validate:"required"`
 }
 
 // DAO model is data access object.
-type DAO struct {
+type Res struct {
 	Name string `db:"name"`
 	Code string `db:"faculty_code"`
 }
 
-// ToServer method sends DAO model to Server.
-func (d *DAO) ToServer() *DTO {
-	return &DTO{
-		Name: d.Name,
-		Code: d.Code,
-	}
-}
-
 // ToStorage model receives DTO model and save it to the database.
-func (d *DTO) ToStorage() *DAO {
-	return &DAO{
+func (d *Req) ToStorage() *Res {
+	return &Res{
 		Name: d.Name,
 		Code: d.Code,
 	}
 }
 
 // Faculty model is DTO model.
-type Faculty struct {
+type DTO struct {
 	ID   int    `json:"facultyID"`
 	Name string `form:"faculty-name" json:"facultyName" validate:"required"`
 	Code string `fomr:"faculty-code" json:"faculty-code" validate:"required"`
 }
 
 // FacultyData model is db model.
-type FacultyData struct {
+type DAO struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
 	Code string `db:"faculty_code"`
 }
 
-func (f *Faculty) ToStorage() *FacultyData {
-	return &FacultyData{
+func (f *DTO) ToStorage() *DAO {
+	return &DAO{
 		ID:   f.ID,
 		Name: f.Name,
 		Code: f.Code,
 	}
 }
 
-func (f *FacultyData) ToServer() *Faculty {
-	return &Faculty{
+func (f *DAO) ToServer() *DTO {
+	return &DTO{
 		ID:   f.ID,
 		Name: f.Name,
 		Code: f.Code,
@@ -67,8 +59,8 @@ type UpdateInputReq struct {
 	Code string `form:"faculty-code"`
 }
 
-func (u *UpdateInputReq) ToStorage(facultyID int) *FacultyData {
-	return &FacultyData{
+func (u *UpdateInputReq) ToStorage(facultyID int) *DAO {
+	return &DAO{
 		ID:   facultyID,
 		Name: u.Name,
 		Code: u.Code,

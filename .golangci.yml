@@ -4,6 +4,9 @@ linters:
     - errcheck
     - gosimple
     - govet
+    - staticcheck
+    - gocritic
+    - gosimple
     - ineffassign
     - typecheck
     - unused
@@ -16,7 +19,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
+    - copyloopvar
     - forcetypeassert
     - gochecknoinits
     - gocognit
@@ -24,7 +27,7 @@ linters:
     - gocritic
     - godot
     - goimports
-    - gomnd
+    - mnd
     - lll
     - makezero
     - nakedret
@@ -54,6 +57,9 @@ linters:
     # - exhaustruct
 
 linters-settings:
+  lll:
+    tab-width: 1
+    line-length: 130
   errcheck:
     check-type-assertions: true
     check-blank: true
@@ -61,11 +67,12 @@ linters-settings:
     min-len: 2
     min-occurrences: 2
   nakedret:
-    block-size: 4
+    max-func-lines: 30
   nlreturn:
     block-size: 4
   govet:
-    check-shadowing: false
+    enable-all: false
+    disable-all: false
   nolintlint:
     require-explanation: true
     require-specific: true
@@ -78,5 +85,4 @@ linters-settings:
 
 run:
   timeout: 5m
-  skip-dirs:
-    pkg
+  concurrency: 4

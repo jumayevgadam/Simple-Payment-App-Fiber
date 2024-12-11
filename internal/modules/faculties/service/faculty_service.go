@@ -27,8 +27,8 @@ func NewFacultyService(repo database.DataStore) *FacultyService {
 }
 
 // AddFaculty service insert faculty datas into database.
-func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO *facultyModel.DTO) (int, error) {
-	roleID, err := s.repo.FacultiesRepo().AddFaculty(ctx, facultyDTO.ToStorage())
+func (s *FacultyService) AddFaculty(ctx context.Context, request *facultyModel.Req) (int, error) {
+	roleID, err := s.repo.FacultiesRepo().AddFaculty(ctx, request.ToStorage())
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
 	}
@@ -37,7 +37,7 @@ func (s *FacultyService) AddFaculty(ctx context.Context, facultyDTO *facultyMode
 }
 
 // GetFaculty service fetches faculty from DB using identified id.
-func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.Faculty, error) {
+func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facultyModel.DTO, error) {
 	facultyDAO, err := s.repo.FacultiesRepo().GetFaculty(ctx, facultyID)
 	if err != nil {
 		return nil, errlst.ParseErrors(err)
@@ -48,12 +48,12 @@ func (s *FacultyService) GetFaculty(ctx context.Context, facultyID int) (*facult
 
 // ListFaculties service fetches a list of faculties from DB and returns it.
 func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.PaginationQuery) (
-	abstract.PaginatedRequest[*facultyModel.Faculty], error,
+	abstract.PaginatedResponse[*facultyModel.DTO], error,
 ) {
 	var (
-		facultyAllData      []*facultyModel.FacultyData
+		facultyAllData      []*facultyModel.DAO
 		err                 error
-		facultyListResponse abstract.PaginatedRequest[*facultyModel.Faculty]
+		facultyListResponse abstract.PaginatedResponse[*facultyModel.DTO]
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
@@ -66,7 +66,7 @@ func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.
 
 		facultyListResponse.TotalItems = count
 
-		facultyAllData, err = db.FacultiesRepo().ListFaculties(ctx, pagination.ToStorage())
+		facultyAllData, err = db.FacultiesRepo().ListFaculties(ctx, pagination.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -74,12 +74,12 @@ func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.
 		return nil
 	})
 	if err != nil {
-		return abstract.PaginatedRequest[*facultyModel.Faculty]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedResponse[*facultyModel.DTO]{}, errlst.ParseErrors(err)
 	}
 
 	facultyList := lo.Map(
 		facultyAllData,
-		func(item *facultyModel.FacultyData, _ int) *facultyModel.Faculty {
+		func(item *facultyModel.DAO, _ int) *facultyModel.DTO {
 			return item.ToServer()
 		},
 	)
@@ -119,6 +119,7 @@ func (s *FacultyService) UpdateFaculty(ctx context.Context, facultyID int, updat
 
 		return nil
 	})
+
 	if err != nil {
 		return "", errlst.ParseErrors(err)
 	}

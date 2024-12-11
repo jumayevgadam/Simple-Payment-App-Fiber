@@ -38,6 +38,7 @@ func (s *RoleService) GetPermissionsByRole(ctx context.Context, roleID int) ([]r
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, errlst.ParseErrors(err)
 	}
@@ -67,6 +68,7 @@ func (s *RoleService) GetRolesByPermission(ctx context.Context, permissionID int
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, errlst.ParseErrors(err)
 	}

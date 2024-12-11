@@ -43,7 +43,9 @@ func (r *RoleRepository) GetPermission(ctx context.Context, permissionID int) (*
 }
 
 // ListPermissions repo method retrieves all permissions from DB.
-func (r *RoleRepository) ListPermissions(ctx context.Context, paginationData abstract.PaginationData) ([]*permissionModel.PermissionData, error) {
+func (r *RoleRepository) ListPermissions(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*permissionModel.PermissionData, error,
+) {
 	var permissionDatas []*permissionModel.PermissionData
 	offset := (paginationData.Page - 1) * paginationData.Limit
 
@@ -77,7 +79,9 @@ func (r *RoleRepository) DeletePermission(ctx context.Context, permissionID int)
 }
 
 // UpdatePermission repo method edits permission_type in DB.
-func (r *RoleRepository) UpdatePermission(ctx context.Context, permissionID int, updateData permissionModel.PermissionRes) (string, error) {
+func (r *RoleRepository) UpdatePermission(ctx context.Context, permissionID int, updateData permissionModel.PermissionRes) (
+	string, error,
+) {
 	var response string
 
 	err := r.psqlDB.QueryRow(

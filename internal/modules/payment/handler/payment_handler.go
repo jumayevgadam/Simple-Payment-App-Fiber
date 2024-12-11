@@ -28,12 +28,12 @@ func NewPaymentHandler(service services.DataService) *PaymentHandler {
 // AddPayment for students.
 func (h *PaymentHandler) AddPayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role, ok := c.Locals("role").(string)
+		role, ok := c.Locals("role_type").(string)
 		if !ok || role != "student" {
 			return errlst.NewUnauthorizedError("only student role can perform payment")
 		}
 
-		studentID, ok := c.Locals("userID").(int)
+		studentID, ok := c.Locals("user_id").(int)
 		if !ok {
 			return errlst.NewUnauthorizedError("cannot find student id in context")
 		}
@@ -53,7 +53,7 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(200).JSON(paymentID)
+		return c.Status(fiber.StatusOK).JSON(paymentID)
 	}
 }
 

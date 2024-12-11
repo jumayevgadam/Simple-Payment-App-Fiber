@@ -34,14 +34,14 @@ func NewFacultyHandler(service services.DataService) *FacultyHandler {
 // @ID add-faculty
 // @Accept multipart/form-data
 // @Produce json
-// @Param facultyReq formData facultyModel.DTO true "faculty request for adding new one"
+// @Param facultyReq formData facultyModel.Req true "faculty request for adding new one"
 // @Success 200 {integer} integer 1
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /faculty/create [post].
 func (h *FacultyHandler) AddFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var facultyReq facultyModel.DTO
+		var facultyReq facultyModel.Req
 		if err := reqvalidator.ReadRequest(c, &facultyReq); err != nil {
 			return errlst.Response(c, err)
 		}
@@ -63,7 +63,7 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path int true "id"
-// @Success 200 {object} facultyModel.Faculty
+// @Success 200 {object} facultyModel.DTO
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /faculty/{id} [get].
@@ -92,7 +92,7 @@ func (h *FacultyHandler) GetFaculty() fiber.Handler {
 // @Param page query int false "page number" Format(page)
 // @Param limit query int false "number of elements per page" Format(limit)
 // @Param orderBy query string false "filter name" Format(orderBy)
-// @Success 200 {object} []facultyModel.Faculty
+// @Success 200 {object} []facultyModel.DTO
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
 // @Router /faculty/get-all [get].
@@ -122,7 +122,7 @@ func (h *FacultyHandler) ListFaculties() fiber.Handler {
 // @Success 200 {string} string "successfully deleted faculty"
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [delete]
+// @Router /faculty/{id} [delete].
 func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))
@@ -153,7 +153,7 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 // @Success 200 {string} string "successfully updated faculty ops"
 // @Failure 400 {object} errlst.RestErr
 // @Failure 500 {object} errlst.RestErr
-// @Router /faculty/{id} [put]
+// @Router /faculty/{id} [put].
 func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		facultyID, err := strconv.Atoi(c.Params("id"))

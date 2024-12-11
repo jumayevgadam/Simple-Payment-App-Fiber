@@ -17,7 +17,7 @@ type Response struct {
 }
 
 // ToDBStorage sends request to psqlDB in our case.
-func (r *Request) ToDBStorage(studentID int, photoURL string) *Response {
+func (r *Request) ToPsqlDBStorage(studentID int, photoURL string) *Response {
 	return &Response{
 		StudentID:      studentID,
 		CheckPhoto:     photoURL,

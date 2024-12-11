@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"mime/multipart"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,7 +28,9 @@ func NewPaymentService(repo database.DataStore) *PaymentService {
 }
 
 // AddPayment service method for adding payment.
-func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *multipart.FileHeader, request *paymentModel.Request) (int, error) {
+func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *multipart.FileHeader, request *paymentModel.Request) (
+	int, error,
+) {
 	var (
 		paymentID int
 		err       error
@@ -38,11 +41,12 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 		// get name, surname, courseYear and groupCode using studentID.
 		studentDataForPayment, err := db.UsersRepo().GetStudentDetailsForPayment(c.Context(), studentID)
 		if err != nil {
+			log.Println(err)
 			return errlst.ParseErrors(err)
 		}
 
 		// save image dynamic folder using groupCode, name_surname
-		checkPhotoUrl, err := utils.SaveImage(
+		checkPhotoURL, err := utils.SaveImage(
 			c, checkPhoto,
 			studentDataForPayment.GroupCode,
 			studentDataForPayment.FullName,
@@ -53,7 +57,7 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 		}
 
 		// save into payments table using studentID, courseYear, and return response
-		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToDBStorage(studentID, checkPhotoUrl))
+		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToPsqlDBStorage(studentID, checkPhotoURL))
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}

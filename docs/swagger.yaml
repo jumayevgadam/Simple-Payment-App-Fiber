@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty:
+  github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO:
     properties:
       faculty-code:
         type: string
@@ -12,7 +12,7 @@ definitions:
     - faculty-code
     - facultyName
     type: object
-  github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO:
+  github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO:
     properties:
       courseYear:
         type: integer
@@ -94,7 +94,7 @@ paths:
       summary: Login
       tags:
       - Users
-  /auth/{role}/sign-up:
+  /auth/register:
     post:
       consumes:
       - multipart/form-data
@@ -180,7 +180,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty'
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO'
         "400":
           description: Bad Request
           schema: {}
@@ -281,7 +281,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.Faculty'
+              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_faculty.DTO'
             type: array
         "400":
           description: Bad Request
@@ -337,7 +337,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO'
+            $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO'
         "400":
           description: Bad Request
           schema: {}
@@ -449,7 +449,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.GroupDTO'
+              $ref: '#/definitions/github_com_jumayevgadam_tsu-toleg_internal_models_group.DTO'
             type: array
         "400":
           description: Bad Request
