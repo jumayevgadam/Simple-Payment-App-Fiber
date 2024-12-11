@@ -41,36 +41,20 @@ func main() {
 		appLogger.Errorf("[main][connection][GetDBConnection]: error: %v", err.Error())
 	}
 
+	defer func() {
+		err = psqlDB.Close()
+
+		if err != nil {
+			appLogger.Errorf("error closing database: %v", err.Error())
+		}
+	}()
+
 	// INITIALIZE DATASTORE.
 	dataStore := postgres.NewDataStore(psqlDB)
 
-	// INITIALIZE SERVER AND HANDLERS.
+	// INITIALIZE SERVER.
 	srv := server.NewServer(cfg, dataStore, appLogger)
-	srv.MapHandlers(dataStore)
-
-	// INITIALIZE SRV.RUN() WITH GOROUTINE.
-	if err := srv.Fiber.Listen(":" + cfg.Server.HTTPPort); err != nil {
-		appLogger.Errorf("error listening on http port: %v", err.Error())
-	}
-
-	// HANDLE GRACEFUL SHUTDOWN.
-	// quit := make(chan os.Signal, 1)
-	// signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-
-	// This blocks the main thread until an interrupt is received.
-	// <-quit
-
-	// gracefulCtx, cancel := context.WithTimeout(context.Background(), constants.CtxDefaultTimeOut)
-	// defer cancel()
-
-	if err := srv.Fiber.ShutdownWithContext(context.Background()); err != nil {
-		appLogger.Errorf("error occured when shutting down application")
-	}
-
-	appLogger.Info("application successfully shutdown.")
-
-	// CLOSE psqlDB.
-	if err := psqlDB.Close(); err != nil {
-		appLogger.Errorf("error closing psqlDB: %v", err.Error())
+	if err := srv.Run(); err != nil {
+		appLogger.Errorf("error occured when running application")
 	}
 }

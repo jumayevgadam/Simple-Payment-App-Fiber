@@ -118,3 +118,40 @@ type StudentInfoData struct {
 	Username   string `db:"username"`
 	GroupCode  string `db:"group_code"`
 }
+
+// UpdateUserDetails model for updating user details.
+type UpdateUserDetails struct {
+	RoleID   int    `form:"role-id" json:"roleID"`
+	GroupID  int    `form:"group-id" json:"groupID"`
+	Name     string `form:"name" json:"name"`
+	Surname  string `form:"surname" json:"surname"`
+	Username string `form:"username" json:"username"`
+}
+
+// UpdateUserDetailsData model is db model.
+type UpdateUserDetailsData struct {
+	RoleID   int    `db:"role_id"`
+	GroupID  int    `db:"group_id"`
+	Name     string `db:"name"`
+	Surname  string `db:"surname"`
+	Username string `db:"username"`
+}
+
+func (u *UpdateUserDetails) ToPsqlDBStorage() *UpdateUserDetailsData {
+	return &UpdateUserDetailsData{
+		RoleID:   u.RoleID,
+		GroupID:  u.GroupID,
+		Name:     u.Name,
+		Surname:  u.Surname,
+		Username: u.Username,
+	}
+}
+
+// ValidateUpdateDetails func check some ops in this place.
+func (v UpdateUserDetails) Validate() (string, error) {
+	if v.GroupID == 0 && v.RoleID == 0 && v.Name == "" && v.Surname == "" && v.Username == "" {
+		return "update structure has no value for user", nil
+	}
+
+	return "", nil
+}

@@ -93,8 +93,37 @@ func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (s
 	return token, nil
 }
 
+// GetUserByID service.
+func (s *UserService) GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDTO, error) {
+	userRes, err := s.repo.UsersRepo().GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, errlst.ParseErrors(err)
+	}
+
+	return userRes.ToServer(), nil
+}
+
 // ChangeRoleOfUser service.
-func (s *UserService) UpdateUser(ctx context.Context, userID int) error {
+func (s *UserService) UpdateUser(ctx context.Context, userID int, updateReq *userModel.UpdateUserDetails) error {
+	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		_, err := db.UsersRepo().GetUserByID(ctx, userID)
+
+		if err != nil {
+			return errlst.NewNotFoundError(errlst.ErrNoSuchUser)
+		}
+
+		err = db.UsersRepo().UpdateUser(ctx, userID, updateReq.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return errlst.ParseErrors(err)
+	}
+
 	return nil
 }
 
@@ -141,4 +170,15 @@ func (s *UserService) ListAllUsers(ctx context.Context, paginationRequest abstra
 	usersListResponse.Limit = len(usersList)
 
 	return usersListResponse, nil
+}
+
+// DeleteUser service.
+func (s *UserService) DeleteUser(ctx context.Context, userID int) error {
+	err := s.repo.UsersRepo().DeleteUser(ctx, userID)
+
+	if err != nil {
+		return errlst.ParseErrors(err)
+	}
+
+	return nil
 }

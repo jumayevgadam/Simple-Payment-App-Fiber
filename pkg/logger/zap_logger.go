@@ -81,10 +81,10 @@ func (l *APILogger) InitLogger() {
 	encoderCfg.NameKey = "NAME"
 	encoderCfg.MessageKey = "MESSAGE"
 
-	if l.cfg.Logger.Encoding == "json" {
-		encoder = zapcore.NewJSONEncoder(encoderCfg)
-	} else {
+	if l.cfg.Logger.Encoding == "console" {
 		encoder = zapcore.NewConsoleEncoder(encoderCfg)
+	} else {
+		encoder = zapcore.NewJSONEncoder(encoderCfg)
 	}
 
 	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder

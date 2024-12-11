@@ -7,8 +7,9 @@ type Handlers interface {
 	Register() fiber.Handler
 	Login() fiber.Handler
 	ListUsers() fiber.Handler
-	ChangeRoleOfUser() fiber.Handler
 	DeleteUser() fiber.Handler
 	UpdateUser() fiber.Handler
-	GetUser() fiber.Handler
+	GetUserByID() fiber.Handler
+	FindStudent() fiber.Handler
+	ListStudents() fiber.Handler
 }

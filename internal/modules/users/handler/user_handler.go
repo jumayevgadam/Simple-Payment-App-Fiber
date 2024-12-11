@@ -88,28 +88,6 @@ func (h *UserHandler) Login() fiber.Handler {
 	}
 }
 
-// ChangeRoleOfUser handler.
-func (h *UserHandler) ChangeRoleOfUser() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		// role, ok := c.Locals("role_type").(string)
-		// if !ok || role != "superadmin" {
-		// 	return errlst.NewUnauthorizedError("only superadmin can see list of all users")
-		// }
-
-		userID, err := strconv.Atoi(c.Params("user_id"))
-		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
-		}
-
-		err = h.service.UserService().UpdateUser(c.Context(), userID)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON("user's role successfully changed")
-	}
-}
-
 // ListUsers handler.
 func (h *UserHandler) ListUsers() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -135,20 +113,67 @@ func (h *UserHandler) ListUsers() fiber.Handler {
 // DeleteUser handler.
 func (h *UserHandler) DeleteUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+		role, ok := c.Locals("role_type").(string)
+		if !ok || role != "superadmin" {
+			return errlst.NewUnauthorizedError("only superadmin can delete user.")
+		}
+
+		userID, err := strconv.Atoi(c.Params("user_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
 	}
 }
 
 // UpdateUser handler.
 func (h *UserHandler) UpdateUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+		role, ok := c.Locals("role_type").(string)
+		if !ok || role != "superadmin" {
+			return errlst.NewUnauthorizedError("only superadmin can update user details.")
+		}
+
+		userID, err := strconv.Atoi(c.Params("user_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		var updateReq userModel.UpdateUserDetails
+
+		err = reqvalidator.ReadRequest(c, &updateReq)
+		if err != nil {
+			noUpdateRes, err := updateReq.Validate()
+
+			if err == nil {
+				return c.Status(fiber.StatusOK).JSON(noUpdateRes)
+			}
+
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		err = h.service.UserService().UpdateUser(c.Context(), userID, &updateReq)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON("successfully updated user details.")
 	}
 }
 
 // GetUser handler.
-func (h *UserHandler) GetUser() fiber.Handler {
+func (h *UserHandler) GetUserByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+
+		userID, err := strconv.Atoi(c.Params("user_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		userRes, err := h.service.UserService().GetUserByID(c.Context(), userID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(userRes)
 	}
 }

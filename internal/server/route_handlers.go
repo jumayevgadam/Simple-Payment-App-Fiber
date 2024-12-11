@@ -97,6 +97,9 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	usersGroup := v1.Group("/users")
 	{
 		usersGroup.Get("/list", Handlers.UserHandler().ListUsers())
+		usersGroup.Get("/:user_id", Handlers.UserHandler().GetUserByID())
+		usersGroup.Delete("/:user_id", Handlers.UserHandler().DeleteUser())
+		usersGroup.Put("/:user_id", Handlers.UserHandler().UpdateUser())
 	}
 
 	// Init Faculties.

@@ -49,6 +49,25 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRe
 	return userID, nil
 }
 
+// GetUserByID repo method fetches user by its id.
+func (r *UserRepository) GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDAO, error) {
+	var userAllDAO userModel.AllUserDAO
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&userAllDAO,
+		getUserByIDQuery,
+		userID,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return &userAllDAO, nil
+}
+
 // GetUserByUsername fetches user by using identified username.
 func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*userModel.Details, error) {
 	var details userModel.Details
@@ -106,7 +125,22 @@ func (r *UserRepository) CountAllUsers(ctx context.Context) (int, error) {
 }
 
 // UpdateUser repo.
-func (r *UserRepository) UpdateUser(ctx context.Context, userID int) error {
+func (r *UserRepository) UpdateUser(ctx context.Context, userID int, updateRes *userModel.UpdateUserDetailsData) error {
+	err := r.psqlDB.QueryRow(
+		ctx,
+		updateUserDetailsQuery,
+		updateRes.RoleID,
+		updateRes.GroupID,
+		updateRes.Name,
+		updateRes.Surname,
+		updateRes.Username,
+		userID,
+	).Scan(nil)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
 	return nil
 }
 
@@ -132,4 +166,19 @@ func (r *UserRepository) ListAllUsers(ctx context.Context, paginationData abstra
 	}
 
 	return allUsers, nil
+}
+
+// DeleteUser repo.
+func (r *UserRepository) DeleteUser(ctx context.Context, userID int) error {
+	_, err := r.psqlDB.Exec(
+		ctx,
+		deleteUserQuery,
+		userID,
+	)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	return nil
 }

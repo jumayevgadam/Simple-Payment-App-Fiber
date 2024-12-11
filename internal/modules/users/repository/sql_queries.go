@@ -7,6 +7,23 @@ const (
      	VALUES (COALESCE(NULLIF($1, 0), 3), $2, $3, $4, $5, $6)
 		RETURNING id;`
 
+	// getUserByIDQuery is.
+	getUserByIDQuery = `
+		SELECT 
+			id,
+			role_id,
+			COALESCE(group_id, 0) AS group_id,
+			name,
+			surname,
+			username,
+			password,
+			created_at,
+			updated_at
+		FROM
+			users
+		WHERE 
+			id = $1;`
+
 	// getUserByUsernameQuery is.
 	getDetailsByUsernameQuery = `
 		SELECT 
@@ -52,4 +69,20 @@ const (
 	// totalCountOfAllUserQuery is.
 	totalCountOfAllUserQuery = `
 		SELECT COUNT(id) FROM users;`
+
+	// updateUserDetailsQuery is.
+	updateUserDetailsQuery = `
+		UPDATE users
+		SET 
+			role_id = COALESCE(NULLIF($1, 0), role_id),
+			group_id = COALESCE(NULLIF($2, 0), group_id),
+			name = COALESCE(NULLIF($3, ''), name),
+			surname = COALESCE(NULLIF($4, ''), surname),
+			username = COALESCE(NULLIF($5, ''), username)
+		WHERE
+			id = $6;`
+
+	// deleteUserQuery is.
+	deleteUserQuery = `
+		DELETE FROM users WHERE id = $1;`
 )

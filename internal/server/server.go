@@ -1,6 +1,10 @@
 package server
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/config"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
@@ -36,11 +40,26 @@ func NewServer(
 	return server
 }
 
-// Run method for running application.
 func (s *Server) Run() error {
-	if err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort); err != nil {
-		s.Logger.Errorf("error listening port: %s", s.Cfg.Server.HTTPPort)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		if err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort); err != nil {
+			s.Logger.Errorf("error occured when running http port: %s", s.Cfg.Server.HTTPPort)
+		}
+	}()
+
+	s.MapHandlers(s.DataStore)
+
+	<-quit
+	s.Logger.Info("got interruption signal")
+
+	if err := s.Fiber.Shutdown(); err != nil {
+		s.Logger.Errorf("error occured when shutting down application")
 	}
+
+	s.Logger.Info("application shutdown successfully.")
 
 	return nil
 }
