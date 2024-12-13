@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
@@ -58,28 +60,24 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 }
 
 // GetPayment About student.
-func (h *PaymentHandler) GetPayment() fiber.Handler {
+func (h *PaymentHandler) GetPaymentByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		paymentDTO, err := h.service.PaymentService().GetPaymentByID(c.Context(), paymentID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(paymentDTO)
 	}
 }
 
-// UpdatePayment details.
-func (h *PaymentHandler) UpdatePayment() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return nil
-	}
-}
-
-// ListPayments using pagination.
-func (h *PaymentHandler) ListPayments() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return nil
-	}
-}
-
-// GetPaymentByStudent ops.
-func (h *PaymentHandler) GetPaymentByStudent() fiber.Handler {
+// GetPaymentByStudentID handler.
+func (h *PaymentHandler) GetPaymentByStudentID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		return nil
 	}

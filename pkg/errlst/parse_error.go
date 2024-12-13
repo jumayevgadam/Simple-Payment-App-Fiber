@@ -58,7 +58,7 @@ func Response(c *fiber.Ctx, err error) error {
 	logger.InitLogger()
 
 	errStatus, errResponse := ParseErrors(err).Status(), ParseErrors(err)
-	logger.Error("HTTP Error Response: ", err, ", URL:", string(c.Context().RequestURI()))
+	logger.Error("HTTP Error Response: ", err, ", URL:", c.OriginalURL())
 
 	return c.Status(errStatus).JSON(errResponse)
 }

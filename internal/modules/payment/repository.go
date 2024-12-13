@@ -9,4 +9,5 @@ import (
 // Repository interface for performing payment actions in repo layer.
 type Repository interface {
 	AddPayment(ctx context.Context, data *paymentModel.Response) (int, error)
+	GetPaymentByID(ctx context.Context, paymentID int) (*paymentModel.AllPaymentDAO, error)
 }

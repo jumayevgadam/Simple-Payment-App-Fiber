@@ -13,8 +13,12 @@ type Service interface {
 	Login(ctx context.Context, loginReq userModel.LoginReq) (string, error)
 	GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDTO, error)
 	ListAllUsers(ctx context.Context, pagination abstract.PaginationQuery) (
-		abstract.PaginatedResponse[*userModel.AllUserDTO], error,
-	)
+		abstract.PaginatedResponse[*userModel.AllUserDTO], error)
 	UpdateUser(ctx context.Context, userID int, updateReq *userModel.UpdateUserDetails) error
 	DeleteUser(ctx context.Context, userID int) error
+
+	ListStudents(ctx context.Context, pagination abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*userModel.AllUserDTO], error)
+	// ListStudentsByFaculty(ctx context.Context, pagination abstract.PaginationQuery) (
+	// 	abstract.PaginatedResponse[*userModel.AllUserDTO], error)
 }

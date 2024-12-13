@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -26,7 +27,7 @@ func ReadImage(c *fiber.Ctx, field string) (*multipart.FileHeader, error) {
 	return file, nil
 }
 
-func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName, username string) (string, error) {
+func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode, studentName, username string) (string, error) {
 	// Base directory
 	basePath := "./internal/uploads"
 
@@ -35,8 +36,11 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName,
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create base directory: %s", err.Error()))
 	}
 
+	// cleanedFileName removes free spaces in file.Filename and replace with '_'
+	cleanedFileName := strings.ReplaceAll(file.Filename, " ", "_")
+
 	// Build subdirectory path
-	subDir := fmt.Sprintf("%s/%s", basePath, groupCode)
+	subDir := fmt.Sprintf("%s/%s/%s", basePath, facultyName, groupCode)
 
 	err = os.MkdirAll(subDir, 0755)
 	if err != nil {
@@ -44,7 +48,13 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName,
 	}
 
 	// Final file path
-	fileDstPath := fmt.Sprintf("%s/%s_%s_%s_%s", subDir, studentName, username, groupCode, file.Filename)
+	fileDstPath := fmt.Sprintf(
+		"%s/%s_%s_%s",
+		subDir,
+		studentName,
+		username,
+		cleanedFileName,
+	)
 
 	// Save the file
 	err = c.SaveFile(file, fileDstPath)
@@ -53,5 +63,5 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, groupCode, studentName,
 	}
 
 	// Return logical file identifier
-	return fmt.Sprintf("%s-%s-%s%s", studentName, username, groupCode, filepath.Ext(file.Filename)), nil
+	return fmt.Sprintf("%s-%s-%s%s", studentName, username, groupCode, filepath.Ext(cleanedFileName)), nil
 }

@@ -13,6 +13,8 @@ import (
 	paymentRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	roleRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
+	timeRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/times/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	userRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
 )
@@ -33,6 +35,8 @@ type DataStoreImpl struct {
 	userInit    sync.Once
 	payment     payment.Repository
 	paymentInit sync.Once
+	time        times.Repository
+	timeInit    sync.Once
 }
 
 // NewDataStore creates and returns a new instance of DataStore.
@@ -85,4 +89,12 @@ func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
 	})
 
 	return d.payment
+}
+
+func (d *DataStoreImpl) TimesRepo() times.Repository {
+	d.timeInit.Do(func() {
+		d.time = timeRepository.NewTimeRepository(d.db)
+	})
+
+	return d.time
 }

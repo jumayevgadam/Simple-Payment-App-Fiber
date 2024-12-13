@@ -1,5 +1,7 @@
 package payment
 
+import "time"
+
 // Request model for payment.
 type Request struct {
 	PaymentType    string `form:"payment-type" json:"paymentType" validate:"required"`
@@ -16,12 +18,49 @@ type Response struct {
 	PaymentStatus  string `db:"payment_status"`
 }
 
-// ToDBStorage sends request to psqlDB in our case.
+// ToPsqlDBStorage sends request to psqlDB in our case.
 func (r *Request) ToPsqlDBStorage(studentID int, photoURL string) *Response {
 	return &Response{
 		StudentID:      studentID,
 		CheckPhoto:     photoURL,
 		PaymentType:    r.PaymentType,
 		CurrentPaidSum: r.CurrentPaidSum,
+	}
+}
+
+// AllPaymentDAO model.
+type AllPaymentDAO struct {
+	ID             int       `db:"id"`
+	StudentID      int       `db:"student_id"`
+	PaymentType    string    `db:"payment_type"`
+	CheckPhoto     string    `db:"check_photo"`
+	CurrentPaidSum int       `db:"payment_amount"`
+	PaymentStatus  string    `db:"payment_status"`
+	UploadedAt     time.Time `db:"uploaded_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+}
+
+// AllPaymentDTO model.
+type AllPaymentDTO struct {
+	ID             int       `json:"paymentID"`
+	StudentID      int       `json:"studentID"`
+	PaymentType    string    `json:"paymentType"`
+	CheckPhoto     string    `json:"checkPhotoURL"`
+	CurrentPaidSum int       `json:"paymentAmount"`
+	PaymentStatus  string    `json:"paymentStatus"`
+	UploadedAt     time.Time `json:"uploadedAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
+}
+
+func (a *AllPaymentDAO) ToServer() *AllPaymentDTO {
+	return &AllPaymentDTO{
+		ID:             a.ID,
+		StudentID:      a.StudentID,
+		PaymentType:    a.PaymentType,
+		CheckPhoto:     a.CheckPhoto,
+		CurrentPaidSum: a.CurrentPaidSum,
+		PaymentStatus:  a.PaymentStatus,
+		UploadedAt:     a.UploadedAt,
+		UpdatedAt:      a.UpdatedAt,
 	}
 }

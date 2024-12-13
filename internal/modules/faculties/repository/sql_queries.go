@@ -3,7 +3,7 @@ package repository
 const (
 	// addFacultyQuery is.
 	addFacultyQuery = `
-		INSERT INTO faculties (name, faculty_code)
+		INSERT INTO faculties (faculty_name, faculty_code)
 		VALUES ($1, $2)
 		RETURNING id;`
 
@@ -11,7 +11,7 @@ const (
 	getFacultyQuery = `
 		SELECT 
 			id,
-			name,
+			faculty_name,
 			faculty_code
 		FROM faculties
 		WHERE id = $1;`
@@ -20,10 +20,10 @@ const (
 	listFacultiesQuery = `
 		SELECT
 			id,
-			name,
+			faculty_name,
 			faculty_code
 		FROM faculties
-		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+		ORDER BY id DESC OFFSET $1 LIMIT $2;`
 
 	// countFacultiesQuery is.
 	countFacultiesQuery = `
@@ -39,7 +39,7 @@ const (
 	// updateFacultyQuery is.
 	updateFacultyQuery = `
 		UPDATE faculties 
-		SET name = COALESCE(NULLIF($1, ''), name),
+		SET faculty_name = COALESCE(NULLIF($1, ''), faculty_name),
 			faculty_code = COALESCE(NULLIF($2, ''), faculty_code)
 		WHERE id = $3
 		RETURNING 'successfully updated faculty'`

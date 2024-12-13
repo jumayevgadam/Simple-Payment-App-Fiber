@@ -4,19 +4,19 @@ package repository
 const (
 	// addRoleQuery is.
 	addRoleQuery = `
-		INSERT INTO roles (name)
+		INSERT INTO roles (role)
 		VALUES ($1) 
 		RETURNING id;`
 
 	// getRoleQuery is.
 	getRoleQuery = `
-		SELECT id, name
+		SELECT id, role
 		FROM roles
 		WHERE id = $1;`
 
 	// getRoleIDByRoleName is.
 	getRoleByRoleName = `
-		SELECT id, name FROM roles WHERE name = $1;`
+		SELECT id, role FROM roles WHERE name = $1;`
 
 	// getRolesQuery is.
 	getRolesQuery = `
@@ -31,7 +31,7 @@ const (
 
 	// fetchCurrentRoleQuery is.
 	fetchCurrentRoleQuery = `
-		SELECT name
+		SELECT role
 		FROM roles
 		WHERE id = $1;`
 
@@ -39,7 +39,7 @@ const (
 	updateRoleQuery = `
 		UPDATE roles
 		SET 
-			name = COALESCE(NULLIF($1, ''), name)
+			role = COALESCE(NULLIF($1, ''), role)
 		WHERE id = $2	
 		RETURNING 'role changed successfully';`
 )
@@ -66,7 +66,7 @@ const (
 			id,
 			permission_type
 		FROM permissions
-		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+		ORDER BY id DESC OFFSET $1 LIMIT $2;`
 
 	// deletePermissionQuery is.
 	deletePermissionQuery = `

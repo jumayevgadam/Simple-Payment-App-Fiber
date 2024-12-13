@@ -25,7 +25,7 @@ const (
 		SELECT
 			id, faculty_id, group_code, course_year
 		FROM groups
-		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+		ORDER BY id DESC OFFSET $1 LIMIT $2;`
 
 	// deleteGroupQuery is.
 	deleteGroupQuery = `

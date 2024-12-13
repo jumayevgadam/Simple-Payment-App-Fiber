@@ -113,10 +113,11 @@ func (a *AllUserDAO) ToServer() *AllUserDTO {
 
 // StudentInfo model for Payment Model.
 type StudentInfoData struct {
-	CourseYear int    `db:"course_year"`
-	FullName   string `db:"full_name"`
-	Username   string `db:"username"`
-	GroupCode  string `db:"group_code"`
+	CourseYear  int    `db:"course_year"`
+	FullName    string `db:"full_name"`
+	Username    string `db:"username"`
+	GroupCode   string `db:"group_code"`
+	FacultyName string `db:"faculty_name"`
 }
 
 // UpdateUserDetails model for updating user details.
@@ -148,8 +149,8 @@ func (u *UpdateUserDetails) ToPsqlDBStorage() *UpdateUserDetailsData {
 }
 
 // ValidateUpdateDetails func check some ops in this place.
-func (v UpdateUserDetails) Validate() (string, error) {
-	if v.GroupID == 0 && v.RoleID == 0 && v.Name == "" && v.Surname == "" && v.Username == "" {
+func (u UpdateUserDetails) Validate() (string, error) {
+	if u.GroupID == 0 && u.RoleID == 0 && u.Name == "" && u.Surname == "" && u.Username == "" {
 		return "update structure has no value for user", nil
 	}
 

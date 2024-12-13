@@ -1,7 +1,0 @@
-There are 5 tables for this project
-
-- roles: completed
-- faculties: completed:
-- groups: 
-- users:
-- payments: 

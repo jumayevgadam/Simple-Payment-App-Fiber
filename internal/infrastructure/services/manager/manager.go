@@ -1,9 +1,9 @@
 package manager
 
 import (
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
+	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
 	facultyService "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
@@ -12,6 +12,8 @@ import (
 	paymentService "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	roleService "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/service"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
+	timeService "github.com/jumayevgadam/tsu-toleg/internal/modules/times/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	userService "github.com/jumayevgadam/tsu-toleg/internal/modules/users/service"
 )
@@ -25,6 +27,7 @@ type ServiceManager struct {
 	group   groups.Service
 	user    users.Service
 	payment payment.Service
+	time    times.Service
 }
 
 // NewServiceManager creates and returns a new instance of ServiceManager.
@@ -35,6 +38,7 @@ func NewServiceManager(dataStore database.DataStore, mw *middleware.Manager) ser
 		group:   groupService.NewGroupService(dataStore),
 		user:    userService.NewUserService(mw, dataStore),
 		payment: paymentService.NewPaymentService(dataStore),
+		time:    timeService.NewTimeService(dataStore),
 	}
 }
 
@@ -58,4 +62,8 @@ func (sm *ServiceManager) UserService() users.Service {
 
 func (sm *ServiceManager) PaymentService() payment.Service {
 	return sm.payment
+}
+
+func (sm *ServiceManager) TimeService() times.Service {
+	return sm.time
 }

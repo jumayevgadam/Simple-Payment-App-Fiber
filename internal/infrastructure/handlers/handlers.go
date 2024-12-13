@@ -5,6 +5,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 )
 
@@ -15,4 +16,5 @@ type DataHandlers interface {
 	GroupHandler() groups.Handlers
 	UserHandler() users.Handlers
 	PaymentHandler() payment.Handlers
+	TimeHandler() times.Handlers
 }

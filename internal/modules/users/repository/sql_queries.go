@@ -40,11 +40,14 @@ const (
 			COALESCE(g.course_year, 0) AS course_year,
 			COALESCE(g.group_code, '') AS group_code,
 			CONCAT(u.name, '-', u.surname) AS full_name,
-			u.username AS username
+			u.username AS username,
+			f.name AS faculty_name
 		FROM 
 			users AS u 
 		INNER JOIN
 			groups AS g ON u.group_id = g.id
+		INNER JOIN 
+			faculties AS f on f.id = g.faculty_id	
 		WHERE 
 			u.id = $1 AND u.group_id IS NOT NULL;`
 
@@ -85,4 +88,26 @@ const (
 	// deleteUserQuery is.
 	deleteUserQuery = `
 		DELETE FROM users WHERE id = $1;`
+
+	// listAllStudentsQuery is.
+	listAllStudentsQuery = `
+		SELECT 
+			id,
+			role_id,
+			group_id,
+			name,
+			surname,
+			username,	
+			password,
+			created_at,
+			updated_at
+		FROM
+			users
+		WHERE
+			role_id = 3
+		ORDER BY id DESC OFFSET $1 LIMIT $2;`
+
+	// countAllStudentsQuery is.
+	countAllStudentsQuery = `
+		SELECT COUNT(id) FROM users WHERE role_id = 3	;`
 )

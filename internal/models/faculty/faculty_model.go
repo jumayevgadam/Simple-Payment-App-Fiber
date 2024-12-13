@@ -33,7 +33,7 @@ type DTO struct {
 // FacultyData model is db model.
 type DAO struct {
 	ID   int    `db:"id"`
-	Name string `db:"name"`
+	Name string `db:"faculty_name"`
 	Code string `db:"faculty_code"`
 }
 

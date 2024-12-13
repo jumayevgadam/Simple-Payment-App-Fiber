@@ -5,6 +5,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 )
 
@@ -15,4 +16,5 @@ type DataService interface {
 	GroupService() groups.Service
 	UserService() users.Service
 	PaymentService() payment.Service
+	TimeService() times.Service
 }

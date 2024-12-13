@@ -4,23 +4,16 @@
 package server
 
 import (
-	"github.com/gofiber/swagger"
-	"github.com/jumayevgadam/tsu-toleg/docs"
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
+	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
 )
 
 const v1URL = "/api/v1"
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {
-	// Init Swagger Doc details.
-	docs.SwaggerInfo.Title = "API DOCUMENTATION OF TSU-TOLEG"
-
-	s.Fiber.Get("/api-docs/tsu-toleg-api/*", swagger.HandlerDefault)
-
 	// Init v1 Path.
 	v1 := s.Fiber.Group(v1URL)
 
@@ -34,56 +27,56 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	Handlers := handlerManager.NewHandlerManager(Services)
 
 	// Init Roles.
-	roleGroup := v1.Group("/role")
+	roleGroup := v1.Group("/roles")
 	{
-		roleGroup.Post("/create", mdwManager.RoleBasedMiddleware("create:role"),
+		roleGroup.Post("/create",
 			Handlers.RoleHandler().AddRole())
 
-		roleGroup.Get("/get-all", mdwManager.RoleBasedMiddleware("list:roles"),
+		roleGroup.Get("/",
 			Handlers.RoleHandler().GetRoles())
 
-		roleGroup.Get("/:id", mdwManager.RoleBasedMiddleware("get:role"),
+		roleGroup.Get("/:id",
 			Handlers.RoleHandler().GetRole())
 
-		roleGroup.Delete("/:id", mdwManager.RoleBasedMiddleware("delete:role"),
+		roleGroup.Delete("/:id",
 			Handlers.RoleHandler().DeleteRole())
 
-		roleGroup.Put("/:id", mdwManager.RoleBasedMiddleware("update:role"),
+		roleGroup.Put("/:id",
 			Handlers.RoleHandler().UpdateRole())
 	}
 
 	// InitPermissions
-	permissionGroup := v1.Group("/permission")
+	permissionGroup := v1.Group("/permissions")
 	{
-		permissionGroup.Post("/add", mdwManager.RoleBasedMiddleware("add:permission"),
+		permissionGroup.Post("/create",
 			Handlers.RoleHandler().AddPermission())
 
-		permissionGroup.Get("/list-all", mdwManager.RoleBasedMiddleware("list:permissions"),
+		permissionGroup.Get("/",
 			Handlers.RoleHandler().ListPermissions())
 
-		permissionGroup.Get("/:id", mdwManager.RoleBasedMiddleware("get:permission"),
+		permissionGroup.Get("/:id",
 			Handlers.RoleHandler().GetPermission())
 
-		permissionGroup.Delete("/:id", mdwManager.RoleBasedMiddleware("delete:permission"),
+		permissionGroup.Delete("/:id",
 			Handlers.RoleHandler().DeletePermission())
 
-		permissionGroup.Put("/:id", mdwManager.RoleBasedMiddleware("update:permission"),
+		permissionGroup.Put("/:id",
 			Handlers.RoleHandler().UpdatePermission())
 	}
 
 	// Init RolePermissions.
-	rolePermissionGroup := v1.Group("/role-permission")
+	rolePermissionGroup := v1.Group("/role-permissions")
 	{
-		rolePermissionGroup.Post("/create", mdwManager.RoleBasedMiddleware("rolepermission:create"),
+		rolePermissionGroup.Post("/create",
 			Handlers.RoleHandler().AddRolePermission())
 
-		rolePermissionGroup.Get("/:role_id", mdwManager.RoleBasedMiddleware("getpermissions:by:role"),
+		rolePermissionGroup.Get("/:role_id/permissions",
 			Handlers.RoleHandler().GetPermissionsByRole())
 
-		rolePermissionGroup.Get("/:permission_id", mdwManager.RoleBasedMiddleware("getroles:by:permission"),
+		rolePermissionGroup.Get("/:permission_id/roles",
 			Handlers.RoleHandler().GetRolesByPermission())
 
-		rolePermissionGroup.Delete("/:rol_id/and/:permission_id", mdwManager.RoleBasedMiddleware("delete:role:permission"),
+		rolePermissionGroup.Delete("/:role_id/and/:permission_id",
 			Handlers.RoleHandler().DeleteRolePermission())
 	}
 
@@ -96,54 +89,66 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 
 	usersGroup := v1.Group("/users")
 	{
-		usersGroup.Get("/list", Handlers.UserHandler().ListUsers())
+		usersGroup.Get("/", Handlers.UserHandler().ListUsers())
 		usersGroup.Get("/:user_id", Handlers.UserHandler().GetUserByID())
 		usersGroup.Delete("/:user_id", Handlers.UserHandler().DeleteUser())
 		usersGroup.Put("/:user_id", Handlers.UserHandler().UpdateUser())
 	}
 
-	// Init Faculties.
-	facultyGroup := v1.Group("/faculty")
+	// Init Students.
+	studentGroup := v1.Group("/students")
 	{
-		facultyGroup.Post("/create", mdwManager.RoleBasedMiddleware("create:faculty"),
+		studentGroup.Get("/", Handlers.UserHandler().ListStudents())
+	}
+
+	// Init Faculties.
+	facultyGroup := v1.Group("/faculties")
+	{
+		facultyGroup.Post("/create",
 			Handlers.FacultyHandler().AddFaculty())
 
-		facultyGroup.Get("/get-all", mdwManager.RoleBasedMiddleware("list:faculties"),
+		facultyGroup.Get("/",
 			Handlers.FacultyHandler().ListFaculties())
 
-		facultyGroup.Get("/:id", mdwManager.RoleBasedMiddleware("get:faculty"),
+		facultyGroup.Get("/:id",
 			Handlers.FacultyHandler().GetFaculty())
 
-		facultyGroup.Delete("/:id", mdwManager.RoleBasedMiddleware("delete:faculty"),
+		facultyGroup.Delete("/:id",
 			Handlers.FacultyHandler().DeleteFaculty())
 
-		facultyGroup.Put("/:id", mdwManager.RoleBasedMiddleware("update:faculty"),
+		facultyGroup.Put("/:id",
 			Handlers.FacultyHandler().UpdateFaculty())
 	}
 
 	// Init Groups.
-	groupPath := v1.Group("/group")
+	groupPath := v1.Group("/groups")
 	{
-		groupPath.Post("/add", mdwManager.RoleBasedMiddleware("add:group"),
+		groupPath.Post("/create",
 			Handlers.GroupHandler().AddGroup())
 
-		groupPath.Get("/get-all", mdwManager.RoleBasedMiddleware("list:groups"),
+		groupPath.Get("/",
 			Handlers.GroupHandler().ListGroups())
 
-		groupPath.Get("/:id", mdwManager.RoleBasedMiddleware("get:group"),
+		groupPath.Get("/:id",
 			Handlers.GroupHandler().GetGroup())
 
-		groupPath.Delete("/:id", mdwManager.RoleBasedMiddleware("delete:group"),
+		groupPath.Delete("/:id",
 			Handlers.GroupHandler().DeleteGroup())
 
-		groupPath.Put("/:id", mdwManager.RoleBasedMiddleware("update:group"),
+		groupPath.Put("/:id",
 			Handlers.GroupHandler().UpdateGroup())
 	}
 
 	// Init Payments.
-	paymentGroup := v1.Group("/payment")
+	paymentGroup := v1.Group("/payments")
 	{
-		paymentGroup.Post("/add", mdwManager.RoleBasedMiddleware("add:payment"),
+		paymentGroup.Post("/add",
 			Handlers.PaymentHandler().AddPayment())
+	}
+
+	timeGroup := v1.Group("/time")
+	{
+		timeGroup.Post("/add",
+			Handlers.TimeHandler().AddTime())
 	}
 }

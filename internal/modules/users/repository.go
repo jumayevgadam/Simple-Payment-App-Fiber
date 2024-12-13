@@ -17,4 +17,8 @@ type Repository interface {
 	CountAllUsers(ctx context.Context) (int, error)
 	UpdateUser(ctx context.Context, userID int, updateRes *userModel.UpdateUserDetailsData) error
 	DeleteUser(ctx context.Context, userID int) error
+
+	ListStudents(ctx context.Context, paginationData abstract.PaginationData) ([]*userModel.AllUserDAO, error)
+	CountAllStudents(ctx context.Context) (int, error)
+	// CountAllStudentsByFaculty(ctx context.Context, facultyID int) (int, error)
 }

@@ -6,4 +6,16 @@ const (
 
 	// token expiration time.
 	TokenExpiryTime = 24 // 1day.
+
+	// SuperAdmin.
+	SuperAdmin = "superadmin"
+
+	// Admin.
+	Admin = "admin"
+
+	// Student.
+	Student = "student"
+
+	// NoUpdateResponse.
+	NoUpdateResponse = "update structure has no value"
 )

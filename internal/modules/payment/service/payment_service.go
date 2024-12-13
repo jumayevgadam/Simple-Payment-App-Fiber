@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log"
 	"mime/multipart"
 
@@ -48,10 +49,12 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 		// save image dynamic folder using groupCode, name_surname
 		checkPhotoURL, err := utils.SaveImage(
 			c, checkPhoto,
+			studentDataForPayment.FacultyName,
 			studentDataForPayment.GroupCode,
 			studentDataForPayment.FullName,
 			studentDataForPayment.Username,
 		)
+
 		if err != nil {
 			return errlst.NewBadRequestError("can not save check photo that directory")
 		}
@@ -69,4 +72,14 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 	}
 
 	return paymentID, nil
+}
+
+// GetPaymentByID service.
+func (p *PaymentService) GetPaymentByID(ctx context.Context, paymentID int) (*paymentModel.AllPaymentDTO, error) {
+	paymentDAO, err := p.repo.PaymentsRepo().GetPaymentByID(ctx, paymentID)
+	if err != nil {
+		return nil, errlst.NewNotFoundError("payment not found" + err.Error())
+	}
+
+	return paymentDAO.ToServer(), nil
 }

@@ -45,6 +45,8 @@ func (s *Server) Run() error {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
+		s.Logger.Infof("server started on port %s", s.Cfg.Server.HTTPPort)
+
 		if err := s.Fiber.Listen(":" + s.Cfg.Server.HTTPPort); err != nil {
 			s.Logger.Errorf("error occured when running http port: %s", s.Cfg.Server.HTTPPort)
 		}

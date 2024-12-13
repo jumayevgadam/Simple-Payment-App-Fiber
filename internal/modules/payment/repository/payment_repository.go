@@ -37,9 +37,29 @@ func (r *PaymentRepository) AddPayment(ctx context.Context, data *paymentModel.R
 		data.CurrentPaidSum,
 		data.CheckPhoto,
 	).Scan(&paymentID)
+
 	if err != nil {
 		return 0, errlst.ParseSQLErrors(err)
 	}
 
 	return paymentID, nil
+}
+
+// GetPaymentByID repo.
+func (r *PaymentRepository) GetPaymentByID(ctx context.Context, paymentID int) (*paymentModel.AllPaymentDAO, error) {
+	var paymentDAO paymentModel.AllPaymentDAO
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&paymentDAO,
+		getPaymentByIDQuery,
+		paymentID,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return &paymentDAO, nil
 }

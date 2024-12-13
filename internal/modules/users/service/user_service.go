@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/jumayevgadam/tsu-toleg/internal/gateway/middleware"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
@@ -107,7 +107,6 @@ func (s *UserService) GetUserByID(ctx context.Context, userID int) (*userModel.A
 func (s *UserService) UpdateUser(ctx context.Context, userID int, updateReq *userModel.UpdateUserDetails) error {
 	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		_, err := db.UsersRepo().GetUserByID(ctx, userID)
-
 		if err != nil {
 			return errlst.NewNotFoundError(errlst.ErrNoSuchUser)
 		}
@@ -175,10 +174,54 @@ func (s *UserService) ListAllUsers(ctx context.Context, paginationRequest abstra
 // DeleteUser service.
 func (s *UserService) DeleteUser(ctx context.Context, userID int) error {
 	err := s.repo.UsersRepo().DeleteUser(ctx, userID)
-
 	if err != nil {
 		return errlst.ParseErrors(err)
 	}
 
 	return nil
+}
+
+// ListStudents service.
+func (s *UserService) ListStudents(ctx context.Context, paginationRequest abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.AllUserDTO], error,
+) {
+	var (
+		studentAllData      []*userModel.AllUserDAO
+		studentListResponse abstract.PaginatedResponse[*userModel.AllUserDTO]
+		totalStudentsCount  int
+		err                 error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		totalStudentsCount, err = db.UsersRepo().CountAllStudents(ctx)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentListResponse.TotalItems = totalStudentsCount
+
+		studentAllData, err = db.UsersRepo().ListStudents(ctx, paginationRequest.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*userModel.AllUserDTO]{}, errlst.ParseErrors(err)
+	}
+
+	studentList := lo.Map(
+		studentAllData,
+		func(item *userModel.AllUserDAO, _ int) *userModel.AllUserDTO {
+			return item.ToServer()
+		},
+	)
+
+	studentListResponse.Items = studentList
+	studentListResponse.Page = paginationRequest.Page
+	studentListResponse.Limit = len(studentList)
+
+	return studentListResponse, nil
 }

@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"context"
 	"mime/multipart"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,11 +11,5 @@ import (
 // Service interface for performing payment actions in service layer.
 type Service interface {
 	AddPayment(ctx *fiber.Ctx, studentID int, checkPhoto *multipart.FileHeader, req *paymentModel.Request) (int, error)
-	// GetPaymentDetails, use view
-	// UpdatePayment, check payment
-	// ListPaymentOfStudent
-	// CheckPayment Status
-
-	// ````````- STATISTICS -````````
-	// GetStatisticsOfStudents
+	GetPaymentByID(ctx context.Context, paymentID int) (*paymentModel.AllPaymentDTO, error)
 }

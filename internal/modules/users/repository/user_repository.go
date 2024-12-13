@@ -30,8 +30,6 @@ func NewUserRepository(psqlDB connection.DB) *UserRepository {
 func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
 	var userID int
 
-	log.Println("Before query, checking pool state:", r.psqlDB)
-
 	if err := r.psqlDB.QueryRow(
 		ctx,
 		createUserQuery,
@@ -181,4 +179,44 @@ func (r *UserRepository) DeleteUser(ctx context.Context, userID int) error {
 	}
 
 	return nil
+}
+
+func (r *UserRepository) ListStudents(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*userModel.AllUserDAO, error,
+) {
+	var students []*userModel.AllUserDAO
+	offset := (paginationData.Page - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&students,
+		listAllStudentsQuery,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return students, nil
+}
+
+// CountAllStudents repo.
+func (r *UserRepository) CountAllStudents(ctx context.Context) (int, error) {
+	var totalCountOfAllStudent int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCountOfAllStudent,
+		countAllStudentsQuery,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCountOfAllStudent, nil
 }
