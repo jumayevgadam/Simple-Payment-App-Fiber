@@ -9,8 +9,10 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
+	"github.com/samber/lo"
 )
 
 // Ensuring PaymentService implements payment.Service interface.
@@ -83,4 +85,49 @@ func (p *PaymentService) GetPaymentByID(ctx context.Context, paymentID int) (*pa
 	}
 
 	return paymentDAO.ToServer(), nil
+}
+
+func (p *PaymentService) StudentListPaymentsByStudentID(ctx context.Context, studentID int, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], error,
+) {
+	var (
+		studentPaymentDatas         []*paymentModel.AllPaymentDAO
+		studentPaymentsListResponse abstract.PaginatedResponse[*paymentModel.AllPaymentDTO]
+		totalStudentPaymentCount    int
+		err                         error
+	)
+
+	err = p.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		totalStudentPaymentCount, err = db.PaymentsRepo().CountPaymentsByStudentID(ctx, studentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentPaymentsListResponse.TotalItems = totalStudentPaymentCount
+
+		studentPaymentDatas, err = db.PaymentsRepo().StudentListPaymentsByStudentID(ctx, studentID, paginationQuery.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*paymentModel.AllPaymentDTO]{}, errlst.ParseErrors(err)
+	}
+
+	studentPaymentList := lo.Map(
+		studentPaymentDatas,
+		func(item *paymentModel.AllPaymentDAO, _ int) *paymentModel.AllPaymentDTO {
+			return item.ToServer()
+		},
+	)
+
+	studentPaymentsListResponse.Items = studentPaymentList
+	studentPaymentsListResponse.CurrentPage = paginationQuery.CurrentPage
+	studentPaymentsListResponse.Limit = paginationQuery.Limit
+	studentPaymentsListResponse.ItemsInCurrentPage = len(studentPaymentList)
+
+	return studentPaymentsListResponse, nil
 }

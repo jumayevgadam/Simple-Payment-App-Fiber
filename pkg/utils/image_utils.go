@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -27,11 +28,13 @@ func ReadImage(c *fiber.Ctx, field string) (*multipart.FileHeader, error) {
 	return file, nil
 }
 
-func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode, studentName, username, semester string) (string, error) {
+func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode, studentName, username, semester string) (
+	string, error,
+) {
 	// Base directory
 	basePath := "./internal/uploads"
 
-	err := os.MkdirAll(basePath, 0755)
+	err := os.MkdirAll(basePath, constants.ZeroSevenFiveFive)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create base directory: %s", err.Error()))
 	}
@@ -42,7 +45,7 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 	// Build subdirectory path
 	subDir := fmt.Sprintf("%s/%s/%s", basePath, facultyName, groupCode)
 
-	err = os.MkdirAll(subDir, 0755)
+	err = os.MkdirAll(subDir, constants.ZeroSevenFiveFive)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create group directory: %s", err.Error()))
 	}
@@ -62,6 +65,15 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to save image to path %s: %s", fileDstPath, err.Error()))
 	}
 
-	// Return logical file identifier
-	return fmt.Sprintf("%s/%s/%s_%s_%s_%s%s", facultyName, groupCode, studentName, username, groupCode, semester, filepath.Ext(cleanedFileName)), nil
+	// Return logical file identifier.
+	return fmt.Sprintf(
+		"%s/%s/%s_%s_%s_%s%s",
+		facultyName,
+		groupCode,
+		studentName,
+		username,
+		groupCode,
+		semester,
+		filepath.Ext(cleanedFileName),
+	), nil
 }

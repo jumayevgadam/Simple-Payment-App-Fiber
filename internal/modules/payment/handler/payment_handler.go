@@ -7,6 +7,8 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	paymentOps "github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
@@ -30,12 +32,12 @@ func NewPaymentHandler(service services.DataService) *PaymentHandler {
 // AddPayment for students.
 func (h *PaymentHandler) AddPayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role, ok := c.Locals("role_type").(string)
-		if !ok || role != "student" {
+		role, ok := c.Locals(constants.RoleType).(string)
+		if !ok || role != constants.Student {
 			return errlst.NewUnauthorizedError("only student role can perform payment")
 		}
 
-		studentID, ok := c.Locals("user_id").(int)
+		studentID, ok := c.Locals(constants.UserID).(int)
 		if !ok {
 			return errlst.NewUnauthorizedError("cannot find student id in context")
 		}
@@ -77,7 +79,47 @@ func (h *PaymentHandler) GetPaymentByID() fiber.Handler {
 }
 
 // GetPaymentByStudentID handler.
-func (h *PaymentHandler) GetPaymentByStudentID() fiber.Handler {
+func (h *PaymentHandler) StudentListPaymentsByStudentID() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		role, ok := c.Locals("role_type").(string)
+		if !ok || role != "student" {
+			return errlst.NewUnauthorizedError("only student can see his(her) payments")
+		}
+
+		studentID, ok := c.Locals("user_id").(int)
+		if !ok {
+			return errlst.NewUnauthorizedError("error in type assertion:[StudentListPaymentsByStudentID]")
+		}
+
+		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
+		if err != nil {
+			return errlst.NewBadQueryParamsError(err.Error())
+		}
+
+		studentPayments, err := h.service.PaymentService().StudentListPaymentsByStudentID(
+			c.Context(), studentID, paginationReq)
+
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(studentPayments)
+	}
+}
+
+func (h *PaymentHandler) UpdatePaymentByStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
+
+func (h *PaymentHandler) ChangePaymentStatus() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}
+
+func (h *PaymentHandler) AdminListPaymentsByStudentID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		return nil
 	}

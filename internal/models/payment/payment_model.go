@@ -31,9 +31,10 @@ func (r *Request) ToPsqlDBStorage(studentID int, photoURL string) *Response {
 
 // AllPaymentDAO model.
 type AllPaymentDAO struct {
-	ID             int       `db:"id"`
+	ID             int       `db:"payment_id"`
 	StudentID      int       `db:"student_id"`
-	TimeID         int       `db:"time_id"`
+	StartYear      int       `db:"start_year"`
+	EndYear        int       `db:"end_year"`
 	PaymentType    string    `db:"payment_type"`
 	CheckPhoto     string    `db:"check_photo"`
 	CurrentPaidSum int       `db:"payment_amount"`
@@ -46,7 +47,8 @@ type AllPaymentDAO struct {
 type AllPaymentDTO struct {
 	ID             int       `json:"paymentID"`
 	StudentID      int       `json:"studentID"`
-	TimeID         int       `json:"timeID"`
+	StartYear      int       `json:"startYear"`
+	EndYear        int       `json:"endYear"`
 	PaymentType    string    `json:"paymentType"`
 	CheckPhoto     string    `json:"checkPhotoURL"`
 	CurrentPaidSum int       `json:"paymentAmount"`
@@ -59,7 +61,8 @@ func (a *AllPaymentDAO) ToServer() *AllPaymentDTO {
 	return &AllPaymentDTO{
 		ID:             a.ID,
 		StudentID:      a.StudentID,
-		TimeID:         a.TimeID,
+		StartYear:      a.StartYear,
+		EndYear:        a.EndYear,
 		PaymentType:    a.PaymentType,
 		CheckPhoto:     a.CheckPhoto,
 		CurrentPaidSum: a.CurrentPaidSum,

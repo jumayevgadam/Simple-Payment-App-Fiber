@@ -6,6 +6,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -63,4 +64,45 @@ func (r *PaymentRepository) GetPaymentByID(ctx context.Context, paymentID int) (
 	}
 
 	return &paymentDAO, nil
+}
+
+func (r *PaymentRepository) CountPaymentsByStudentID(ctx context.Context, studentID int) (int, error) {
+	var totalCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCount,
+		countPaymentsByStudentIDQuery,
+		studentID,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
+}
+
+func (r *PaymentRepository) StudentListPaymentsByStudentID(ctx context.Context, studentID int, paginationData abstract.PaginationData) (
+	[]*paymentModel.AllPaymentDAO, error,
+) {
+	var paymentDAO []*paymentModel.AllPaymentDAO
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&paymentDAO,
+		listPaymentsByStudentIDQuery,
+		studentID,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return paymentDAO, nil
 }

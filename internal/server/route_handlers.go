@@ -5,6 +5,7 @@ package server
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,13 +20,6 @@ const v1URL = "/api/v1"
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {
-	// s.Fiber.Use(cors.New(cors.Config{
-	// 	AllowOrigins: "*",
-	// 	AllowMethods: "GET,POST,PUT,DELETE",
-	// 	AllowHeaders: "Content-Type, Authorization",
-	// }))
-
-	// Define a Ping Route.
 	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":   "pong",
@@ -38,8 +32,14 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		return c.Next()
 	})
 
+	// Serve files dynamically based on the faculty and group structure.
+	uploadsPath, err := filepath.Abs("./internal/uploads")
+	if err != nil {
+		s.Logger.Fatalf("Failed to resolve uploads path: %v", err)
+	}
+
 	// Init Static Route.
-	s.Fiber.Static("/uploads", "./uploads")
+	s.Fiber.Static("/uploads", uploadsPath)
 
 	// Init MiddlewareManager.
 	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
@@ -116,34 +116,42 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 
 	usersGroup := v1.Group("/users")
 	{
-		usersGroup.Get("/", Handlers.UserHandler().ListUsers())
-		usersGroup.Get("/:user_id", Handlers.UserHandler().GetUserByID())
-		usersGroup.Delete("/:user_id", Handlers.UserHandler().DeleteUser())
-		usersGroup.Put("/:user_id", Handlers.UserHandler().UpdateUser())
+		usersGroup.Get("/",
+			Handlers.UserHandler().ListUsers())
+
+		usersGroup.Get("/:user_id",
+			Handlers.UserHandler().GetUserByID())
+
+		usersGroup.Delete("/:user_id",
+			Handlers.UserHandler().DeleteUser())
+
+		usersGroup.Put("/:user_id",
+			Handlers.UserHandler().UpdateUser())
 	}
 
 	// Init Students.
 	studentGroup := v1.Group("/students")
 	{
-		studentGroup.Get("/", Handlers.UserHandler().ListStudents())
+		studentGroup.Get("/",
+			Handlers.UserHandler().ListStudents())
 	}
 
 	// Init Faculties.
 	facultyGroup := v1.Group("/faculties")
 	{
-		facultyGroup.Post("/create",
+		facultyGroup.Post("/create", mdwManager.RoleBasedMiddleware(permission.CreateFaculty),
 			Handlers.FacultyHandler().AddFaculty())
 
-		facultyGroup.Get("/",
+		facultyGroup.Get("/", mdwManager.RoleBasedMiddleware(permission.ListFaculties),
 			Handlers.FacultyHandler().ListFaculties())
 
-		facultyGroup.Get("/:id",
+		facultyGroup.Get("/:id", mdwManager.RoleBasedMiddleware(permission.GetFaculty),
 			Handlers.FacultyHandler().GetFaculty())
 
-		facultyGroup.Delete("/:id",
+		facultyGroup.Delete("/:id", mdwManager.RoleBasedMiddleware(permission.DeleteFaculty),
 			Handlers.FacultyHandler().DeleteFaculty())
 
-		facultyGroup.Put("/:id",
+		facultyGroup.Put("/:id", mdwManager.RoleBasedMiddleware(permission.UpdateFaculty),
 			Handlers.FacultyHandler().UpdateFaculty())
 
 		facultyGroup.Get("/:faculty_id/groups",
@@ -153,22 +161,22 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init Groups.
 	groupPath := v1.Group("/groups")
 	{
-		groupPath.Post("/create",
+		groupPath.Post("/create", mdwManager.RoleBasedMiddleware(permission.CreateGroup),
 			Handlers.GroupHandler().AddGroup())
 
-		groupPath.Get("/",
+		groupPath.Get("/", mdwManager.RoleBasedMiddleware(permission.ListGroups),
 			Handlers.GroupHandler().ListGroups())
 
-		groupPath.Get("/:id",
+		groupPath.Get("/:id", mdwManager.RoleBasedMiddleware(permission.GetGroup),
 			Handlers.GroupHandler().GetGroup())
 
-		groupPath.Delete("/:id",
+		groupPath.Delete("/:id", mdwManager.RoleBasedMiddleware(permission.DeleteGroup),
 			Handlers.GroupHandler().DeleteGroup())
 
-		groupPath.Put("/:id",
+		groupPath.Put("/:id", mdwManager.RoleBasedMiddleware(permission.UpdateGroup),
 			Handlers.GroupHandler().UpdateGroup())
 
-		groupPath.Get("/:group_id/students",
+		groupPath.Get("/:group_id/students", mdwManager.RoleBasedMiddleware(permission.ListStudentsByGroupID),
 			Handlers.GroupHandler().ListStudentsByGroupID())
 	}
 
@@ -177,6 +185,15 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	{
 		paymentGroup.Post("/add", mdwManager.RoleBasedMiddleware(permission.AddPayment),
 			Handlers.PaymentHandler().AddPayment())
+
+		paymentGroup.Get("/student", mdwManager.RoleBasedMiddleware(permission.StudentListPayments),
+			Handlers.PaymentHandler().StudentListPaymentsByStudentID())
+
+		paymentGroup.Get("/:payment_id",
+			Handlers.PaymentHandler().GetPaymentByID())
+
+		paymentGroup.Put("/:payment_id",
+			Handlers.PaymentHandler().ChangePaymentStatus())
 	}
 
 	timeGroup := v1.Group("/time")

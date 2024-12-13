@@ -8,6 +8,7 @@ import (
 	facultyModel "github.com/jumayevgadam/tsu-toleg/internal/models/faculty"
 	facultyOps "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 )
@@ -47,6 +48,11 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 // GetFaculty handler fetches faculty using identified id.
 func (h *FacultyHandler) GetFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		role, ok := c.Locals("role_type").(string)
+		if !ok || role != constants.SuperAdmin {
+			return errlst.NewUnauthorizedError("only superadmin can get faculty")
+		}
+
 		facultyID, err := strconv.Atoi(c.Params("id"))
 		if err != nil {
 			return errlst.Response(c, err)
@@ -128,6 +134,11 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 // ListGroupsByFacultyID handler.
 func (h *FacultyHandler) ListGroupsByFacultyID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		role, ok := c.Locals("role_type").(string)
+		if !ok || role != "superadmin" {
+			return errlst.NewUnauthorizedError("only superadmin can list groups by faculty id")
+		}
+
 		facultyID, err := strconv.Atoi(c.Params("faculty_id"))
 		if err != nil {
 			return errlst.NewBadRequestError(err.Error())

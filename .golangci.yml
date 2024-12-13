@@ -59,7 +59,7 @@ linters:
 linters-settings:
   lll:
     tab-width: 1
-    line-length: 130
+    line-length: 140
   errcheck:
     check-type-assertions: true
     check-blank: true

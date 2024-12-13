@@ -32,4 +32,28 @@ const (
 			payments
 		WHERE 
 			id = $1;`
+
+	// countPaymentsByStudentIDQuery is.
+	countPaymentsByStudentIDQuery = `
+		SELECT COUNT(student_id) 
+		FROM payments
+		WHERE student_id = $1;`
+
+	// listPaymentsByStudentIDQuery is.
+	listPaymentsByStudentIDQuery = `
+		SELECT 
+			p.payment_id,
+			p.student_id,
+			p.payment_type,
+			p.payment_status,
+			p.payment_amount,
+			p.check_photo,
+			p.uploaded_at,
+			p.updated_at,
+			p.start_year,
+			p.end_year
+		FROM 
+			payment_details_mv AS p
+		WHERE student_id = $1
+		ORDER BY payment_id DESC OFFSET $2 LIMIT $3;`
 )

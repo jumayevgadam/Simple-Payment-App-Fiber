@@ -248,7 +248,7 @@ func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, pa
 
 		studentAllData, err = db.UsersRepo().ListStudentsByGroupID(ctx, groupID, paginationQuery.ToPsqlDBStorage())
 		if err != nil {
-
+			return errlst.ParseErrors(err)
 		}
 
 		return nil

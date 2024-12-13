@@ -22,6 +22,7 @@ func (mw *Manager) RoleBasedMiddleware(requiredPermission string) fiber.Handler 
 
 		// Check for required permission.
 		hasPermission := false
+
 		for _, perm := range claims.Permissions {
 			if perm == requiredPermission {
 				hasPermission = true

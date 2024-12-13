@@ -4,7 +4,7 @@ const (
 	// createUserQuery is.
 	createUserQuery = `
 		INSERT INTO users (role_id, group_id, name, surname, username, password)
-     	VALUES (COALESCE(NULLIF($1, 0), 3), $2, $3, $4, $5, $6)
+     	VALUES (COALESCE(NULLIF($1, 0), 3), COALESCE(NULLIF($2, 0), NULL), $3, $4, $5, $6)
 		RETURNING id;`
 
 	// getUserByIDQuery is.
