@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
@@ -17,6 +18,9 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 	if !ok {
 		return errlst.ErrTypeAssertInTransaction
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
 
 	// begin transaction in this place.
 	tx, err := db.Begin(ctx, pgx.TxOptions{})

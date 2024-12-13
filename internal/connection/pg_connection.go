@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -47,27 +48,59 @@ type Database struct {
 	Db *pgxpool.Pool
 }
 
-// GetDBConnection from config for working with PostgreSQL.
+// GetDBConnectionWithRetry attempts to connect to the database with retries.
 func GetDBConnection(ctx context.Context, cfg config.PostgresDB) (*Database, error) {
+	const (
+		retryAttempts = 3
+		retryDelay    = 2 * time.Second
+	)
+
+	var db *pgxpool.Pool
+	var err error
+
+	for i := 0; i < retryAttempts; i++ {
+		db, err = connectToDB(ctx, cfg)
+		if err == nil {
+			return &Database{Db: db}, nil
+		}
+
+		fmt.Printf("Attempt %d/%d failed: %v. Retrying in %s...\n", i+1, retryAttempts, err, retryDelay)
+		time.Sleep(retryDelay)
+	}
+
+	return nil, fmt.Errorf("failed to connect to database after %d attempts: %w", retryAttempts, err)
+}
+
+// connectToDB handles a single attempt to connect to the database.
+func connectToDB(ctx context.Context, cfg config.PostgresDB) (*pgxpool.Pool, error) {
 	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
-	db, err := pgxpool.New(ctx, fmt.Sprintf(
+	connStr := fmt.Sprintf(
 		"postgres://%s:%s@%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
 		hostPort,
 		cfg.Name,
 		cfg.SslMode,
-	))
+	)
 
+	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
-		return nil, fmt.Errorf("connection[pgxpool.New]: %w", err)
+		return nil, fmt.Errorf("parsing connection config: %w", err)
+	}
+
+	config.MaxConns = 200
+	config.MinConns = 10
+
+	db, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		return nil, fmt.Errorf("creating connection pool: %w", err)
 	}
 
 	if err := db.Ping(ctx); err != nil {
-		return nil, fmt.Errorf("connection[Ping]: %w", err)
+		return nil, fmt.Errorf("pinging database: %w", err)
 	}
 
-	return &Database{Db: db}, nil
+	return db, nil
 }
 
 // Get method implements DB interface.
@@ -97,18 +130,12 @@ func (d *Database) Exec(ctx context.Context, query string, args ...interface{}) 
 
 // Begin starts a new transaction.
 func (d *Database) Begin(ctx context.Context, txOpts pgx.TxOptions) (TxOps, error) {
-	if d == nil {
+	if d == nil || d.Db == nil {
 		return nil, errlst.ErrBeginTransaction
-	}
-
-	c, err := d.Db.Acquire(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("acquire connection: %w", errlst.ErrBeginTransaction)
 	}
 
 	tx, err := d.Db.BeginTx(ctx, txOpts)
 	if err != nil {
-		c.Release()
 		return nil, fmt.Errorf("connection.Database.Begin: %w", errlst.ErrBeginTransaction)
 	}
 
