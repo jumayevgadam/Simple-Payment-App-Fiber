@@ -124,3 +124,25 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(res)
 	}
 }
+
+// ListGroupsByFacultyID handler.
+func (h *FacultyHandler) ListGroupsByFacultyID() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		facultyID, err := strconv.Atoi(c.Params("faculty_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
+		if err != nil {
+			return errlst.NewBadQueryParamsError(err.Error())
+		}
+
+		groupListResponse, err := h.service.GroupService().ListGroupsByFacultyID(c.Context(), facultyID, paginationReq)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(groupListResponse)
+	}
+}

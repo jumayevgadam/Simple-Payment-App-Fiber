@@ -27,7 +27,7 @@ func ReadImage(c *fiber.Ctx, field string) (*multipart.FileHeader, error) {
 	return file, nil
 }
 
-func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode, studentName, username string) (string, error) {
+func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode, studentName, username, semester string) (string, error) {
 	// Base directory
 	basePath := "./internal/uploads"
 
@@ -63,5 +63,5 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 	}
 
 	// Return logical file identifier
-	return fmt.Sprintf("%s-%s-%s%s", studentName, username, groupCode, filepath.Ext(cleanedFileName)), nil
+	return fmt.Sprintf("%s/%s/%s_%s_%s_%s%s", facultyName, groupCode, studentName, username, groupCode, semester, filepath.Ext(cleanedFileName)), nil
 }

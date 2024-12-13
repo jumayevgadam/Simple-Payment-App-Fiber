@@ -39,9 +39,9 @@ const (
 		SELECT
 			COALESCE(g.course_year, 0) AS course_year,
 			COALESCE(g.group_code, '') AS group_code,
-			CONCAT(u.name, '-', u.surname) AS full_name,
+			CONCAT(u.name, '_', u.surname) AS full_name,
 			u.username AS username,
-			f.name AS faculty_name
+			f.faculty_name
 		FROM 
 			users AS u 
 		INNER JOIN
@@ -109,5 +109,26 @@ const (
 
 	// countAllStudentsQuery is.
 	countAllStudentsQuery = `
-		SELECT COUNT(id) FROM users WHERE role_id = 3	;`
+		SELECT COUNT(id) FROM users WHERE role_id = 3;`
+
+	// ListStudentsByGroupIDQuery is.
+	listStudentsByGroupIDQuery = `
+		SELECT 
+			id,
+			role_id,
+			group_id,
+			CONCAT(name, ' ', surname) AS full_name,
+			username,
+			password
+		FROM 
+			users
+		WHERE
+			role_id = 3 AND group_id = $1
+		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+
+	// countAllStudentsByGroupIDQuery is.
+	countAllStudentsByGroupIDQuery = `
+		SELECT COUNT(group_id) 
+		FROM users
+		WHERE group_id = $1;`
 )

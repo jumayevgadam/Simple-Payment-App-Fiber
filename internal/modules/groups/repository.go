@@ -12,7 +12,12 @@ type Repository interface {
 	AddGroup(ctx context.Context, groupDAO *groupModel.Res) (int, error)
 	GetGroup(ctx context.Context, groupID int) (*groupModel.DAO, error)
 	CountGroups(ctx context.Context) (int, error)
+	CountGroupsByFacultyID(ctx context.Context, facultyID int) (int, error)
 	ListGroups(ctx context.Context, pagination abstract.PaginationData) ([]*groupModel.DAO, error)
 	DeleteGroup(ctx context.Context, groupID int) error
 	UpdateGroup(ctx context.Context, groupModel *groupModel.DAO) (string, error)
+
+	ListGroupsByFacultyID(ctx context.Context, facultyID int, pagination abstract.PaginationData) (
+		[]*groupModel.DAO, error,
+	)
 }

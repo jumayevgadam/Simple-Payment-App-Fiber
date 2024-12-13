@@ -89,8 +89,9 @@ func (s *GroupService) ListGroups(ctx context.Context, pagination abstract.Pagin
 	)
 
 	groupListResponse.Items = groupList
-	groupListResponse.Page = pagination.Page
-	groupListResponse.Limit = len(groupList)
+	groupListResponse.CurrentPage = pagination.CurrentPage
+	groupListResponse.Limit = pagination.Limit
+	groupListResponse.ItemsInCurrentPage = len(groupList)
 
 	return groupListResponse, nil
 }
@@ -132,4 +133,50 @@ func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue 
 	}
 
 	return resFromDB, nil
+}
+
+// ListGroupsByFacultyID service.
+func (s *GroupService) ListGroupsByFacultyID(ctx context.Context, facultyID int, paginationReq abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*groupModel.DTO], error,
+) {
+	var (
+		groupAllData     []*groupModel.DAO
+		groupListRespone abstract.PaginatedResponse[*groupModel.DTO]
+		totalGroupCount  int
+		err              error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		totalGroupCount, err = db.GroupsRepo().CountGroupsByFacultyID(ctx, facultyID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		groupListRespone.TotalItems = totalGroupCount
+
+		groupAllData, err = db.GroupsRepo().ListGroupsByFacultyID(ctx, facultyID, paginationReq.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*groupModel.DTO]{}, errlst.ParseErrors(err)
+	}
+
+	groupList := lo.Map(
+		groupAllData,
+		func(item *groupModel.DAO, _ int) *groupModel.DTO {
+			return item.ToServer()
+		},
+	)
+
+	groupListRespone.Items = groupList
+	groupListRespone.CurrentPage = paginationReq.CurrentPage
+	groupListRespone.Limit = paginationReq.Limit
+	groupListRespone.ItemsInCurrentPage = len(groupList)
+
+	return groupListRespone, nil
 }

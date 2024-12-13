@@ -165,8 +165,9 @@ func (s *UserService) ListAllUsers(ctx context.Context, paginationRequest abstra
 	)
 
 	usersListResponse.Items = usersList
-	usersListResponse.Page = paginationRequest.Page
-	usersListResponse.Limit = len(usersList)
+	usersListResponse.CurrentPage = paginationRequest.CurrentPage
+	usersListResponse.Limit = paginationRequest.Limit
+	usersListResponse.ItemsInCurrentPage = len(usersList)
 
 	return usersListResponse, nil
 }
@@ -220,8 +221,54 @@ func (s *UserService) ListStudents(ctx context.Context, paginationRequest abstra
 	)
 
 	studentListResponse.Items = studentList
-	studentListResponse.Page = paginationRequest.Page
-	studentListResponse.Limit = len(studentList)
+	studentListResponse.CurrentPage = paginationRequest.CurrentPage
+	studentListResponse.Limit = paginationRequest.Limit
+	studentListResponse.ItemsInCurrentPage = len(studentList)
+
+	return studentListResponse, nil
+}
+
+func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.StudentDTO], error,
+) {
+	var (
+		studentAllData      []*userModel.StudentDAO
+		studentListResponse abstract.PaginatedResponse[*userModel.StudentDTO]
+		totalStudentCount   int
+		err                 error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		totalStudentCount, err = db.UsersRepo().CountStudentsByGroupID(ctx, groupID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentListResponse.TotalItems = totalStudentCount
+
+		studentAllData, err = db.UsersRepo().ListStudentsByGroupID(ctx, groupID, paginationQuery.ToPsqlDBStorage())
+		if err != nil {
+
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*userModel.StudentDTO]{}, errlst.ParseErrors(err)
+	}
+
+	studentList := lo.Map(
+		studentAllData,
+		func(item *userModel.StudentDAO, _ int) *userModel.StudentDTO {
+			return item.ToServer()
+		},
+	)
+
+	studentListResponse.Items = studentList
+	studentListResponse.CurrentPage = paginationQuery.CurrentPage
+	studentListResponse.Limit = paginationQuery.Limit
+	studentListResponse.ItemsInCurrentPage = len(studentList)
 
 	return studentListResponse, nil
 }

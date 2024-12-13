@@ -4,21 +4,48 @@
 package server
 
 import (
+	"fmt"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
+	"github.com/jumayevgadam/tsu-toleg/internal/middleware/permission"
 )
 
 const v1URL = "/api/v1"
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {
+	// s.Fiber.Use(cors.New(cors.Config{
+	// 	AllowOrigins: "*",
+	// 	AllowMethods: "GET,POST,PUT,DELETE",
+	// 	AllowHeaders: "Content-Type, Authorization",
+	// }))
+
+	// Define a Ping Route.
+	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message":   "pong",
+			"timestamp": time.Now(),
+		})
+	})
+
+	s.Fiber.Use(func(c *fiber.Ctx) error {
+		fmt.Println("Request Path:", c.Path())
+		return c.Next()
+	})
+
+	// Init Static Route.
+	s.Fiber.Static("/uploads", "./uploads")
+
+	// Init MiddlewareManager.
+	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
+
 	// Init v1 Path.
 	v1 := s.Fiber.Group(v1URL)
-
-	// Init Middlewares.
-	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
 
 	// Init Services.
 	Services := serviceManager.NewServiceManager(dataStore, mdwManager)
@@ -118,6 +145,9 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 
 		facultyGroup.Put("/:id",
 			Handlers.FacultyHandler().UpdateFaculty())
+
+		facultyGroup.Get("/:faculty_id/groups",
+			Handlers.FacultyHandler().ListGroupsByFacultyID())
 	}
 
 	// Init Groups.
@@ -137,18 +167,21 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 
 		groupPath.Put("/:id",
 			Handlers.GroupHandler().UpdateGroup())
+
+		groupPath.Get("/:group_id/students",
+			Handlers.GroupHandler().ListStudentsByGroupID())
 	}
 
 	// Init Payments.
 	paymentGroup := v1.Group("/payments")
 	{
-		paymentGroup.Post("/add",
+		paymentGroup.Post("/add", mdwManager.RoleBasedMiddleware(permission.AddPayment),
 			Handlers.PaymentHandler().AddPayment())
 	}
 
 	timeGroup := v1.Group("/time")
 	{
-		timeGroup.Post("/add",
+		timeGroup.Post("/add", mdwManager.RoleBasedMiddleware(permission.AddTime),
 			Handlers.TimeHandler().AddTime())
 	}
 }

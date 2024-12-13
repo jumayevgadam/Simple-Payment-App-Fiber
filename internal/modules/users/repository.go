@@ -15,10 +15,15 @@ type Repository interface {
 	GetStudentDetailsForPayment(ctx context.Context, studentID int) (*userModel.StudentInfoData, error)
 	ListAllUsers(ctx context.Context, paginationData abstract.PaginationData) ([]*userModel.AllUserDAO, error)
 	CountAllUsers(ctx context.Context) (int, error)
+	CountAllStudents(ctx context.Context) (int, error)
+	CountStudentsByGroupID(ctx context.Context, groupID int) (int, error)
 	UpdateUser(ctx context.Context, userID int, updateRes *userModel.UpdateUserDetailsData) error
 	DeleteUser(ctx context.Context, userID int) error
 
-	ListStudents(ctx context.Context, paginationData abstract.PaginationData) ([]*userModel.AllUserDAO, error)
-	CountAllStudents(ctx context.Context) (int, error)
-	// CountAllStudentsByFaculty(ctx context.Context, facultyID int) (int, error)
+	ListStudents(ctx context.Context, paginationData abstract.PaginationData) (
+		[]*userModel.AllUserDAO, error)
+
+	ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
+		[]*userModel.StudentDAO, error,
+	)
 }

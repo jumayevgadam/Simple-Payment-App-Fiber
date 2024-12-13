@@ -81,7 +81,7 @@ func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.Pa
 	[]*groupModel.DAO, error,
 ) {
 	var groupDAOs []*groupModel.DAO
-	offset := (pagination.Page - 1) * pagination.Limit
+	offset := (pagination.CurrentPage - 1) * pagination.Limit
 
 	if err := r.psqlDB.Select(
 		ctx,
@@ -127,4 +127,46 @@ func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.
 	}
 
 	return res, nil
+}
+
+// CountGroupsByFacultyID repo.
+func (r *GroupRepository) CountGroupsByFacultyID(ctx context.Context, facultyID int) (int, error) {
+	var totalGroupCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalGroupCount,
+		countGroupsByFacultyIDQuery,
+		facultyID,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalGroupCount, nil
+}
+
+func (r *GroupRepository) ListGroupsByFacultyID(ctx context.Context, facultyID int, paginationData abstract.PaginationData) (
+	[]*groupModel.DAO, error,
+) {
+	var groups []*groupModel.DAO
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&groups,
+		listGroupsByFacultyIDQuery,
+		facultyID,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return groups, nil
 }

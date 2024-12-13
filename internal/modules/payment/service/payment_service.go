@@ -46,20 +46,21 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 			return errlst.ParseErrors(err)
 		}
 
-		// save image dynamic folder using groupCode, name_surname
+		// save image.
 		checkPhotoURL, err := utils.SaveImage(
 			c, checkPhoto,
 			studentDataForPayment.FacultyName,
 			studentDataForPayment.GroupCode,
 			studentDataForPayment.FullName,
 			studentDataForPayment.Username,
+			request.PaymentType,
 		)
 
 		if err != nil {
 			return errlst.NewBadRequestError("can not save check photo that directory")
 		}
 
-		// save into payments table using studentID, courseYear, and return response
+		// save into payments table using studentID, courseYear, and return response.
 		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToPsqlDBStorage(studentID, checkPhotoURL))
 		if err != nil {
 			return errlst.ParseErrors(err)

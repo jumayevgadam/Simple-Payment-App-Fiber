@@ -47,7 +47,7 @@ func (r *RoleRepository) ListPermissions(ctx context.Context, paginationData abs
 	[]*permissionModel.PermissionData, error,
 ) {
 	var permissionDatas []*permissionModel.PermissionData
-	offset := (paginationData.Page - 1) * paginationData.Limit
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
 		ctx,

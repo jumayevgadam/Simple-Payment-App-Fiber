@@ -36,6 +36,7 @@ func (r *PaymentRepository) AddPayment(ctx context.Context, data *paymentModel.R
 		data.PaymentStatus,
 		data.CurrentPaidSum,
 		data.CheckPhoto,
+		data.TimeID,
 	).Scan(&paymentID)
 
 	if err != nil {

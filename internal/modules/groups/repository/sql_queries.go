@@ -41,4 +41,23 @@ const (
 			course_year = COALESCE(NULLIF($3, 0), course_year)
 		WHERE id = $4
 		RETURNING 'group ops successfully edited';`
+
+	// countGroupsByFacultyIDQuery is.
+	countGroupsByFacultyIDQuery = `
+		SELECT COUNT(faculty_id)
+		FROM groups
+		WHERE faculty_id = $1;`
+
+	// listGroupsByFacultyIDQuery is.
+	listGroupsByFacultyIDQuery = `
+		SELECT 
+			id,
+			faculty_id,
+			group_code,
+			course_year
+		FROM 
+			groups
+		WHERE 
+			faculty_id = $1
+		ORDER BY id DESC OFFSET $2 LIMIT $3;`
 )

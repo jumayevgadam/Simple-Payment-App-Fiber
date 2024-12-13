@@ -85,8 +85,9 @@ func (s *FacultyService) ListFaculties(ctx context.Context, pagination abstract.
 	)
 
 	facultyListResponse.Items = facultyList
-	facultyListResponse.Page = pagination.Page
-	facultyListResponse.Limit = len(facultyList)
+	facultyListResponse.CurrentPage = pagination.CurrentPage
+	facultyListResponse.Limit = pagination.Limit
+	facultyListResponse.ItemsInCurrentPage = len(facultyList)
 
 	return facultyListResponse, nil
 }

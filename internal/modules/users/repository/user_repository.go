@@ -148,7 +148,7 @@ func (r *UserRepository) ListAllUsers(ctx context.Context, paginationData abstra
 ) {
 	var allUsers []*userModel.AllUserDAO
 
-	offset := (paginationData.Page - 1) * paginationData.Limit
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
 		ctx,
@@ -185,7 +185,7 @@ func (r *UserRepository) ListStudents(ctx context.Context, paginationData abstra
 	[]*userModel.AllUserDAO, error,
 ) {
 	var students []*userModel.AllUserDAO
-	offset := (paginationData.Page - 1) * paginationData.Limit
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
 		ctx,
@@ -219,4 +219,45 @@ func (r *UserRepository) CountAllStudents(ctx context.Context) (int, error) {
 	}
 
 	return totalCountOfAllStudent, nil
+}
+
+func (r *UserRepository) CountStudentsByGroupID(ctx context.Context, groupID int) (int, error) {
+	var totalCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCount,
+		countAllStudentsByGroupIDQuery,
+		groupID,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
+}
+
+func (r *UserRepository) ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
+	[]*userModel.StudentDAO, error,
+) {
+	var students []*userModel.StudentDAO
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&students,
+		listStudentsByGroupIDQuery,
+		groupID,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return students, nil
 }

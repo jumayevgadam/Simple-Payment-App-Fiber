@@ -15,4 +15,6 @@ type Service interface {
 		abstract.PaginatedResponse[*groupModel.DTO], error)
 	DeleteGroup(ctx context.Context, groupID int) error
 	UpdateGroup(ctx context.Context, groupID int, updateInput *groupModel.UpdateGroupReq) (string, error)
+	ListGroupsByFacultyID(ctx context.Context, facultyID int, pagination abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*groupModel.DTO], error)
 }

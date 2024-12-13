@@ -9,4 +9,5 @@ type Handlers interface {
 	ListFaculties() fiber.Handler
 	DeleteFaculty() fiber.Handler
 	UpdateFaculty() fiber.Handler
+	ListGroupsByFacultyID() fiber.Handler
 }

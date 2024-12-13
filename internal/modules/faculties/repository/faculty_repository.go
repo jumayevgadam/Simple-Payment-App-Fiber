@@ -63,7 +63,7 @@ func (f *FacultyRepository) ListFaculties(ctx context.Context, paginationData ab
 	[]*facultyModel.DAO, error,
 ) {
 	var facultyDAOs []*facultyModel.DAO
-	offset := (paginationData.Page - 1) * paginationData.Limit
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	if err := f.psqlDB.Select(
 		ctx,
