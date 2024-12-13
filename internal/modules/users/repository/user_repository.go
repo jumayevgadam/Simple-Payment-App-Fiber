@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
@@ -40,7 +39,6 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRe
 		user.UserName,
 		user.Password,
 	).Scan(&userID); err != nil {
-		log.Println("[UserRepository][CreateUser]", err)
 		return -1, errlst.ParseSQLErrors(err)
 	}
 

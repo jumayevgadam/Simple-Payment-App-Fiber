@@ -30,11 +30,9 @@ func main() {
 	}
 
 	defer func() {
-		if psqlDB != nil {
-			err = psqlDB.Close()
-			if err != nil {
-				appLogger.Errorf("error closing database: %v", err.Error())
-			}
+		err := psqlDB.Close()
+		if err != nil {
+			appLogger.Errorf("error closing psqlDB: %v", err.Error())
 		}
 	}()
 

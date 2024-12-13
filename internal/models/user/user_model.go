@@ -8,12 +8,12 @@ type SignUpReq struct {
 	Surname  string `form:"surname" json:"surname" validate:"required"`
 	UserName string `form:"username" json:"username" validate:"required"`
 	Password string `form:"password" json:"password" validate:"required,min=6"`
-	GroupID  *int   `form:"group-id,omitempty"`
+	GroupID  *int   `form:"group-id" json:"groupID"`
 }
 
 // LoginRes model is db model.
 type SignUpRes struct {
-	RoleID   *int   `db:"role_id"`
+	RoleID   int    `db:"role_id"`
 	GroupID  *int   `db:"group_id"`
 	Name     string `db:"name"`
 	Surname  string `db:"surname"`
@@ -25,7 +25,7 @@ type SignUpRes struct {
 func (s *SignUpReq) ToStorage(roleID int) SignUpRes {
 	return SignUpRes{
 		GroupID:  s.GroupID,
-		RoleID:   &roleID,
+		RoleID:   roleID,
 		Name:     s.Name,
 		Surname:  s.Surname,
 		UserName: s.UserName,
