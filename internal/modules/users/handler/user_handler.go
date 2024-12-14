@@ -6,174 +6,156 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
-	userOps "github.com/jumayevgadam/tsu-toleg/internal/modules/users"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
-	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 )
 
-// Ensure UserHandler implements the userOps.Handler interface.
-var (
-	_ userOps.Handlers = (*UserHandler)(nil)
-)
+var _ users.Handlers = (*UserHandler)(nil)
 
-// UserHandler manages http request methods and calls methods from service and config.
 type UserHandler struct {
 	service services.DataService
 }
 
-// NewUserHandler creates and returns a new instance of UserHandler.
 func NewUserHandler(service services.DataService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-// Register handler creates a new user and returns id.
-func (h *UserHandler) Register() fiber.Handler {
+func (h *UserHandler) AddStudent() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var request userModel.SignUpReq
+		var request userModel.Request
 
 		err := reqvalidator.ReadRequest(c, &request)
 		if err != nil {
-			return errlst.Response(c, err)
+			return errlst.NewBadRequestError(err.Error())
 		}
 
-		userID, err := h.service.UserService().Register(c.Context(), request)
+		userID, err := h.service.UserService().AddStudent(c.Context(), request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(userID)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message":   "student successfully created",
+			"studentID": userID,
+		})
 	}
 }
 
-// Login handler method for login.
-func (h *UserHandler) Login() fiber.Handler {
+func (h *UserHandler) AddAdmin() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var loginReq userModel.LoginReq
+		var request userModel.AdminRequest
 
-		err := reqvalidator.ReadRequest(c, &loginReq)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		token, err := h.service.UserService().Login(c.Context(), loginReq)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON(token)
-	}
-}
-
-// ListUsers handler.
-func (h *UserHandler) ListUsers() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		role, ok := c.Locals("role_type").(string)
-		if !ok || role != constants.SuperAdmin {
-			return errlst.NewUnauthorizedError("only superadmin can see list of all users")
-		}
-
-		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		listOfUsers, err := h.service.UserService().ListAllUsers(c.Context(), paginationReq)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON(listOfUsers)
-	}
-}
-
-// DeleteUser handler.
-func (h *UserHandler) DeleteUser() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		role, ok := c.Locals("role_type").(string)
-		if !ok || role != constants.SuperAdmin {
-			return errlst.NewUnauthorizedError("only superadmin can delete user.")
-		}
-
-		userID, err := strconv.Atoi(c.Params("user_id"))
+		err := reqvalidator.ReadRequest(c, &request)
 		if err != nil {
 			return errlst.NewBadRequestError(err.Error())
 		}
 
-		err = h.service.UserService().DeleteUser(c.Context(), userID)
+		adminID, err := h.service.UserService().AddAdmin(c.Context(), request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON("user deleted successfully")
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "admin successfully created",
+			"adminID": adminID,
+		})
 	}
 }
 
-// UpdateUser handler.
-func (h *UserHandler) UpdateUser() fiber.Handler {
+func (h *UserHandler) ListAdmins() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role, ok := c.Locals("role_type").(string)
-		if !ok || role != constants.SuperAdmin {
-			return errlst.NewUnauthorizedError("only superadmin can update user details.")
-		}
-
-		userID, err := strconv.Atoi(c.Params("user_id"))
+		paginationQuery, err := abstract.GetPaginationFromFiberCtx(c)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.NewBadQueryParamsError(err.Error())
 		}
 
-		var updateReq userModel.UpdateUserDetails
-
-		err = reqvalidator.ReadRequest(c, &updateReq)
-		if err != nil {
-			noUpdateRes, err := updateReq.Validate()
-			if err == nil {
-				return c.Status(fiber.StatusOK).JSON(noUpdateRes)
-			}
-
-			return errlst.NewBadRequestError(err.Error())
-		}
-
-		err = h.service.UserService().UpdateUser(c.Context(), userID, &updateReq)
+		adminList, err := h.service.UserService().ListAdmins(c.Context(), paginationQuery)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON("successfully updated user details.")
+		return c.Status(fiber.StatusOK).JSON(adminList)
 	}
 }
 
-// GetUserByID handler.
-func (h *UserHandler) GetUserByID() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		userID, err := strconv.Atoi(c.Params("user_id"))
-		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
-		}
-
-		userRes, err := h.service.UserService().GetUserByID(c.Context(), userID)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON(userRes)
-	}
-}
-
-// ListStudents handler.
 func (h *UserHandler) ListStudents() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
+		paginationQuery, err := abstract.GetPaginationFromFiberCtx(c)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.NewBadQueryParamsError(err.Error())
 		}
 
-		listOfStudents, err := h.service.UserService().ListStudents(c.Context(), paginationReq)
+		studentList, err := h.service.UserService().ListStudents(c.Context(), paginationQuery)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(listOfStudents)
+		return c.Status(fiber.StatusOK).JSON(studentList)
+	}
+}
+
+func (h *UserHandler) GetAdmin() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		adminID, err := strconv.Atoi(c.Params("admin_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		admin, err := h.service.UserService().GetAdmin(c.Context(), adminID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(admin)
+	}
+}
+
+func (h *UserHandler) GetStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := strconv.Atoi(c.Params("student_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		student, err := h.service.UserService().GetStudent(c.Context(), studentID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(student)
+	}
+}
+
+func (h *UserHandler) DeleteAdmin() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		adminID, err := strconv.Atoi(c.Params("admin_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		err = h.service.UserService().DeleteAdmin(c.Context(), adminID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
+func (h *UserHandler) DeleteStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := strconv.Atoi(c.Params("student_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		err = h.service.UserService().DeleteStudent(c.Context(), studentID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
 	}
 }

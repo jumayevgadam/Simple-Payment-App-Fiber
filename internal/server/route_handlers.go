@@ -72,86 +72,51 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 			Handlers.RoleHandler().UpdateRole())
 	}
 
-	// InitPermissions
-	permissionGroup := v1.Group("/permissions")
-	{
-		permissionGroup.Post("/create",
-			Handlers.RoleHandler().AddPermission())
-
-		permissionGroup.Get("/",
-			Handlers.RoleHandler().ListPermissions())
-
-		permissionGroup.Get("/:id",
-			Handlers.RoleHandler().GetPermission())
-
-		permissionGroup.Delete("/:id",
-			Handlers.RoleHandler().DeletePermission())
-
-		permissionGroup.Put("/:id",
-			Handlers.RoleHandler().UpdatePermission())
-	}
-
-	// Init RolePermissions.
-	rolePermissionGroup := v1.Group("/role-permissions")
-	{
-		rolePermissionGroup.Post("/create",
-			Handlers.RoleHandler().AddRolePermission())
-
-		rolePermissionGroup.Get("/:role_id/permissions",
-			Handlers.RoleHandler().GetPermissionsByRole())
-
-		rolePermissionGroup.Get("/:permission_id/roles",
-			Handlers.RoleHandler().GetRolesByPermission())
-
-		rolePermissionGroup.Delete("/:role_id/and/:permission_id",
-			Handlers.RoleHandler().DeleteRolePermission())
-	}
-
 	// Init Users.
-	authGroup := v1.Group("/auth")
+	userGroup := v1.Group("/admin")
 	{
-		authGroup.Post("/register", Handlers.UserHandler().Register())
-		authGroup.Post("/login", Handlers.UserHandler().Login())
-	}
+		// ADMIN.
+		userGroup.Post("/create-student",
+			Handlers.UserHandler().AddStudent())
 
-	usersGroup := v1.Group("/users")
-	{
-		usersGroup.Get("/",
-			Handlers.UserHandler().ListUsers())
+		userGroup.Post("/create-admin",
+			Handlers.UserHandler().AddAdmin())
 
-		usersGroup.Get("/:user_id",
-			Handlers.UserHandler().GetUserByID())
+		userGroup.Get("/list-admins",
+			Handlers.UserHandler().ListAdmins())
 
-		usersGroup.Delete("/:user_id",
-			Handlers.UserHandler().DeleteUser())
-
-		usersGroup.Put("/:user_id",
-			Handlers.UserHandler().UpdateUser())
-	}
-
-	// Init Students.
-	studentGroup := v1.Group("/students")
-	{
-		studentGroup.Get("/",
+		userGroup.Get("/list-students",
 			Handlers.UserHandler().ListStudents())
+
+		userGroup.Get("get-admin/:admin_id",
+			Handlers.UserHandler().GetAdmin())
+
+		userGroup.Get("get-student/:student_id",
+			Handlers.UserHandler().GetStudent())
+
+		userGroup.Delete("delete-admin/:admin_id",
+			Handlers.UserHandler().DeleteAdmin())
+
+		userGroup.Delete("delete-student/:student_id",
+			Handlers.UserHandler().DeleteStudent())
 	}
 
 	// Init Faculties.
 	facultyGroup := v1.Group("/faculties")
 	{
-		facultyGroup.Post("/create", mdwManager.RoleBasedMiddleware(permission.CreateFaculty),
+		facultyGroup.Post("/create",
 			Handlers.FacultyHandler().AddFaculty())
 
-		facultyGroup.Get("/", mdwManager.RoleBasedMiddleware(permission.ListFaculties),
+		facultyGroup.Get("/",
 			Handlers.FacultyHandler().ListFaculties())
 
-		facultyGroup.Get("/:id", mdwManager.RoleBasedMiddleware(permission.GetFaculty),
+		facultyGroup.Get("/:id",
 			Handlers.FacultyHandler().GetFaculty())
 
-		facultyGroup.Delete("/:id", mdwManager.RoleBasedMiddleware(permission.DeleteFaculty),
+		facultyGroup.Delete("/:id",
 			Handlers.FacultyHandler().DeleteFaculty())
 
-		facultyGroup.Put("/:id", mdwManager.RoleBasedMiddleware(permission.UpdateFaculty),
+		facultyGroup.Put("/:id",
 			Handlers.FacultyHandler().UpdateFaculty())
 
 		facultyGroup.Get("/:faculty_id/groups",
@@ -161,23 +126,20 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init Groups.
 	groupPath := v1.Group("/groups")
 	{
-		groupPath.Post("/create", mdwManager.RoleBasedMiddleware(permission.CreateGroup),
+		groupPath.Post("/create",
 			Handlers.GroupHandler().AddGroup())
 
-		groupPath.Get("/", mdwManager.RoleBasedMiddleware(permission.ListGroups),
+		groupPath.Get("/",
 			Handlers.GroupHandler().ListGroups())
 
-		groupPath.Get("/:id", mdwManager.RoleBasedMiddleware(permission.GetGroup),
+		groupPath.Get("/:id",
 			Handlers.GroupHandler().GetGroup())
 
-		groupPath.Delete("/:id", mdwManager.RoleBasedMiddleware(permission.DeleteGroup),
+		groupPath.Delete("/:id",
 			Handlers.GroupHandler().DeleteGroup())
 
-		groupPath.Put("/:id", mdwManager.RoleBasedMiddleware(permission.UpdateGroup),
+		groupPath.Put("/:id",
 			Handlers.GroupHandler().UpdateGroup())
-
-		groupPath.Get("/:group_id/students", mdwManager.RoleBasedMiddleware(permission.ListStudentsByGroupID),
-			Handlers.GroupHandler().ListStudentsByGroupID())
 	}
 
 	// Init Payments.

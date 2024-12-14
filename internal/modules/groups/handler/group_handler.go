@@ -148,24 +148,3 @@ func (h *GroupHandler) ListGroupsByFacultyID() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(groupListResponse)
 	}
 }
-
-func (h *GroupHandler) ListStudentsByGroupID() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		groupID, err := strconv.Atoi(c.Params("group_id"))
-		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
-		}
-
-		paginationQuery, err := abstract.GetPaginationFromFiberCtx(c)
-		if err != nil {
-			return errlst.NewBadQueryParamsError(err.Error())
-		}
-
-		students, err := h.service.UserService().ListStudentsByGroupID(c.Context(), groupID, paginationQuery)
-		if err != nil {
-			return errlst.Response(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON(students)
-	}
-}

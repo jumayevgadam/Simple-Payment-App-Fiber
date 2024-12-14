@@ -10,149 +10,67 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
-// Ensure UserRepository implements the users.Repository interface.
-var (
-	_ users.Repository = (*UserRepository)(nil)
-)
+var _ users.Repository = (*UserRepository)(nil)
 
-// UserRepository manages database methods for users.
 type UserRepository struct {
 	psqlDB connection.DB
 }
 
-// NewUserRepository creates and returns a new instance of UserRepository.
 func NewUserRepository(psqlDB connection.DB) *UserRepository {
 	return &UserRepository{psqlDB: psqlDB}
 }
 
-// CreateUser repo insert user data into db and returns id.
-func (r *UserRepository) CreateUser(ctx context.Context, user userModel.SignUpRes) (int, error) {
+func (r *UserRepository) AddStudent(ctx context.Context, res userModel.Response) (int, error) {
 	var userID int
 
-	if err := r.psqlDB.QueryRow(
+	err := r.psqlDB.QueryRow(
 		ctx,
-		createUserQuery,
-		user.RoleID,
-		user.GroupID,
-		user.Name,
-		user.Surname,
-		user.UserName,
-		user.Password,
-	).Scan(&userID); err != nil {
+		addStudentQuery,
+		res.RoleID,
+		res.GroupID,
+		res.Name,
+		res.Surname,
+		res.Username,
+		res.Password,
+	).Scan(&userID)
+
+	if err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
 
 	return userID, nil
 }
 
-// GetUserByID repo method fetches user by its id.
-func (r *UserRepository) GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDAO, error) {
-	var userAllDAO userModel.AllUserDAO
+func (r *UserRepository) AddAdmin(ctx context.Context, res userModel.AdminResponse) (int, error) {
+	var adminID int
 
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&userAllDAO,
-		getUserByIDQuery,
-		userID,
-	)
-
-	if err != nil {
-		return nil, errlst.ParseSQLErrors(err)
-	}
-
-	return &userAllDAO, nil
-}
-
-// GetUserByUsername fetches user by using identified username.
-func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*userModel.Details, error) {
-	var details userModel.Details
-
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&details,
-		getDetailsByUsernameQuery,
-		username,
-	)
-	if err != nil {
-		return nil, errlst.ParseSQLErrors(err)
-	}
-
-	return &details, nil
-}
-
-// GetStudentDetailsForPayment repository method for Payment.
-func (r *UserRepository) GetStudentDetailsForPayment(ctx context.Context, studentID int) (
-	*userModel.StudentInfoData, error,
-) {
-	var studentInfo userModel.StudentInfoData
-
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&studentInfo,
-		getStudentInfoDetailsQuery,
-		studentID,
-	)
-	if err != nil {
-		return nil, errlst.ParseSQLErrors(err)
-	}
-
-	return &studentInfo, nil
-}
-
-// CountAllUsers repo.
-func (r *UserRepository) CountAllUsers(ctx context.Context) (int, error) {
-	var totalCountOfAllUser int
-
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&totalCountOfAllUser,
-		totalCountOfAllUserQuery,
-	)
-
-	if err != nil {
-		return 0, errlst.ParseSQLErrors(err)
-	}
-
-	return totalCountOfAllUser, nil
-}
-
-// UpdateUser repo.
-func (r *UserRepository) UpdateUser(ctx context.Context, userID int, updateRes *userModel.UpdateUserDetailsData) error {
 	err := r.psqlDB.QueryRow(
 		ctx,
-		updateUserDetailsQuery,
-		updateRes.RoleID,
-		updateRes.GroupID,
-		updateRes.Name,
-		updateRes.Surname,
-		updateRes.Username,
-		userID,
-	).Scan(nil)
+		addAdminQuery,
+		res.Name,
+		res.Surname,
+		res.Username,
+		res.Password,
+	).Scan(&adminID)
 
 	if err != nil {
-		return errlst.ParseSQLErrors(err)
+		return -1, errlst.ParseSQLErrors(err)
 	}
 
-	return nil
+	return adminID, nil
 }
 
-// CountAllUsers repo.
-func (r *UserRepository) ListAllUsers(ctx context.Context, paginationData abstract.PaginationData) (
-	[]*userModel.AllUserDAO, error,
+func (r *UserRepository) ListAdmins(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*userModel.AdminData, error,
 ) {
-	var allUsers []*userModel.AllUserDAO
-
+	var adminDatas []*userModel.AdminData
 	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
 		ctx,
 		r.psqlDB,
-		&allUsers,
-		listAllUsersQuery,
+		&adminDatas,
+		listAdminsQuery,
 		offset,
 		paginationData.Limit,
 	)
@@ -161,73 +79,17 @@ func (r *UserRepository) ListAllUsers(ctx context.Context, paginationData abstra
 		return nil, errlst.ParseSQLErrors(err)
 	}
 
-	return allUsers, nil
+	return adminDatas, nil
 }
 
-// DeleteUser repo.
-func (r *UserRepository) DeleteUser(ctx context.Context, userID int) error {
-	_, err := r.psqlDB.Exec(
-		ctx,
-		deleteUserQuery,
-		userID,
-	)
-
-	if err != nil {
-		return errlst.ParseSQLErrors(err)
-	}
-
-	return nil
-}
-
-func (r *UserRepository) ListStudents(ctx context.Context, paginationData abstract.PaginationData) (
-	[]*userModel.AllUserDAO, error,
-) {
-	var students []*userModel.AllUserDAO
-	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
-
-	err := r.psqlDB.Select(
-		ctx,
-		r.psqlDB,
-		&students,
-		listAllStudentsQuery,
-		offset,
-		paginationData.Limit,
-	)
-
-	if err != nil {
-		return nil, errlst.ParseSQLErrors(err)
-	}
-
-	return students, nil
-}
-
-// CountAllStudents repo.
-func (r *UserRepository) CountAllStudents(ctx context.Context) (int, error) {
-	var totalCountOfAllStudent int
-
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&totalCountOfAllStudent,
-		countAllStudentsQuery,
-	)
-
-	if err != nil {
-		return 0, errlst.ParseSQLErrors(err)
-	}
-
-	return totalCountOfAllStudent, nil
-}
-
-func (r *UserRepository) CountStudentsByGroupID(ctx context.Context, groupID int) (int, error) {
+func (r *UserRepository) CountAdmins(ctx context.Context) (int, error) {
 	var totalCount int
 
 	err := r.psqlDB.Get(
 		ctx,
 		r.psqlDB,
 		&totalCount,
-		countAllStudentsByGroupIDQuery,
-		groupID,
+		totalAdminCountQuery,
 	)
 
 	if err != nil {
@@ -237,18 +99,34 @@ func (r *UserRepository) CountStudentsByGroupID(ctx context.Context, groupID int
 	return totalCount, nil
 }
 
-func (r *UserRepository) ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
-	[]*userModel.StudentDAO, error,
+func (r *UserRepository) CountStudents(ctx context.Context) (int, error) {
+	var totalCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCount,
+		totalStudentCountQuery,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
+}
+
+func (r *UserRepository) ListStudents(ctx context.Context, paginationData abstract.PaginationData) (
+	[]*userModel.StudentData, error,
 ) {
-	var students []*userModel.StudentDAO
+	var studentDatas []*userModel.StudentData
 	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
 		ctx,
 		r.psqlDB,
-		&students,
-		listStudentsByGroupIDQuery,
-		groupID,
+		&studentDatas,
+		listStudentsQuery,
 		offset,
 		paginationData.Limit,
 	)
@@ -257,5 +135,77 @@ func (r *UserRepository) ListStudentsByGroupID(ctx context.Context, groupID int,
 		return nil, errlst.ParseSQLErrors(err)
 	}
 
-	return students, nil
+	return studentDatas, nil
+}
+
+func (r *UserRepository) GetAdmin(ctx context.Context, adminID int) (*userModel.AdminData, error) {
+	var adminData userModel.AdminData
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&adminData,
+		getAdminQuery,
+		adminID,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return &adminData, nil
+}
+
+func (r *UserRepository) GetStudent(ctx context.Context, studentID int) (*userModel.StudentData, error) {
+	var studentData userModel.StudentData
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&studentData,
+		getStudentQuery,
+		studentID,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return &studentData, nil
+}
+
+func (r *UserRepository) DeleteAdmin(ctx context.Context, adminID int) error {
+	result, err := r.psqlDB.Exec(
+		ctx,
+		deleteAdminQuery,
+		adminID,
+	)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.NewNotFoundError("[userRepository][DeleteAdmin]: admin not found")
+	}
+
+	return nil
+}
+
+func (r *UserRepository) DeleteStudent(ctx context.Context, studentID int) error {
+	result, err := r.psqlDB.Exec(
+		ctx,
+		deleteStudentQuery,
+		studentID,
+	)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.NewNotFoundError("[userRepository][DeleteStudent]: student not found")
+	}
+
+	return nil
 }

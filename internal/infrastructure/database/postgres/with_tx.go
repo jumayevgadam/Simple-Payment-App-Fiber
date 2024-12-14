@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
 
@@ -19,7 +19,7 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 		return errlst.ErrTypeAssertInTransaction
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, constants.TransactionTimeOut)
 	defer cancel()
 
 	// begin transaction in this place.

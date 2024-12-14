@@ -3,9 +3,26 @@ package repository
 import (
 	"context"
 
+	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	roleModel "github.com/jumayevgadam/tsu-toleg/internal/models/role"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
+
+// Ensures RoleRepository implements the roles.Repository interface.
+var (
+	_ roles.Repository = (*RoleRepository)(nil)
+)
+
+// RoleRepository handles database operations related to roles.
+type RoleRepository struct {
+	psqlDB connection.DB
+}
+
+// NewRoleRepository creates and returns a new instance of RoleRepository.
+func NewRoleRepository(psqlDB connection.DB) *RoleRepository {
+	return &RoleRepository{psqlDB: psqlDB}
+}
 
 // AddRole method inserts a new role into the database.
 func (r *RoleRepository) AddRole(ctx context.Context, roleDAO roleModel.DAO) (int, error) {

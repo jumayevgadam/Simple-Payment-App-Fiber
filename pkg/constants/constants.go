@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 const (
 	// when user sign-up to application, it's default roleID is 3.
 	DefaultRoleID = 3
@@ -27,4 +29,7 @@ const (
 
 	// ZeroSevenFiveFive.
 	ZeroSevenFiveFive = 0755
+
+	// TransactionTimeOut.
+	TransactionTimeOut = 15 * time.Second
 )

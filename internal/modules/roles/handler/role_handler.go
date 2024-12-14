@@ -4,10 +4,27 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	roleModel "github.com/jumayevgadam/tsu-toleg/internal/models/role"
+	roleOps "github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 )
+
+// Ensuring RoleHandler implements methods of roleOps.Handlers.
+var (
+	_ roleOps.Handlers = (*RoleHandler)(nil)
+)
+
+// RoleHandler is for calling methods from service.
+type RoleHandler struct {
+	service services.DataService
+}
+
+// NewRoleHandler creates and returns a new instance of RoleHandler.
+func NewRoleHandler(service services.DataService) *RoleHandler {
+	return &RoleHandler{service: service}
+}
 
 // AddRole handleris method adds a new role to the system and returns the created role's id.
 func (h *RoleHandler) AddRole() fiber.Handler {

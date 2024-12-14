@@ -14,7 +14,7 @@ type DataService interface {
 	RoleService() roles.Service
 	FacultyService() faculties.Service
 	GroupService() groups.Service
-	UserService() users.Service
 	PaymentService() payment.Service
+	UserService() users.Service
 	TimeService() times.Service
 }

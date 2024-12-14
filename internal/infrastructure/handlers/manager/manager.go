@@ -14,7 +14,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	timeHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/times/handler"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
-	userHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/users/handler"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/users/handler"
 )
 
 // Ensuring handlers.DataHandlers implements HandlerManager.
@@ -24,9 +24,9 @@ type HandlerManager struct {
 	role    roles.Handlers
 	faculty faculties.Handlers
 	group   groups.Handlers
-	user    users.Handlers
 	payment payment.Handlers
 	time    times.Handlers
+	user    users.Handlers
 }
 
 // NewHandlerManager creates and returns a new instance of HandlerManager.
@@ -35,9 +35,9 @@ func NewHandlerManager(service services.DataService) handlers.DataHandlers {
 		role:    roleHandler.NewRoleHandler(service),
 		faculty: facultyHandler.NewFacultyHandler(service),
 		group:   groupHandler.NewGroupHandler(service),
-		user:    userHandler.NewUserHandler(service),
 		payment: paymentHandler.NewPaymentHandler(service),
 		time:    timeHandler.NewTimeHandler(service),
+		user:    handler.NewUserHandler(service),
 	}
 }
 
@@ -53,14 +53,14 @@ func (hm *HandlerManager) GroupHandler() groups.Handlers {
 	return hm.group
 }
 
-func (hm *HandlerManager) UserHandler() users.Handlers {
-	return hm.user
-}
-
 func (hm *HandlerManager) PaymentHandler() payment.Handlers {
 	return hm.payment
 }
 
 func (hm *HandlerManager) TimeHandler() times.Handlers {
 	return hm.time
+}
+
+func (hm *HandlerManager) UserHandler() users.Handlers {
+	return hm.user
 }

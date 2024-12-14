@@ -14,7 +14,7 @@ type DataHandlers interface {
 	RoleHandler() roles.Handlers
 	FacultyHandler() faculties.Handlers
 	GroupHandler() groups.Handlers
-	UserHandler() users.Handlers
 	PaymentHandler() payment.Handlers
 	TimeHandler() times.Handlers
+	UserHandler() users.Handlers
 }

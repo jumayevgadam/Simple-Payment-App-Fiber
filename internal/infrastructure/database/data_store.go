@@ -17,7 +17,7 @@ type DataStore interface {
 	RolesRepo() roles.Repository
 	FacultiesRepo() faculties.Repository
 	GroupsRepo() groups.Repository
-	UsersRepo() users.Repository
 	PaymentsRepo() payment.Repository
+	UsersRepo() users.Repository
 	TimesRepo() times.Repository
 }

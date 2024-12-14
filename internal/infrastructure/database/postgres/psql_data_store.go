@@ -16,7 +16,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	timeRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/times/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
-	userRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
 )
 
 // Ensure DataStoreImpl implements the database.DataStore interface.
@@ -31,10 +31,10 @@ type DataStoreImpl struct {
 	facultyInit sync.Once
 	group       groups.Repository
 	groupInit   sync.Once
-	user        users.Repository
-	userInit    sync.Once
 	payment     payment.Repository
 	paymentInit sync.Once
+	user        users.Repository
+	userInit    sync.Once
 	time        times.Repository
 	timeInit    sync.Once
 }
@@ -73,15 +73,6 @@ func (d *DataStoreImpl) GroupsRepo() groups.Repository {
 	return d.group
 }
 
-// UsersRepo method needs performing general repo methods for users.
-func (d *DataStoreImpl) UsersRepo() users.Repository {
-	d.userInit.Do(func() {
-		d.user = userRepository.NewUserRepository(d.db)
-	})
-
-	return d.user
-}
-
 // PaymentsRepo method needs performing general repo methods for payments.
 func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
 	d.paymentInit.Do(func() {
@@ -89,6 +80,14 @@ func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
 	})
 
 	return d.payment
+}
+
+func (d *DataStoreImpl) UsersRepo() users.Repository {
+	d.userInit.Do(func() {
+		d.user = repository.NewUserRepository(d.db)
+	})
+
+	return d.user
 }
 
 func (d *DataStoreImpl) TimesRepo() times.Repository {

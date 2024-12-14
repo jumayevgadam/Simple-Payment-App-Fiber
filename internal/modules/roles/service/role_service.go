@@ -5,8 +5,24 @@ import (
 
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	roleModel "github.com/jumayevgadam/tsu-toleg/internal/models/role"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
+
+// Ensure RoleService implements the roles.Service interface.
+var (
+	_ roles.Service = (*RoleService)(nil)
+)
+
+// RoleService performs buisiness logic in role management.
+type RoleService struct {
+	repo database.DataStore
+}
+
+// NewRoleService creates and returns a new instance of RoleService.
+func NewRoleService(repo database.DataStore) *RoleService {
+	return &RoleService{repo: repo}
+}
 
 // AddRole service processes the request to create a new role and saves it to the database.
 func (s *RoleService) AddRole(ctx context.Context, roleDTO roleModel.DTO) (int, error) {

@@ -7,22 +7,22 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 )
 
-// Service interface for performing actions in this layer.
 type Service interface {
-	Register(ctx context.Context, req userModel.SignUpReq) (int, error)
-	Login(ctx context.Context, loginReq userModel.LoginReq) (string, error)
-	GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDTO, error)
-
-	UpdateUser(ctx context.Context, userID int, updateReq *userModel.UpdateUserDetails) error
-	DeleteUser(ctx context.Context, userID int) error
-
-	ListAllUsers(ctx context.Context, pagination abstract.PaginationQuery) (
-		abstract.PaginatedResponse[*userModel.AllUserDTO], error)
-
-	ListStudents(ctx context.Context, pagination abstract.PaginationQuery) (
-		abstract.PaginatedResponse[*userModel.AllUserDTO], error)
-
-	ListStudentsByGroupID(ctx context.Context, groupID int, paginationReq abstract.PaginationQuery) (
-		abstract.PaginatedResponse[*userModel.StudentDTO], error,
+	// ADMIN.
+	AddAdmin(ctx context.Context, request userModel.AdminRequest) (int, error)
+	GetAdmin(ctx context.Context, adminID int) (*userModel.Admin, error)
+	DeleteAdmin(ctx context.Context, adminID int) error
+	ListAdmins(ctx context.Context, paginationQuery abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*userModel.Admin], error,
 	)
+
+	AddStudent(ctx context.Context, request userModel.Request) (int, error)
+	GetStudent(ctx context.Context, studentID int) (*userModel.Student, error)
+	DeleteStudent(ctx context.Context, studentID int) error
+	ListStudents(ctx context.Context, paginationQuery abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*userModel.Student], error,
+	)
+
+	// STUDENT.
+
 }

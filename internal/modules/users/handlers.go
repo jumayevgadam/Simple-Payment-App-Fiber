@@ -2,15 +2,17 @@ package users
 
 import "github.com/gofiber/fiber/v2"
 
-// Handlers interface for performing users operations.
+// Handlers interface for users.
 type Handlers interface {
-	Register() fiber.Handler
-	Login() fiber.Handler
-	ListUsers() fiber.Handler
-	DeleteUser() fiber.Handler
-	UpdateUser() fiber.Handler
-	GetUserByID() fiber.Handler
+	// Admin.
+	AddAdmin() fiber.Handler
+	GetAdmin() fiber.Handler
+	ListAdmins() fiber.Handler
+	DeleteAdmin() fiber.Handler
 
+	AddStudent() fiber.Handler
+	GetStudent() fiber.Handler
 	ListStudents() fiber.Handler
-	// ListStudentsByFaculty() fiber.Handler
+	DeleteStudent() fiber.Handler
+	// Student.
 }

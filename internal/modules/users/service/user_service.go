@@ -8,37 +8,30 @@ import (
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
-	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 	"github.com/samber/lo"
 )
 
-// Ensure UserService implements the users.Service interface.
-var (
-	_ users.Service = (*UserService)(nil)
-)
+var _ users.Service = (*UserService)(nil)
 
-// UserService manages buisiness logic for modules/user part of application.
 type UserService struct {
 	mw   *middleware.Manager
 	repo database.DataStore
 }
 
-// NewUserService creates and returns a new instance of UserRepository.
 func NewUserService(mw *middleware.Manager, repo database.DataStore) *UserService {
 	return &UserService{mw: mw, repo: repo}
 }
 
-// CreateUser service insert a user into db and returns its id.
-func (s *UserService) Register(ctx context.Context, request userModel.SignUpReq) (int, error) {
+func (s *UserService) AddStudent(ctx context.Context, request userModel.Request) (int, error) {
 	hashedPass, err := utils.HashPassword(request.Password)
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
 	}
 	request.Password = hashedPass
 
-	userID, err := s.repo.UsersRepo().CreateUser(ctx, request.ToStorage(constants.DefaultRoleID))
+	userID, err := s.repo.UsersRepo().AddStudent(ctx, request.ToPsqlDBStorage())
 	if err != nil {
 		return -1, errlst.ParseErrors(err)
 	}
@@ -46,162 +39,40 @@ func (s *UserService) Register(ctx context.Context, request userModel.SignUpReq)
 	return userID, nil
 }
 
-// Login service for login.
-func (s *UserService) Login(ctx context.Context, loginReq userModel.LoginReq) (string, error) {
-	var (
-		token string
-		err   error
-	)
-
-	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		// get user details by username.
-		user, err := db.UsersRepo().GetUserByUsername(ctx, loginReq.Username)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// Compare passwords.
-		err = utils.CheckAndComparePassword(loginReq.Password, user.Password)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// getRole by roleID.
-		roleDAO, err := db.RolesRepo().GetRole(ctx, user.RoleID)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// getPermissions for that roleID.
-		permissions, err := db.RolesRepo().GetPermissionsByRoleID(ctx, user.RoleID)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		// token generate.
-		token, err = s.mw.GenerateToken(user.ID, user.RoleID, user.Username, roleDAO.RoleName, permissions)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		return nil
-	})
+func (s *UserService) AddAdmin(ctx context.Context, request userModel.AdminRequest) (int, error) {
+	hashedPass, err := utils.HashPassword(request.Password)
 	if err != nil {
-		return "", errlst.ParseErrors(err)
+		return -1, errlst.NewBadRequestError(err.Error())
+	}
+	request.Password = hashedPass
+
+	adminID, err := s.repo.UsersRepo().AddAdmin(ctx, request.ToPsqlDBStorage())
+	if err != nil {
+		return -1, errlst.ParseErrors(err)
 	}
 
-	return token, nil
+	return adminID, nil
 }
 
-// GetUserByID service.
-func (s *UserService) GetUserByID(ctx context.Context, userID int) (*userModel.AllUserDTO, error) {
-	userRes, err := s.repo.UsersRepo().GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, errlst.ParseErrors(err)
-	}
-
-	return userRes.ToServer(), nil
-}
-
-// ChangeRoleOfUser service.
-func (s *UserService) UpdateUser(ctx context.Context, userID int, updateReq *userModel.UpdateUserDetails) error {
-	err := s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		_, err := db.UsersRepo().GetUserByID(ctx, userID)
-		if err != nil {
-			return errlst.NewNotFoundError(errlst.ErrNoSuchUser)
-		}
-
-		err = db.UsersRepo().UpdateUser(ctx, userID, updateReq.ToPsqlDBStorage())
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return errlst.ParseErrors(err)
-	}
-
-	return nil
-}
-
-// ListUsers service.
-func (s *UserService) ListAllUsers(ctx context.Context, paginationRequest abstract.PaginationQuery) (
-	abstract.PaginatedResponse[*userModel.AllUserDTO], error,
+func (s *UserService) ListAdmins(ctx context.Context, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.Admin], error,
 ) {
 	var (
-		dataAllOfUsers    []*userModel.AllUserDAO
-		usersListResponse abstract.PaginatedResponse[*userModel.AllUserDTO]
-		totalUsersCount   int
+		allAdminData      []*userModel.AdminData
+		adminListResponse abstract.PaginatedResponse[*userModel.Admin]
+		totalAdminCount   int
 		err               error
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		totalUsersCount, err = db.UsersRepo().CountAllUsers(ctx)
+		totalAdminCount, err = db.UsersRepo().CountAdmins(ctx)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		usersListResponse.TotalItems = totalUsersCount
+		adminListResponse.TotalItems = totalAdminCount
 
-		dataAllOfUsers, err = db.UsersRepo().ListAllUsers(ctx, paginationRequest.ToPsqlDBStorage())
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return abstract.PaginatedResponse[*userModel.AllUserDTO]{}, errlst.ParseErrors(err)
-	}
-
-	usersList := lo.Map(
-		dataAllOfUsers,
-		func(item *userModel.AllUserDAO, _ int) *userModel.AllUserDTO {
-			return item.ToServer()
-		},
-	)
-
-	usersListResponse.Items = usersList
-	usersListResponse.CurrentPage = paginationRequest.CurrentPage
-	usersListResponse.Limit = paginationRequest.Limit
-	usersListResponse.ItemsInCurrentPage = len(usersList)
-
-	return usersListResponse, nil
-}
-
-// DeleteUser service.
-func (s *UserService) DeleteUser(ctx context.Context, userID int) error {
-	err := s.repo.UsersRepo().DeleteUser(ctx, userID)
-	if err != nil {
-		return errlst.ParseErrors(err)
-	}
-
-	return nil
-}
-
-// ListStudents service.
-func (s *UserService) ListStudents(ctx context.Context, paginationRequest abstract.PaginationQuery) (
-	abstract.PaginatedResponse[*userModel.AllUserDTO], error,
-) {
-	var (
-		studentAllData      []*userModel.AllUserDAO
-		studentListResponse abstract.PaginatedResponse[*userModel.AllUserDTO]
-		totalStudentsCount  int
-		err                 error
-	)
-
-	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		totalStudentsCount, err = db.UsersRepo().CountAllStudents(ctx)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		studentListResponse.TotalItems = totalStudentsCount
-
-		studentAllData, err = db.UsersRepo().ListStudents(ctx, paginationRequest.ToPsqlDBStorage())
+		allAdminData, err = db.UsersRepo().ListAdmins(ctx, paginationQuery.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -210,43 +81,43 @@ func (s *UserService) ListStudents(ctx context.Context, paginationRequest abstra
 	})
 
 	if err != nil {
-		return abstract.PaginatedResponse[*userModel.AllUserDTO]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedResponse[*userModel.Admin]{}, errlst.ParseErrors(err)
 	}
 
-	studentList := lo.Map(
-		studentAllData,
-		func(item *userModel.AllUserDAO, _ int) *userModel.AllUserDTO {
+	adminList := lo.Map(
+		allAdminData,
+		func(item *userModel.AdminData, _ int) *userModel.Admin {
 			return item.ToServer()
 		},
 	)
 
-	studentListResponse.Items = studentList
-	studentListResponse.CurrentPage = paginationRequest.CurrentPage
-	studentListResponse.Limit = paginationRequest.Limit
-	studentListResponse.ItemsInCurrentPage = len(studentList)
+	adminListResponse.Items = adminList
+	adminListResponse.CurrentPage = paginationQuery.CurrentPage
+	adminListResponse.Limit = paginationQuery.Limit
+	adminListResponse.ItemsInCurrentPage = len(adminList)
 
-	return studentListResponse, nil
+	return adminListResponse, nil
 }
 
-func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, paginationQuery abstract.PaginationQuery) (
-	abstract.PaginatedResponse[*userModel.StudentDTO], error,
+func (s *UserService) ListStudents(ctx context.Context, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.Student], error,
 ) {
 	var (
-		studentAllData      []*userModel.StudentDAO
-		studentListResponse abstract.PaginatedResponse[*userModel.StudentDTO]
+		allStudentData      []*userModel.StudentData
+		studentListResponse abstract.PaginatedResponse[*userModel.Student]
 		totalStudentCount   int
 		err                 error
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		totalStudentCount, err = db.UsersRepo().CountStudentsByGroupID(ctx, groupID)
+		totalStudentCount, err = db.UsersRepo().CountStudents(ctx)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
 		studentListResponse.TotalItems = totalStudentCount
 
-		studentAllData, err = db.UsersRepo().ListStudentsByGroupID(ctx, groupID, paginationQuery.ToPsqlDBStorage())
+		allStudentData, err = db.UsersRepo().ListStudents(ctx, paginationQuery.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -255,12 +126,12 @@ func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, pa
 	})
 
 	if err != nil {
-		return abstract.PaginatedResponse[*userModel.StudentDTO]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedResponse[*userModel.Student]{}, errlst.ParseErrors(err)
 	}
 
 	studentList := lo.Map(
-		studentAllData,
-		func(item *userModel.StudentDAO, _ int) *userModel.StudentDTO {
+		allStudentData,
+		func(item *userModel.StudentData, _ int) *userModel.Student {
 			return item.ToServer()
 		},
 	)
@@ -271,4 +142,30 @@ func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, pa
 	studentListResponse.ItemsInCurrentPage = len(studentList)
 
 	return studentListResponse, nil
+}
+
+func (s *UserService) GetAdmin(ctx context.Context, adminID int) (*userModel.Admin, error) {
+	adminData, err := s.repo.UsersRepo().GetAdmin(ctx, adminID)
+	if err != nil {
+		return nil, errlst.ParseErrors(err)
+	}
+
+	return adminData.ToServer(), nil
+}
+
+func (s *UserService) GetStudent(ctx context.Context, studentID int) (*userModel.Student, error) {
+	studentData, err := s.repo.UsersRepo().GetStudent(ctx, studentID)
+	if err != nil {
+		return nil, errlst.ParseErrors(err)
+	}
+
+	return studentData.ToServer(), nil
+}
+
+func (s *UserService) DeleteAdmin(ctx context.Context, adminID int) error {
+	return s.repo.UsersRepo().DeleteAdmin(ctx, adminID)
+}
+
+func (s *UserService) DeleteStudent(ctx context.Context, studentID int) error {
+	return s.repo.UsersRepo().DeleteStudent(ctx, studentID)
 }

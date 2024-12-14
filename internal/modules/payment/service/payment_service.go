@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 	"mime/multipart"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,7 +10,6 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
-	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 	"github.com/samber/lo"
 )
 
@@ -41,33 +39,6 @@ func (p *PaymentService) AddPayment(c *fiber.Ctx, studentID int, checkPhoto *mul
 
 	// perform adding payment with transaction.
 	err = p.repo.WithTransaction(c.Context(), func(db database.DataStore) error {
-		// get name, surname, courseYear and groupCode using studentID.
-		studentDataForPayment, err := db.UsersRepo().GetStudentDetailsForPayment(c.Context(), studentID)
-		if err != nil {
-			log.Println(err)
-			return errlst.ParseErrors(err)
-		}
-
-		// save image.
-		checkPhotoURL, err := utils.SaveImage(
-			c, checkPhoto,
-			studentDataForPayment.FacultyName,
-			studentDataForPayment.GroupCode,
-			studentDataForPayment.FullName,
-			studentDataForPayment.Username,
-			request.PaymentType,
-		)
-
-		if err != nil {
-			return errlst.NewBadRequestError("can not save check photo that directory")
-		}
-
-		// save into payments table using studentID, courseYear, and return response.
-		paymentID, err = db.PaymentsRepo().AddPayment(c.Context(), request.ToPsqlDBStorage(studentID, checkPhotoURL))
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
 		return nil
 	})
 	if err != nil {
