@@ -4,6 +4,20 @@ const limitOffSet = ` ORDER BY id DESC OFFSET $1 LIMIT $2;`
 
 const limitOffSetTwo = ` ORDER BY id DESC OFFSET $2 LIMIT $3;`
 
+// AUTH.
+const (
+	loginUserCheckWithQuery = `
+		SELECT 
+			u.id AS id,
+			u.role_id AS role_id,
+			r.role AS role_type,
+			u.username AS username,
+			u.password AS password
+		FROM users AS u 
+		INNER JOIN roles AS r ON r.id = u.role_id
+		WHERE u.username = $1;`
+)
+
 // ADMIN.
 const (
 	addStudentQuery = `
@@ -133,4 +147,25 @@ const (
 		SELECT COUNT(group_id)
 		FROM users
 		WHERE group_id = $1 AND role_id = 3;`
+
+	updateAdminQuery = `
+		UPDATE users
+		SET name = COALESCE(NULLIF($1, ''), name),
+			surname = COALESCE(NULLIF($2, ''), surname), 
+			username = COALESCE(NULLIF($3, ''), username),
+			password = COALESCE(NULLIF($4, ''), password),
+			updated_at = NOW()
+		WHERE id = $5 AND role_id = 2
+		RETURNING 'admin updated successfully';`
+
+	updateStudentQuery = `
+		UPDATE users
+		SET group_id = COALESCE(NULLIF($1, 0), group_id),
+			name = COALESCE(NULLIF($2, ''), name),
+			surname = COALESCE(NULLIF($3, ''), surname),
+			username = COALESCE(NULLIF($4, ''), username),
+			password = COALESCE(NULLIF($5, ''), password),
+			updated_at = NOW()
+		WHERE id = $6 AND role_id = 3
+		RETURNING 'student successfully updated';`
 )

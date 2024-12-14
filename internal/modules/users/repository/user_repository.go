@@ -20,6 +20,24 @@ func NewUserRepository(psqlDB connection.DB) *UserRepository {
 	return &UserRepository{psqlDB: psqlDB}
 }
 
+func (r *UserRepository) Login(ctx context.Context, username string) (userModel.LoginResponseData, error) {
+	var loginResponseData userModel.LoginResponseData
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&loginResponseData,
+		loginUserCheckWithQuery,
+		username,
+	)
+
+	if err != nil {
+		return userModel.LoginResponseData{}, errlst.ParseSQLErrors(err)
+	}
+
+	return loginResponseData, nil
+}
+
 func (r *UserRepository) AddStudent(ctx context.Context, res userModel.Response) (int, error) {
 	var userID int
 
@@ -249,4 +267,45 @@ func (r *UserRepository) ListStudentsByGroupID(ctx context.Context, groupID int,
 	}
 
 	return studentDataByGroupID, nil
+}
+
+func (r *UserRepository) UpdateAdmin(ctx context.Context, updateData userModel.AdminUpdateData) (string, error) {
+	var updateRes string
+
+	err := r.psqlDB.QueryRow(
+		ctx,
+		updateAdminQuery,
+		updateData.Name,
+		updateData.Surname,
+		updateData.UserName,
+		updateData.Password,
+		updateData.ID,
+	).Scan(&updateRes)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return updateRes, nil
+}
+
+func (r *UserRepository) UpdateStudent(ctx context.Context, updateData userModel.StudentUpdateData) (string, error) {
+	var updateRes string
+
+	err := r.psqlDB.QueryRow(
+		ctx,
+		updateStudentQuery,
+		updateData.GroupID,
+		updateData.Name,
+		updateData.Surname,
+		updateData.Username,
+		updateData.Password,
+		updateData.StudentID,
+	).Scan(&updateRes)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return updateRes, nil
 }

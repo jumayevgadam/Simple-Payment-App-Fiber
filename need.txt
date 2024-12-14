@@ -1,0 +1,10 @@
+Summary of Endpoints
+Endpoint	Description
+GET /faculties	Get all faculties.
+GET /faculties/:faculty_id/groups	Get groups in a faculty.
+GET /groups/:group_id/students	Get students in a group.
+GET /students/:student_id/payments	Get payments of a student.
+
+// superadmin
+username: hypergadam
+password: qverty0386

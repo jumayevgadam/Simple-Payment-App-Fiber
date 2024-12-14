@@ -8,6 +8,7 @@ import (
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 	"github.com/samber/lo"
@@ -22,6 +23,32 @@ type UserService struct {
 
 func NewUserService(mw *middleware.Manager, repo database.DataStore) *UserService {
 	return &UserService{mw: mw, repo: repo}
+}
+
+func (s *UserService) Login(ctx context.Context, loginRequest userModel.LoginRequest) (
+	userModel.LoginResponseWithToken, error,
+) {
+	userDetails, err := s.repo.UsersRepo().Login(ctx, loginRequest.Username)
+	if err != nil {
+		return userModel.LoginResponseWithToken{}, errlst.ParseErrors(err)
+	}
+
+	err = utils.CheckAndComparePassword(loginRequest.Password, userDetails.Password)
+	if err != nil {
+		return userModel.LoginResponseWithToken{}, errlst.ParseErrors(err)
+	}
+
+	token, err := s.mw.GenerateToken(userDetails.UserID, userDetails.RoleID, userDetails.Username, userDetails.RoleType)
+	if err != nil {
+		return userModel.LoginResponseWithToken{}, errlst.ParseErrors(err)
+	}
+
+	resp := userModel.LoginResponseWithToken{
+		LoginResponse: userDetails.ToServer(),
+		Token:         token,
+	}
+
+	return resp, nil
 }
 
 func (s *UserService) AddStudent(ctx context.Context, request userModel.Request) (int, error) {
@@ -218,4 +245,84 @@ func (s *UserService) DeleteAdmin(ctx context.Context, adminID int) error {
 
 func (s *UserService) DeleteStudent(ctx context.Context, studentID int) error {
 	return s.repo.UsersRepo().DeleteStudent(ctx, studentID)
+}
+
+func (s *UserService) UpdateAdmin(ctx context.Context, adminID int, updateRequest userModel.AdminUpdateRequest) (string, error) {
+	var (
+		updateRes string
+		err       error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		_, err = db.UsersRepo().GetAdmin(ctx, adminID)
+		if err != nil {
+			return errlst.NewNotFoundError("[userService][UpdateAdmin]: admin not found for updating")
+		}
+
+		if updateRequest.Password != "" {
+			if len(updateRequest.Password) < constants.MinPasswordLength {
+				return errlst.NewBadRequestError(constants.ErrMinPasswordLength)
+			}
+
+			hashedPass, err := utils.HashPassword(updateRequest.Password)
+			if err != nil {
+				return errlst.NewBadRequestError(err.Error())
+			}
+
+			updateRequest.Password = hashedPass
+		}
+
+		updateRes, err = db.UsersRepo().UpdateAdmin(ctx, updateRequest.ToPsqlDBStorage(adminID))
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", errlst.ParseErrors(err)
+	}
+
+	return updateRes, nil
+}
+
+func (s *UserService) UpdateStudent(ctx context.Context, studentID int, updateRequest userModel.StudentUpdateRequest) (string, error) {
+	var (
+		updateRes string
+		err       error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		_, err = db.UsersRepo().GetStudent(ctx, studentID)
+		if err != nil {
+			return errlst.NewNotFoundError("[userService][UpdateStudent]: student not found for updating")
+		}
+
+		if updateRequest.Password != "" {
+			if len(updateRequest.Password) < constants.MinPasswordLength {
+				return errlst.NewBadRequestError(constants.ErrMinPasswordLength)
+			}
+
+			hashedPass, err := utils.HashPassword(updateRequest.Password)
+			if err != nil {
+				return errlst.ParseErrors(err)
+			}
+
+			updateRequest.Password = hashedPass
+		}
+
+		updateRes, err = db.UsersRepo().UpdateStudent(ctx, updateRequest.ToPsqlDBStorage(studentID))
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", errlst.ParseErrors(err)
+	}
+
+	return updateRes, nil
 }

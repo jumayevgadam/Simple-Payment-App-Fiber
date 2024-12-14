@@ -1,6 +1,10 @@
 package user
 
-import "time"
+import (
+	"time"
+
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
+)
 
 // Request model.
 type Request struct {
@@ -106,4 +110,40 @@ func (s *StudentDataByGroupID) ToServer() *StudentResGroupID {
 		CreatedAt: s.CreatedAt,
 		UpdatedAt: s.UpdatedAt,
 	}
+}
+
+type StudentUpdateRequest struct {
+	GroupID  int    `form:"groupID"`
+	Name     string `form:"name"`
+	Surname  string `form:"surname"`
+	Username string `form:"username"`
+	Password string `form:"password"`
+}
+
+type StudentUpdateData struct {
+	StudentID int    `db:"id"`
+	GroupID   int    `db:"group_id"`
+	Name      string `db:"name"`
+	Surname   string `db:"surname"`
+	Username  string `db:"username"`
+	Password  string `db:"password"`
+}
+
+func (s *StudentUpdateRequest) ToPsqlDBStorage(studentID int) StudentUpdateData {
+	return StudentUpdateData{
+		StudentID: studentID,
+		GroupID:   s.GroupID,
+		Name:      s.Name,
+		Surname:   s.Surname,
+		Username:  s.Username,
+		Password:  s.Password,
+	}
+}
+
+func (s *StudentUpdateRequest) Validate() (string, error) {
+	if s.GroupID == 0 && s.Name == "" && s.Surname == "" && s.Username == "" && s.Password == "" {
+		return constants.NoUpdateResponse, nil
+	}
+
+	return "", nil
 }

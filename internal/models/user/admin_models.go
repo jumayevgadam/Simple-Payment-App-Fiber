@@ -1,6 +1,10 @@
 package user
 
-import "time"
+import (
+	"time"
+
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
+)
 
 // AdminRequest model.
 type AdminRequest struct {
@@ -64,4 +68,38 @@ func (a *AdminData) ToServer() *Admin {
 		CreatedAt: a.CreatedAt,
 		UpdatedAt: a.UpdatedAt,
 	}
+}
+
+// AdminUpdateRequest model.
+type AdminUpdateRequest struct {
+	Name     string `form:"name"`
+	Surname  string `form:"surname"`
+	Username string `form:"username"`
+	Password string `form:"password"`
+}
+
+type AdminUpdateData struct {
+	ID       int    `db:"id"`
+	Name     string `db:"name"`
+	Surname  string `db:"surname"`
+	UserName string `db:"username"`
+	Password string `db:"password"`
+}
+
+func (a *AdminUpdateRequest) ToPsqlDBStorage(adminID int) AdminUpdateData {
+	return AdminUpdateData{
+		ID:       adminID,
+		Name:     a.Name,
+		Surname:  a.Surname,
+		UserName: a.Username,
+		Password: a.Password,
+	}
+}
+
+func (a *AdminUpdateRequest) Validate() (string, error) {
+	if a.Name == "" && a.Username == "" && a.Surname == "" && a.Password == "" {
+		return constants.NoUpdateResponse, nil
+	}
+
+	return "", nil
 }

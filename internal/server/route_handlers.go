@@ -13,7 +13,6 @@ import (
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
-	"github.com/jumayevgadam/tsu-toleg/internal/middleware/permission"
 )
 
 const v1URL = "/api/v1"
@@ -53,6 +52,11 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init Handlers.
 	Handlers := handlerManager.NewHandlerManager(Services)
 
+	authPath := v1.Group("/auth")
+	{
+		authPath.Post("/login", Handlers.UserHandler().Login())
+	}
+
 	// Init Users.
 	adminPath := v1.Group("/admin")
 	{
@@ -80,6 +84,12 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 
 		adminPath.Delete("delete-student/:student_id",
 			Handlers.UserHandler().DeleteStudent())
+
+		adminPath.Put("/update-admin/:admin_id",
+			Handlers.UserHandler().UpdateAdmin())
+
+		adminPath.Put("/update-student/:student_id",
+			Handlers.UserHandler().UpdateStudent())
 
 		// Init Roles.
 		roleGroup := adminPath.Group("/roles")
@@ -147,7 +157,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		// Init Times.
 		timePath := adminPath.Group("/times")
 		{
-			timePath.Post("/create", mdwManager.RoleBasedMiddleware(permission.AddTime),
+			timePath.Post("/create",
 				Handlers.TimeHandler().AddTime())
 		}
 	}

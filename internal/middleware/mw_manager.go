@@ -16,7 +16,7 @@ var _ TokenGeneratorOps = (*Manager)(nil)
 
 // TokenGeneratorOps interface for generating tokens.
 type TokenGeneratorOps interface {
-	GenerateToken(userID, roleID int, username, rolename string, permissions []string) (string, error)
+	GenerateToken(userID, roleID int, username, rolename string) (string, error)
 	ParseToken(accessToken string) (*token.AccessTokenClaims, error)
 }
 
@@ -32,13 +32,12 @@ func NewMiddlewareManager(cfg *config.Config, logger logger.Logger) *Manager {
 }
 
 // GenerateAccessToken method for creating access token.
-func (mw *Manager) GenerateToken(userID, roleID int, username, role string, permissions []string) (string, error) {
+func (mw *Manager) GenerateToken(userID, roleID int, username, role string) (string, error) {
 	accessTokenclaims := token.AccessTokenClaims{
-		ID:          userID,
-		RoleID:      roleID,
-		UserName:    username,
-		Role:        role,
-		Permissions: permissions,
+		ID:       userID,
+		RoleID:   roleID,
+		UserName: username,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(constants.TokenExpiryTime * time.Hour)),
 		},

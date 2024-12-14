@@ -32,4 +32,10 @@ const (
 
 	// TransactionTimeOut.
 	TransactionTimeOut = 15 * time.Second
+
+	// MinPassword.
+	MinPasswordLength = 6
+
+	// ErrMinPasswordLength.
+	ErrMinPasswordLength = "updated password must have at least 6 symbol"
 )

@@ -22,6 +22,24 @@ func NewUserHandler(service services.DataService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
+func (h *UserHandler) Login() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var loginRequest userModel.LoginRequest
+
+		err := reqvalidator.ReadRequest(c, &loginRequest)
+		if err != nil {
+			return errlst.NewBadRequestError(err.Error())
+		}
+
+		loginResponse, err := h.service.UserService().Login(c.Context(), loginRequest)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(loginResponse)
+	}
+}
+
 func (h *UserHandler) AddStudent() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var request userModel.Request
@@ -157,5 +175,65 @@ func (h *UserHandler) DeleteStudent() fiber.Handler {
 		}
 
 		return c.SendStatus(fiber.StatusNoContent)
+	}
+}
+
+func (h *UserHandler) UpdateAdmin() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		adminID, err := strconv.Atoi(c.Params("admin_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
+		var updateRequest userModel.AdminUpdateRequest
+
+		err = reqvalidator.ReadRequest(c, &updateRequest)
+		if err != nil {
+			res, err := updateRequest.Validate()
+			if err == nil {
+				return c.Status(fiber.StatusOK).JSON(res)
+			}
+
+			return errlst.Response(c, err)
+		}
+
+		updateResponse, err := h.service.UserService().UpdateAdmin(c.Context(), adminID, updateRequest)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": updateResponse,
+		})
+	}
+}
+
+func (h *UserHandler) UpdateStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := strconv.Atoi(c.Params("student_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		var updateRequest userModel.StudentUpdateRequest
+
+		err = reqvalidator.ReadRequest(c, &updateRequest)
+		if err != nil {
+			res, err := updateRequest.Validate()
+			if err == nil {
+				return c.Status(fiber.StatusOK).JSON(res)
+			}
+
+			return errlst.Response(c, err)
+		}
+
+		updateResponse, err := h.service.UserService().UpdateStudent(c.Context(), studentID, updateRequest)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": updateResponse,
+		})
 	}
 }
