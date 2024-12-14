@@ -72,3 +72,38 @@ func (s *StudentData) ToServer() *Student {
 		UpdatedAt: s.UpdatedAt,
 	}
 }
+
+type StudentDataByGroupID struct {
+	ID        int       `db:"id"`
+	RoleID    int       `db:"role_id"`
+	GroupID   int       `db:"group_id"`
+	FullName  string    `db:"full_name"`
+	Username  string    `db:"username"`
+	Password  string    `db:"password"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+type StudentResGroupID struct {
+	ID        int       `json:"id"`
+	RoleID    int       `json:"roleID"`
+	GroupID   int       `json:"groupID"`
+	FullName  string    `json:"fullName"`
+	Username  string    `json:"username"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (s *StudentDataByGroupID) ToServer() *StudentResGroupID {
+	return &StudentResGroupID{
+		ID:        s.ID,
+		RoleID:    s.RoleID,
+		GroupID:   s.GroupID,
+		FullName:  s.FullName,
+		Username:  s.Username,
+		Password:  s.Password,
+		CreatedAt: s.CreatedAt,
+		UpdatedAt: s.UpdatedAt,
+	}
+}

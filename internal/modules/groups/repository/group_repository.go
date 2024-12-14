@@ -99,13 +99,18 @@ func (r *GroupRepository) ListGroups(ctx context.Context, pagination abstract.Pa
 
 // DeleteGroup repo deletes a group from db using identified id.
 func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
-	_, err := r.psqlDB.Exec(
+	result, err := r.psqlDB.Exec(
 		ctx,
 		deleteGroupQuery,
 		groupID,
 	)
+
 	if err != nil {
 		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.NewNotFoundError("[groupRepository][DeleteGroup]: group not found")
 	}
 
 	return nil

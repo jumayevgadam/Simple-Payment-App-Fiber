@@ -40,7 +40,10 @@ func (h *FacultyHandler) AddFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(resID)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message":   "faculty successfully created",
+			"facultyID": resID,
+		})
 	}
 }
 

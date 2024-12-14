@@ -162,6 +162,56 @@ func (s *UserService) GetStudent(ctx context.Context, studentID int) (*userModel
 	return studentData.ToServer(), nil
 }
 
+func (s *UserService) ListStudentsByGroupID(ctx context.Context, groupID int, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.StudentResGroupID], error,
+) {
+	var (
+		allStudentDataByGroupID      []*userModel.StudentDataByGroupID
+		studentListResponseByGroupID abstract.PaginatedResponse[*userModel.StudentResGroupID]
+		totalStudentCountByGroupID   int
+		err                          error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		_, err = db.GroupsRepo().GetGroup(ctx, groupID)
+		if err != nil {
+			return errlst.NewNotFoundError("[userService][ListStudentsByGroupID]: group not found")
+		}
+
+		totalStudentCountByGroupID, err = db.UsersRepo().CountStudentsByGroupID(ctx, groupID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentListResponseByGroupID.TotalItems = totalStudentCountByGroupID
+
+		allStudentDataByGroupID, err = db.UsersRepo().ListStudentsByGroupID(ctx, groupID, paginationQuery.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*userModel.StudentResGroupID]{}, errlst.ParseErrors(err)
+	}
+
+	studentListResponse := lo.Map(
+		allStudentDataByGroupID,
+		func(item *userModel.StudentDataByGroupID, _ int) *userModel.StudentResGroupID {
+			return item.ToServer()
+		},
+	)
+
+	studentListResponseByGroupID.Items = studentListResponse
+	studentListResponseByGroupID.CurrentPage = paginationQuery.CurrentPage
+	studentListResponseByGroupID.Limit = paginationQuery.Limit
+	studentListResponseByGroupID.ItemsInCurrentPage = len(studentListResponse)
+
+	return studentListResponseByGroupID, nil
+}
+
 func (s *UserService) DeleteAdmin(ctx context.Context, adminID int) error {
 	return s.repo.UsersRepo().DeleteAdmin(ctx, adminID)
 }

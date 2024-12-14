@@ -22,6 +22,9 @@ type Service interface {
 	ListStudents(ctx context.Context, paginationQuery abstract.PaginationQuery) (
 		abstract.PaginatedResponse[*userModel.Student], error,
 	)
+	ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*userModel.StudentResGroupID], error,
+	)
 
 	// STUDENT.
 

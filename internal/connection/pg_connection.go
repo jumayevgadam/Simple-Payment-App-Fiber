@@ -3,6 +3,7 @@ package connection
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"time"
 
@@ -40,7 +41,7 @@ type DB interface {
 type DBOps interface {
 	DB
 	Begin(ctx context.Context, txOps pgx.TxOptions) (TxOps, error)
-	Close() error
+	Close()
 }
 
 // Database struct performs database logic using pgxpool.Pool.
@@ -48,7 +49,7 @@ type Database struct {
 	Db *pgxpool.Pool
 }
 
-// GetDBConnectionWithRetry attempts to connect to the database with retries.
+// GetDBConnectionWithRetry attempts to connect to the database with retries and fails immediately after 3 attempts.
 func GetDBConnection(ctx context.Context, cfg config.PostgresDB) (*Database, error) {
 	const (
 		retryAttempts = 3
@@ -58,16 +59,23 @@ func GetDBConnection(ctx context.Context, cfg config.PostgresDB) (*Database, err
 	var db *pgxpool.Pool
 	var err error
 
+	// Retry connection attempts
 	for i := 0; i < retryAttempts; i++ {
 		db, err = connectToDB(ctx, cfg)
 		if err == nil {
+			// Successful connection.
 			return &Database{Db: db}, nil
 		}
 
+		// Log and retry on failure
 		fmt.Printf("Attempt %d/%d failed: %v. Retrying in %s...\n", i+1, retryAttempts, err, retryDelay)
 		time.Sleep(retryDelay)
 	}
 
+	// After 3 failed attempts, log the error and immediately fatal the application.
+	log.Fatalf("Failed to connect to database after %d attempts: %v. Exiting...\n", retryAttempts, err)
+
+	// Return error after fatal
 	return nil, fmt.Errorf("failed to connect to database after %d attempts: %w", retryAttempts, err)
 }
 
@@ -83,19 +91,23 @@ func connectToDB(ctx context.Context, cfg config.PostgresDB) (*pgxpool.Pool, err
 		cfg.SslMode,
 	)
 
+	// Parse the connection string to create a pgxpool configuration
 	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		return nil, fmt.Errorf("parsing connection config: %w", err)
 	}
 
-	config.MaxConns = 200
-	config.MinConns = 10
+	// Configure the connection pool settings
+	config.MaxConns = 200 // Max number of connections
+	config.MinConns = 10  // Min number of connections
 
+	// Create a new connection pool
 	db, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("creating connection pool: %w", err)
 	}
 
+	// Ping the database to verify the connection
 	if err := db.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("pinging database: %w", err)
 	}
@@ -143,8 +155,6 @@ func (d *Database) Begin(ctx context.Context, txOpts pgx.TxOptions) (TxOps, erro
 }
 
 // Close closes the database connection pool.
-func (d *Database) Close() error {
+func (d *Database) Close() {
 	d.Db.Close()
-
-	return nil
 }

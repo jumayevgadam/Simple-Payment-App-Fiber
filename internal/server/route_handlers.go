@@ -53,114 +53,108 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	// Init Handlers.
 	Handlers := handlerManager.NewHandlerManager(Services)
 
-	// Init Roles.
-	roleGroup := v1.Group("/roles")
-	{
-		roleGroup.Post("/create",
-			Handlers.RoleHandler().AddRole())
-
-		roleGroup.Get("/",
-			Handlers.RoleHandler().GetRoles())
-
-		roleGroup.Get("/:id",
-			Handlers.RoleHandler().GetRole())
-
-		roleGroup.Delete("/:id",
-			Handlers.RoleHandler().DeleteRole())
-
-		roleGroup.Put("/:id",
-			Handlers.RoleHandler().UpdateRole())
-	}
-
 	// Init Users.
-	userGroup := v1.Group("/admin")
+	adminPath := v1.Group("/admin")
 	{
 		// ADMIN.
-		userGroup.Post("/create-student",
+		adminPath.Post("/create-student",
 			Handlers.UserHandler().AddStudent())
 
-		userGroup.Post("/create-admin",
+		adminPath.Post("/create-admin",
 			Handlers.UserHandler().AddAdmin())
 
-		userGroup.Get("/list-admins",
+		adminPath.Get("/list-admins",
 			Handlers.UserHandler().ListAdmins())
 
-		userGroup.Get("/list-students",
+		adminPath.Get("/list-students",
 			Handlers.UserHandler().ListStudents())
 
-		userGroup.Get("get-admin/:admin_id",
+		adminPath.Get("get-admin/:admin_id",
 			Handlers.UserHandler().GetAdmin())
 
-		userGroup.Get("get-student/:student_id",
+		adminPath.Get("get-student/:student_id",
 			Handlers.UserHandler().GetStudent())
 
-		userGroup.Delete("delete-admin/:admin_id",
+		adminPath.Delete("delete-admin/:admin_id",
 			Handlers.UserHandler().DeleteAdmin())
 
-		userGroup.Delete("delete-student/:student_id",
+		adminPath.Delete("delete-student/:student_id",
 			Handlers.UserHandler().DeleteStudent())
+
+		// Init Roles.
+		roleGroup := adminPath.Group("/roles")
+		{
+			roleGroup.Post("/create",
+				Handlers.RoleHandler().AddRole())
+
+			roleGroup.Get("/",
+				Handlers.RoleHandler().GetRoles())
+
+			roleGroup.Get("/:id",
+				Handlers.RoleHandler().GetRole())
+
+			roleGroup.Delete("/:id",
+				Handlers.RoleHandler().DeleteRole())
+
+			roleGroup.Put("/:id",
+				Handlers.RoleHandler().UpdateRole())
+		}
+
+		// Init Faculties.
+		facultyGroup := adminPath.Group("/faculties")
+		{
+			facultyGroup.Post("/create",
+				Handlers.FacultyHandler().AddFaculty())
+
+			facultyGroup.Get("/",
+				Handlers.FacultyHandler().ListFaculties())
+
+			facultyGroup.Get("/:id",
+				Handlers.FacultyHandler().GetFaculty())
+
+			facultyGroup.Delete("/:id",
+				Handlers.FacultyHandler().DeleteFaculty())
+
+			facultyGroup.Put("/:id",
+				Handlers.FacultyHandler().UpdateFaculty())
+
+			facultyGroup.Get("/:faculty_id/groups",
+				Handlers.FacultyHandler().ListGroupsByFacultyID())
+		}
+
+		// Init Groups.
+		groupPath := adminPath.Group("/groups")
+		{
+			groupPath.Post("/create",
+				Handlers.GroupHandler().AddGroup())
+
+			groupPath.Get("/",
+				Handlers.GroupHandler().ListGroups())
+
+			groupPath.Get("/:id",
+				Handlers.GroupHandler().GetGroup())
+
+			groupPath.Delete("/:id",
+				Handlers.GroupHandler().DeleteGroup())
+
+			groupPath.Put("/:id",
+				Handlers.GroupHandler().UpdateGroup())
+
+			groupPath.Get("/:group_id/students",
+				Handlers.GroupHandler().ListStudentsByGroupID())
+		}
+
+		// Init Times.
+		timePath := adminPath.Group("/times")
+		{
+			timePath.Post("/create", mdwManager.RoleBasedMiddleware(permission.AddTime),
+				Handlers.TimeHandler().AddTime())
+		}
 	}
 
-	// Init Faculties.
-	facultyGroup := v1.Group("/faculties")
+	studentPath := v1.Group("/students")
 	{
-		facultyGroup.Post("/create",
-			Handlers.FacultyHandler().AddFaculty())
-
-		facultyGroup.Get("/",
-			Handlers.FacultyHandler().ListFaculties())
-
-		facultyGroup.Get("/:id",
-			Handlers.FacultyHandler().GetFaculty())
-
-		facultyGroup.Delete("/:id",
-			Handlers.FacultyHandler().DeleteFaculty())
-
-		facultyGroup.Put("/:id",
-			Handlers.FacultyHandler().UpdateFaculty())
-
-		facultyGroup.Get("/:faculty_id/groups",
-			Handlers.FacultyHandler().ListGroupsByFacultyID())
-	}
-
-	// Init Groups.
-	groupPath := v1.Group("/groups")
-	{
-		groupPath.Post("/create",
-			Handlers.GroupHandler().AddGroup())
-
-		groupPath.Get("/",
-			Handlers.GroupHandler().ListGroups())
-
-		groupPath.Get("/:id",
-			Handlers.GroupHandler().GetGroup())
-
-		groupPath.Delete("/:id",
-			Handlers.GroupHandler().DeleteGroup())
-
-		groupPath.Put("/:id",
-			Handlers.GroupHandler().UpdateGroup())
-	}
-
-	// Init Payments.
-	paymentGroup := v1.Group("/payments")
-	{
-		paymentGroup.Post("/add", mdwManager.RoleBasedMiddleware(permission.AddPayment),
+		studentPath.Post("/add-payment",
 			Handlers.PaymentHandler().AddPayment())
-
-		paymentGroup.Get("/student", mdwManager.RoleBasedMiddleware(permission.StudentListPayments),
-			Handlers.PaymentHandler().StudentListPaymentsByStudentID())
-
-		paymentGroup.Get("/:payment_id",
-			Handlers.PaymentHandler().GetPaymentByID())
-
-		paymentGroup.Put("/:payment_id",
-			Handlers.PaymentHandler().ChangePaymentStatus())
-	}
-
-	timeGroup := v1.Group("/time")
-	{
-		timeGroup.Post("/add", mdwManager.RoleBasedMiddleware(permission.AddTime),
-			Handlers.TimeHandler().AddTime())
 	}
 }

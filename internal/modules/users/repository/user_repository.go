@@ -209,3 +209,44 @@ func (r *UserRepository) DeleteStudent(ctx context.Context, studentID int) error
 
 	return nil
 }
+
+func (r *UserRepository) CountStudentsByGroupID(ctx context.Context, groupID int) (int, error) {
+	var totalCount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&totalCount,
+		countStudentsByGroupIDQuery,
+		groupID,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalCount, nil
+}
+
+func (r *UserRepository) ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
+	[]*userModel.StudentDataByGroupID, error,
+) {
+	var studentDataByGroupID []*userModel.StudentDataByGroupID
+	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&studentDataByGroupID,
+		listStudentsByGroupIDQuery,
+		groupID,
+		offset,
+		paginationData.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return studentDataByGroupID, nil
+}

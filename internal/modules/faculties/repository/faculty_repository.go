@@ -98,13 +98,18 @@ func (f *FacultyRepository) CountFaculties(ctx context.Context) (int, error) {
 
 // DeleteFaculty repo deletes faculty from DB using identified faculty id.
 func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) error {
-	_, err := f.psqlDB.Exec(
+	result, err := f.psqlDB.Exec(
 		ctx,
 		deleteFacultyQuery,
 		facultyID,
 	)
+
 	if err != nil {
 		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.NewNotFoundError("[facultyRepository][DeleteFaculty]: faculty not found")
 	}
 
 	return nil

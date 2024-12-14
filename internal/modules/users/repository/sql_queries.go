@@ -2,6 +2,8 @@ package repository
 
 const limitOffSet = ` ORDER BY id DESC OFFSET $1 LIMIT $2;`
 
+const limitOffSetTwo = ` ORDER BY id DESC OFFSET $2 LIMIT $3;`
+
 // ADMIN.
 const (
 	addStudentQuery = `
@@ -113,4 +115,22 @@ const (
 	deleteStudentQuery = `
 		DELETE FROM users
 		WHERE id = $1 AND role_id = 3 AND group_id IS NOT NULL;`
+
+	listStudentsByGroupIDQuery = `
+		SELECT 
+			id,
+			role_id,
+			group_id,
+			CONCAT(name, ' ', surname) AS full_name,
+			username,
+			password,
+			created_at,
+			updated_at
+		FROM users
+		WHERE group_id = $1 AND role_id = 3` + limitOffSetTwo
+
+	countStudentsByGroupIDQuery = `
+		SELECT COUNT(group_id)
+		FROM users
+		WHERE group_id = $1 AND role_id = 3;`
 )

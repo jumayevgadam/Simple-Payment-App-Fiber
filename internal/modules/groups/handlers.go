@@ -9,4 +9,6 @@ type Handlers interface {
 	ListGroups() fiber.Handler
 	DeleteGroup() fiber.Handler
 	UpdateGroup() fiber.Handler
+
+	ListStudentsByGroupID() fiber.Handler
 }

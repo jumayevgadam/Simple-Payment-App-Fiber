@@ -147,6 +147,12 @@ func (s *GroupService) ListGroupsByFacultyID(ctx context.Context, facultyID int,
 	)
 
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		// check faculty that exist or not.
+		_, err = db.FacultiesRepo().GetFaculty(ctx, facultyID)
+		if err != nil {
+			return errlst.NewNotFoundError("[GroupService][ListGroupsByFacultyID]: faculty not found")
+		}
+
 		totalGroupCount, err = db.GroupsRepo().CountGroupsByFacultyID(ctx, facultyID)
 		if err != nil {
 			return errlst.ParseErrors(err)

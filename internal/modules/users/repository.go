@@ -19,7 +19,11 @@ type Repository interface {
 	GetStudent(ctx context.Context, studentID int) (*userModel.StudentData, error)
 	DeleteStudent(ctx context.Context, studentID int) error
 	CountStudents(ctx context.Context) (int, error)
+	CountStudentsByGroupID(ctx context.Context, groupID int) (int, error)
 	ListStudents(ctx context.Context, paginationData abstract.PaginationData) ([]*userModel.StudentData, error)
+	ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
+		[]*userModel.StudentDataByGroupID, error,
+	)
 
 	// STUDENT.
 }

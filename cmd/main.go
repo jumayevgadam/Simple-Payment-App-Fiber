@@ -30,10 +30,8 @@ func main() {
 	}
 
 	defer func() {
-		err := psqlDB.Close()
-		if err != nil {
-			appLogger.Errorf("error closing psqlDB: %v", err.Error())
-		}
+		psqlDB.Close()
+		appLogger.Info("database connections closed successfully")
 	}()
 
 	// INITIALIZE DATASTORE.
@@ -44,4 +42,6 @@ func main() {
 	if err := srv.Run(); err != nil {
 		appLogger.Errorf("error occured when running application")
 	}
+
+	appLogger.Info("Application terminated successfully")
 }
