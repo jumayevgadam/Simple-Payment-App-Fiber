@@ -7,14 +7,14 @@ import (
 	facultyHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/handler"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	groupHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/handler"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
-	paymentHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/handler"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
+	paymentHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/payments/handler"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	roleHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/handler"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	timeHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/times/handler"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/users/handler"
+	userHandler "github.com/jumayevgadam/tsu-toleg/internal/modules/users/handler"
 )
 
 // Ensuring handlers.DataHandlers implements HandlerManager.
@@ -24,9 +24,9 @@ type HandlerManager struct {
 	role    roles.Handlers
 	faculty faculties.Handlers
 	group   groups.Handlers
-	payment payment.Handlers
 	time    times.Handlers
 	user    users.Handlers
+	payment payments.Handlers
 }
 
 // NewHandlerManager creates and returns a new instance of HandlerManager.
@@ -35,9 +35,9 @@ func NewHandlerManager(service services.DataService) handlers.DataHandlers {
 		role:    roleHandler.NewRoleHandler(service),
 		faculty: facultyHandler.NewFacultyHandler(service),
 		group:   groupHandler.NewGroupHandler(service),
-		payment: paymentHandler.NewPaymentHandler(service),
 		time:    timeHandler.NewTimeHandler(service),
-		user:    handler.NewUserHandler(service),
+		user:    userHandler.NewUserHandler(service),
+		payment: paymentHandler.NewPaymentHandler(service),
 	}
 }
 
@@ -53,14 +53,14 @@ func (hm *HandlerManager) GroupHandler() groups.Handlers {
 	return hm.group
 }
 
-func (hm *HandlerManager) PaymentHandler() payment.Handlers {
-	return hm.payment
-}
-
 func (hm *HandlerManager) TimeHandler() times.Handlers {
 	return hm.time
 }
 
 func (hm *HandlerManager) UserHandler() users.Handlers {
 	return hm.user
+}
+
+func (hm *HandlerManager) PaymentHandler() payments.Handlers {
+	return hm.payment
 }

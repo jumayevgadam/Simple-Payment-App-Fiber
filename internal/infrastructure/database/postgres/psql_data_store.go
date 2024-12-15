@@ -9,14 +9,14 @@ import (
 	facultyRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	groupRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/repository"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
-	paymentRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/repository"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
+	paymentRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/payments/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	roleRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	timeRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/times/repository"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
+	userRepository "github.com/jumayevgadam/tsu-toleg/internal/modules/users/repository"
 )
 
 // Ensure DataStoreImpl implements the database.DataStore interface.
@@ -31,12 +31,12 @@ type DataStoreImpl struct {
 	facultyInit sync.Once
 	group       groups.Repository
 	groupInit   sync.Once
-	payment     payment.Repository
-	paymentInit sync.Once
 	user        users.Repository
 	userInit    sync.Once
 	time        times.Repository
 	timeInit    sync.Once
+	payment     payments.Repository
+	paymentInit sync.Once
 }
 
 // NewDataStore creates and returns a new instance of DataStore.
@@ -73,18 +73,9 @@ func (d *DataStoreImpl) GroupsRepo() groups.Repository {
 	return d.group
 }
 
-// PaymentsRepo method needs performing general repo methods for payments.
-func (d *DataStoreImpl) PaymentsRepo() payment.Repository {
-	d.paymentInit.Do(func() {
-		d.payment = paymentRepository.NewPaymentRepository(d.db)
-	})
-
-	return d.payment
-}
-
 func (d *DataStoreImpl) UsersRepo() users.Repository {
 	d.userInit.Do(func() {
-		d.user = repository.NewUserRepository(d.db)
+		d.user = userRepository.NewUserRepository(d.db)
 	})
 
 	return d.user
@@ -96,4 +87,12 @@ func (d *DataStoreImpl) TimesRepo() times.Repository {
 	})
 
 	return d.time
+}
+
+func (d *DataStoreImpl) PaymentRepo() payments.Repository {
+	d.paymentInit.Do(func() {
+		d.payment = paymentRepository.NewPaymentRepository(d.db)
+	})
+
+	return d.payment
 }

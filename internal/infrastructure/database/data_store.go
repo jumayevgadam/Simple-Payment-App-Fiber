@@ -5,7 +5,7 @@ import (
 
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/faculties"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/users"
@@ -17,7 +17,7 @@ type DataStore interface {
 	RolesRepo() roles.Repository
 	FacultiesRepo() faculties.Repository
 	GroupsRepo() groups.Repository
-	PaymentsRepo() payment.Repository
 	UsersRepo() users.Repository
 	TimesRepo() times.Repository
+	PaymentRepo() payments.Repository
 }

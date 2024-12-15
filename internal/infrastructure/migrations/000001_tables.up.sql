@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS payments (
     payment_type payment_type_enum NOT NULL,
     payment_status payment_status_enum NOT NULL DEFAULT 'In Progress',
     payment_amount INT NOT NULL,
-    check_photo VARCHAR(100) NOT NULL,
+    check_photo TEXT NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

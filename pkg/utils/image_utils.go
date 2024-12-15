@@ -34,46 +34,51 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 	// Base directory
 	basePath := "./internal/uploads"
 
+	// Create base directory with proper permissions
 	err := os.MkdirAll(basePath, constants.ZeroSevenFiveFive)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create base directory: %s", err.Error()))
 	}
 
-	// cleanedFileName removes free spaces in file.Filename and replace with '_'
+	// Clean input strings to avoid spaces or special characters
 	cleanedFileName := strings.ReplaceAll(file.Filename, " ", "_")
+	cleanedFacultyName := strings.ReplaceAll(facultyName, " ", "_")
 
-	// Build subdirectory path
-	subDir := fmt.Sprintf("%s/%s/%s", basePath, facultyName, groupCode)
+	// Construct subdirectory path (faculty name and group code)
+	subDir := fmt.Sprintf("%s/%s/%s", basePath, cleanedFacultyName, groupCode)
 
+	// Create the subdirectory
 	err = os.MkdirAll(subDir, constants.ZeroSevenFiveFive)
 	if err != nil {
-		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create group directory: %s", err.Error()))
+		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create subdirectory: %s", err.Error()))
 	}
 
-	// Final file path
+	// Final file path for saving
 	fileDstPath := fmt.Sprintf(
-		"%s/%s_%s_%s",
+		"%s/%s_%s_%s_%s%s",
 		subDir,
 		studentName,
 		username,
 		cleanedFileName,
+		semester,
+		filepath.Ext(file.Filename),
 	)
 
-	// Save the file
+	// Save the file to the constructed path
 	err = c.SaveFile(file, fileDstPath)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to save image to path %s: %s", fileDstPath, err.Error()))
 	}
 
-	// Return logical file identifier.
+	// Return a relative URL for the saved file
 	return fmt.Sprintf(
 		"%s/%s/%s_%s_%s_%s%s",
-		facultyName,
+		cleanedFacultyName,
 		groupCode,
 		studentName,
 		username,
-		groupCode,
+		cleanedFileName,
 		semester,
-		filepath.Ext(cleanedFileName),
+		filepath.Ext(file.Filename),
 	), nil
 }

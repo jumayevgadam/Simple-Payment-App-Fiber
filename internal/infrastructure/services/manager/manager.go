@@ -8,8 +8,8 @@ import (
 	facultyService "github.com/jumayevgadam/tsu-toleg/internal/modules/faculties/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/groups"
 	groupService "github.com/jumayevgadam/tsu-toleg/internal/modules/groups/service"
-	"github.com/jumayevgadam/tsu-toleg/internal/modules/payment"
-	paymentService "github.com/jumayevgadam/tsu-toleg/internal/modules/payment/service"
+	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
+	paymentService "github.com/jumayevgadam/tsu-toleg/internal/modules/payments/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/roles"
 	roleService "github.com/jumayevgadam/tsu-toleg/internal/modules/roles/service"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/times"
@@ -25,9 +25,9 @@ type ServiceManager struct {
 	role    roles.Service
 	faculty faculties.Service
 	group   groups.Service
-	payment payment.Service
 	time    times.Service
 	user    users.Service
+	payment payments.Service
 }
 
 // NewServiceManager creates and returns a new instance of ServiceManager.
@@ -36,9 +36,9 @@ func NewServiceManager(dataStore database.DataStore, mw *middleware.Manager) ser
 		role:    roleService.NewRoleService(dataStore),
 		faculty: facultyService.NewFacultyService(dataStore),
 		group:   groupService.NewGroupService(dataStore),
-		payment: paymentService.NewPaymentService(dataStore),
 		time:    timeService.NewTimeService(dataStore),
 		user:    userService.NewUserService(mw, dataStore),
+		payment: paymentService.NewPaymentService(dataStore),
 	}
 }
 
@@ -56,14 +56,14 @@ func (sm *ServiceManager) GroupService() groups.Service {
 	return sm.group
 }
 
-func (sm *ServiceManager) PaymentService() payment.Service {
-	return sm.payment
-}
-
 func (sm *ServiceManager) TimeService() times.Service {
 	return sm.time
 }
 
 func (sm *ServiceManager) UserService() users.Service {
 	return sm.user
+}
+
+func (sm *ServiceManager) PaymentService() payments.Service {
+	return sm.payment
 }

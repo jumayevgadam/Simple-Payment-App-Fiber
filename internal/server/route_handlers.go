@@ -5,7 +5,6 @@ package server
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,12 +12,15 @@ import (
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 )
 
 const v1URL = "/api/v1"
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {
+	s.Fiber.Static("uploads", "./internal/uploads")
+
 	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":   "pong",
@@ -30,15 +32,6 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		fmt.Println("Request Path:", c.Path())
 		return c.Next()
 	})
-
-	// Serve files dynamically based on the faculty and group structure.
-	uploadsPath, err := filepath.Abs("./internal/uploads")
-	if err != nil {
-		s.Logger.Fatalf("Failed to resolve uploads path: %v", err)
-	}
-
-	// Init Static Route.
-	s.Fiber.Static("/uploads", uploadsPath)
 
 	// Init MiddlewareManager.
 	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)
@@ -58,7 +51,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	}
 
 	// Init Users.
-	adminPath := v1.Group("/admin")
+	adminPath := v1.Group("/admin", mdwManager.RoleBasedMiddleware("admin", 2))
 	{
 		// ADMIN.
 		adminPath.Post("/create-student",
@@ -160,11 +153,19 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 			timePath.Post("/create",
 				Handlers.TimeHandler().AddTime())
 		}
+
+		// Init Payments.
+		paymentPath := adminPath.Group("/student-payments")
+		{
+			paymentPath.Get("/:student_id", Handlers.PaymentHandler().AdminListPaymentsByStudent())
+		}
 	}
 
-	studentPath := v1.Group("/students")
+	studentPath := v1.Group("/students", mdwManager.RoleBasedMiddleware(constants.Student, constants.DefaultRoleID))
 	{
-		studentPath.Post("/add-payment",
-			Handlers.PaymentHandler().AddPayment())
+		studentPath.Post("/add-payment", Handlers.PaymentHandler().AddPayment())
+		studentPath.Get("/list-payments", Handlers.PaymentHandler().ListPaymentsByStudent())
+		studentPath.Get("/get-payment/:payment_id", Handlers.PaymentHandler().GetPayment())
 	}
+
 }
