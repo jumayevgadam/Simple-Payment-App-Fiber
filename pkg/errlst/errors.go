@@ -30,6 +30,9 @@ var (
 	// ErrNotFound is returned when the requested resource could not be found in the system.
 	ErrNotFound = errors.New("not found")
 
+	// ErrFileNotFound is returned when the uploaded file not found.
+	ErrFileNotFound = errors.New("file not found")
+
 	// ErrConflict is used when there is a conflict with the current state of the system.
 	ErrConflict = errors.New("conflict occurred")
 

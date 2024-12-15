@@ -55,14 +55,31 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 	}
 }
 
-func (h *PaymentHandler) UpdatePayment() fiber.Handler {
+func (h *PaymentHandler) StudentUpdatePayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		_, err := middleware.GetStudentIDFromFiberContext(c)
+		studentID, err := middleware.GetStudentIDFromFiberContext(c)
 		if err != nil {
 			return errlst.NewUnauthorizedError(err)
 		}
 
-		return nil
+		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		var updateRequest paymentModel.UpdatePaymentRequest
+
+		err = reqvalidator.ReadRequest(c, &updateRequest)
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
+		res, err := h.service.PaymentService().StudentUpdatePayment(c, studentID, paymentID, updateRequest)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(res)
 	}
 }
 

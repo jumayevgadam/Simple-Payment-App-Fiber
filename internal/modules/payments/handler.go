@@ -4,7 +4,7 @@ import "github.com/gofiber/fiber/v2"
 
 type Handlers interface {
 	AddPayment() fiber.Handler
-	UpdatePayment() fiber.Handler
+	StudentUpdatePayment() fiber.Handler
 	GetPayment() fiber.Handler
 	ListPaymentsByStudent() fiber.Handler
 

@@ -66,12 +66,3 @@ func GetStudentIDFromFiberContext(ctx *fiber.Ctx) (int, error) {
 
 	return 0, errlst.NewUnauthorizedError("only students and superadmin can perform this action")
 }
-
-func GetAdminIDFromFiberContext(ctx *fiber.Ctx) (int, error) {
-	roleType, _ := ctx.Locals("role_type").(string)
-	if roleType == "superadmin" || roleType == "admin" {
-		return GetUserIDFromFiberContext(ctx)
-	}
-
-	return 0, errlst.NewUnauthorizedError("only admins and superadmin can perform this action")
-}

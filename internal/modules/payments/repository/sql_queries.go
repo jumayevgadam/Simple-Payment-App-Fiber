@@ -65,4 +65,13 @@ const (
 		FROM payments
 		WHERE student_id = $1
 		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+
+	studentUpdatePaymentQuery = `
+		UPDATE payments
+		SET
+			payment_type = COALESCE(NULLIF($1, '')::payment_type_enum, payment_type),
+			payment_amount = COALESCE(NULLIF($2, 0), payment_amount),
+			check_photo = COALESCE(NULLIF($3, ''), check_photo)
+		WHERE student_id = $4 AND id = $5
+		RETURNING 'payment ops successfully updated';`
 )

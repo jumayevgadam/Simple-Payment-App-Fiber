@@ -117,3 +117,23 @@ func (r *PaymentRepository) ListPaymentsByStudent(ctx context.Context, studentID
 
 	return paymentListByStudent, nil
 }
+
+func (r *PaymentRepository) StudentUpdatePayment(ctx context.Context, paymentData paymentModel.UpdatePaymentData) (string, error) {
+	var res string
+
+	err := r.psqlDB.QueryRow(
+		ctx,
+		studentUpdatePaymentQuery,
+		paymentData.PaymentType,
+		paymentData.CurrentPaidSum,
+		paymentData.CheckPhoto,
+		paymentData.StudentID,
+		paymentData.PaymentID,
+	).Scan(&res)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return res, nil
+}

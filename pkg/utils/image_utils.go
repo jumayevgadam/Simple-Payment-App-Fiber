@@ -32,7 +32,7 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 	string, error,
 ) {
 	// Base directory
-	basePath := "./internal/uploads"
+	basePath := "./uploads"
 
 	// Create base directory with proper permissions
 	err := os.MkdirAll(basePath, constants.ZeroSevenFiveFive)
@@ -40,27 +40,23 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create base directory: %s", err.Error()))
 	}
 
-	// Clean input strings to avoid spaces or special characters
-	cleanedFileName := strings.ReplaceAll(file.Filename, " ", "_")
 	cleanedFacultyName := strings.ReplaceAll(facultyName, " ", "_")
 
-	// Construct subdirectory path (faculty name and group code)
-	subDir := fmt.Sprintf("%s/%s/%s", basePath, cleanedFacultyName, groupCode)
-
 	// Create the subdirectory
-	err = os.MkdirAll(subDir, constants.ZeroSevenFiveFive)
+	err = os.MkdirAll(basePath, constants.ZeroSevenFiveFive)
 	if err != nil {
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create subdirectory: %s", err.Error()))
 	}
 
 	// Final file path for saving
 	fileDstPath := fmt.Sprintf(
-		"%s/%s_%s_%s_%s%s",
-		subDir,
+		"%s/%s_%s_%s_%s_%s%s",
+		basePath,
+		cleanedFacultyName,
+		groupCode,
+		semester,
 		studentName,
 		username,
-		cleanedFileName,
-		semester,
 		filepath.Ext(file.Filename),
 	)
 
@@ -72,13 +68,12 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 
 	// Return a relative URL for the saved file
 	return fmt.Sprintf(
-		"%s/%s/%s_%s_%s_%s%s",
+		"%s_%s_%s_%s_%s%s",
 		cleanedFacultyName,
 		groupCode,
+		semester,
 		studentName,
 		username,
-		cleanedFileName,
-		semester,
 		filepath.Ext(file.Filename),
 	), nil
 }

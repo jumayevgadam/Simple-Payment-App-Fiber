@@ -84,6 +84,7 @@ type UpdatePaymentRequest struct {
 }
 
 type UpdatePaymentData struct {
+	PaymentID      int    `db:"id"`
 	StudentID      int    `db:"student_id"`
 	TimeID         int    `db:"time_id"`
 	CheckPhoto     string `db:"check_photo"`
@@ -92,10 +93,12 @@ type UpdatePaymentData struct {
 	PaymentStatus  string `db:"payment_status"`
 }
 
-func (u *UpdatePaymentRequest) ToPsqlDBStorage(studentID int) UpdatePaymentData {
+func (u *UpdatePaymentRequest) ToPsqlDBStorage(studentID, paymentID int, checkPhotoURL string) UpdatePaymentData {
 	return UpdatePaymentData{
+		PaymentID:      paymentID,
 		StudentID:      studentID,
 		CurrentPaidSum: u.CurrentPaidSum,
+		CheckPhoto:     checkPhotoURL,
 		PaymentType:    u.PaymentType,
 	}
 }

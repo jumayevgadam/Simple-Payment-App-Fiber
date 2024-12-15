@@ -19,8 +19,6 @@ const v1URL = "/api/v1"
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {
-	s.Fiber.Static("uploads", "./internal/uploads")
-
 	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":   "pong",
@@ -31,6 +29,10 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	s.Fiber.Use(func(c *fiber.Ctx) error {
 		fmt.Println("Request Path:", c.Path())
 		return c.Next()
+	})
+
+	s.Fiber.Static("/uploads", "./uploads", fiber.Static{
+		Browse: true,
 	})
 
 	// Init MiddlewareManager.
@@ -54,104 +56,53 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	adminPath := v1.Group("/admin", mdwManager.RoleBasedMiddleware("admin", 2))
 	{
 		// ADMIN.
-		adminPath.Post("/create-student",
-			Handlers.UserHandler().AddStudent())
-
-		adminPath.Post("/create-admin",
-			Handlers.UserHandler().AddAdmin())
-
-		adminPath.Get("/list-admins",
-			Handlers.UserHandler().ListAdmins())
-
-		adminPath.Get("/list-students",
-			Handlers.UserHandler().ListStudents())
-
-		adminPath.Get("get-admin/:admin_id",
-			Handlers.UserHandler().GetAdmin())
-
-		adminPath.Get("get-student/:student_id",
-			Handlers.UserHandler().GetStudent())
-
-		adminPath.Delete("delete-admin/:admin_id",
-			Handlers.UserHandler().DeleteAdmin())
-
-		adminPath.Delete("delete-student/:student_id",
-			Handlers.UserHandler().DeleteStudent())
-
-		adminPath.Put("/update-admin/:admin_id",
-			Handlers.UserHandler().UpdateAdmin())
-
-		adminPath.Put("/update-student/:student_id",
-			Handlers.UserHandler().UpdateStudent())
+		adminPath.Post("/create-student", Handlers.UserHandler().AddStudent())
+		adminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
+		adminPath.Get("/list-admins", Handlers.UserHandler().ListAdmins())
+		adminPath.Get("/list-students", Handlers.UserHandler().ListStudents())
+		adminPath.Get("get-admin/:admin_id", Handlers.UserHandler().GetAdmin())
+		adminPath.Get("get-student/:student_id", Handlers.UserHandler().GetStudent())
+		adminPath.Delete("delete-admin/:admin_id", Handlers.UserHandler().DeleteAdmin())
+		adminPath.Delete("delete-student/:student_id", Handlers.UserHandler().DeleteStudent())
+		adminPath.Put("/update-admin/:admin_id", Handlers.UserHandler().UpdateAdmin())
+		adminPath.Put("/update-student/:student_id", Handlers.UserHandler().UpdateStudent())
 
 		// Init Roles.
 		roleGroup := adminPath.Group("/roles")
 		{
-			roleGroup.Post("/create",
-				Handlers.RoleHandler().AddRole())
-
-			roleGroup.Get("/",
-				Handlers.RoleHandler().GetRoles())
-
-			roleGroup.Get("/:id",
-				Handlers.RoleHandler().GetRole())
-
-			roleGroup.Delete("/:id",
-				Handlers.RoleHandler().DeleteRole())
-
-			roleGroup.Put("/:id",
-				Handlers.RoleHandler().UpdateRole())
+			roleGroup.Post("/create", Handlers.RoleHandler().AddRole())
+			roleGroup.Get("/", Handlers.RoleHandler().GetRoles())
+			roleGroup.Get("/:id", Handlers.RoleHandler().GetRole())
+			roleGroup.Delete("/:id", Handlers.RoleHandler().DeleteRole())
+			roleGroup.Put("/:id", Handlers.RoleHandler().UpdateRole())
 		}
 
 		// Init Faculties.
 		facultyGroup := adminPath.Group("/faculties")
 		{
-			facultyGroup.Post("/create",
-				Handlers.FacultyHandler().AddFaculty())
-
-			facultyGroup.Get("/",
-				Handlers.FacultyHandler().ListFaculties())
-
-			facultyGroup.Get("/:id",
-				Handlers.FacultyHandler().GetFaculty())
-
-			facultyGroup.Delete("/:id",
-				Handlers.FacultyHandler().DeleteFaculty())
-
-			facultyGroup.Put("/:id",
-				Handlers.FacultyHandler().UpdateFaculty())
-
-			facultyGroup.Get("/:faculty_id/groups",
-				Handlers.FacultyHandler().ListGroupsByFacultyID())
+			facultyGroup.Post("/create", Handlers.FacultyHandler().AddFaculty())
+			facultyGroup.Get("/", Handlers.FacultyHandler().ListFaculties())
+			facultyGroup.Get("/:id", Handlers.FacultyHandler().GetFaculty())
+			facultyGroup.Delete("/:id", Handlers.FacultyHandler().DeleteFaculty())
+			facultyGroup.Put("/:id", Handlers.FacultyHandler().UpdateFaculty())
+			facultyGroup.Get("/:faculty_id/groups", Handlers.FacultyHandler().ListGroupsByFacultyID())
 		}
 
 		// Init Groups.
 		groupPath := adminPath.Group("/groups")
 		{
-			groupPath.Post("/create",
-				Handlers.GroupHandler().AddGroup())
-
-			groupPath.Get("/",
-				Handlers.GroupHandler().ListGroups())
-
-			groupPath.Get("/:id",
-				Handlers.GroupHandler().GetGroup())
-
-			groupPath.Delete("/:id",
-				Handlers.GroupHandler().DeleteGroup())
-
-			groupPath.Put("/:id",
-				Handlers.GroupHandler().UpdateGroup())
-
-			groupPath.Get("/:group_id/students",
-				Handlers.GroupHandler().ListStudentsByGroupID())
+			groupPath.Post("/create", Handlers.GroupHandler().AddGroup())
+			groupPath.Get("/", Handlers.GroupHandler().ListGroups())
+			groupPath.Get("/:id", Handlers.GroupHandler().GetGroup())
+			groupPath.Delete("/:id", Handlers.GroupHandler().DeleteGroup())
+			groupPath.Put("/:id", Handlers.GroupHandler().UpdateGroup())
+			groupPath.Get("/:group_id/students", Handlers.GroupHandler().ListStudentsByGroupID())
 		}
 
 		// Init Times.
 		timePath := adminPath.Group("/times")
 		{
-			timePath.Post("/create",
-				Handlers.TimeHandler().AddTime())
+			timePath.Post("/create", Handlers.TimeHandler().AddTime())
 		}
 
 		// Init Payments.
@@ -166,6 +117,6 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		studentPath.Post("/add-payment", Handlers.PaymentHandler().AddPayment())
 		studentPath.Get("/list-payments", Handlers.PaymentHandler().ListPaymentsByStudent())
 		studentPath.Get("/get-payment/:payment_id", Handlers.PaymentHandler().GetPayment())
+		studentPath.Put("/update-payment/:payment_id", Handlers.PaymentHandler().StudentUpdatePayment())
 	}
-
 }

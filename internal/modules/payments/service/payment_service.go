@@ -126,3 +126,58 @@ func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID in
 
 	return paymentListResponseByStudent, nil
 }
+
+func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID int, updateReq paymentModel.UpdatePaymentRequest) (
+	string, error,
+) {
+	var (
+		updateResponse string
+		checkPhotoURL  string
+		err            error
+	)
+
+	err = s.repo.WithTransaction(c.Context(), func(db database.DataStore) error {
+		_, err = db.PaymentRepo().GetPaymentByID(c.Context(), paymentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentInfo, err := db.PaymentRepo().GetStudentInfoForPayment(c.Context(), studentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		photo, err := utils.ReadImage(c, "check-photo")
+		if err != nil && err != errlst.ErrNotFound {
+			return errlst.ParseErrors(err)
+		}
+
+		if photo != nil {
+			checkPhotoURL, err = utils.SaveImage(
+				c, photo, studentInfo.FacultyName, studentInfo.GroupCode, studentInfo.FullName,
+				studentInfo.Username, updateReq.PaymentType,
+			)
+
+			if err != nil {
+				return errlst.ParseErrors(err)
+			}
+		} else {
+			checkPhotoURL = ""
+		}
+
+		updateResponse, err = db.PaymentRepo().StudentUpdatePayment(c.Context(), updateReq.ToPsqlDBStorage(
+			studentID, paymentID, checkPhotoURL))
+
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", errlst.ParseErrors(err)
+	}
+
+	return updateResponse, nil
+}
