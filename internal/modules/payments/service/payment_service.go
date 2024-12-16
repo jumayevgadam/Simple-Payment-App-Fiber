@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"mime/multipart"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
@@ -137,9 +138,13 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 	)
 
 	err = s.repo.WithTransaction(c.Context(), func(db database.DataStore) error {
-		_, err = db.PaymentRepo().GetPaymentByID(c.Context(), paymentID)
+		paymentData, err := db.PaymentRepo().GetPaymentByID(c.Context(), paymentID)
 		if err != nil {
 			return errlst.ParseErrors(err)
+		}
+
+		if paymentData.StudentID != studentID {
+			return errlst.NewBadRequestError("studentID mismatch with payment record")
 		}
 
 		studentInfo, err := db.PaymentRepo().GetStudentInfoForPayment(c.Context(), studentID)
@@ -147,26 +152,31 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 			return errlst.ParseErrors(err)
 		}
 
-		photo, err := utils.ReadImage(c, "check-photo")
-		if err != nil && err != errlst.ErrNotFound {
-			return errlst.ParseErrors(err)
+		photo, _ := utils.ReadImage(c, "check-photo")
+		if photo == nil {
+			checkPhotoURL = paymentData.CheckPhoto
 		}
 
 		if photo != nil {
+			// Remove the old photo.
+			if paymentData.CheckPhoto != "" {
+				os.Remove("./uploads/" + paymentData.CheckPhoto)
+			}
+
 			checkPhotoURL, err = utils.SaveImage(
-				c, photo, studentInfo.FacultyName, studentInfo.GroupCode, studentInfo.FullName,
-				studentInfo.Username, updateReq.PaymentType,
+				c, photo, studentInfo.FacultyName, studentInfo.GroupCode,
+				studentInfo.FullName, studentInfo.Username, updateReq.PaymentType,
 			)
 
 			if err != nil {
 				return errlst.ParseErrors(err)
 			}
-		} else {
-			checkPhotoURL = ""
+
+			updateReq.PhotoURL = checkPhotoURL
 		}
 
 		updateResponse, err = db.PaymentRepo().StudentUpdatePayment(c.Context(), updateReq.ToPsqlDBStorage(
-			studentID, paymentID, checkPhotoURL))
+			studentID, paymentID))
 
 		if err != nil {
 			return errlst.ParseErrors(err)
@@ -180,4 +190,37 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 	}
 
 	return updateResponse, nil
+}
+
+func (s *PaymentService) AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (
+	string, error,
+) {
+	var (
+		updateRes string
+		err       error
+	)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		paymentData, err := db.PaymentRepo().GetPaymentByID(ctx, paymentID)
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
+		if paymentData.StudentID != studentID {
+			return errlst.NewBadRequestError("mismatched studentID in [paymentService][AdminUpdatePaymentOfStudent]")
+		}
+
+		updateRes, err = db.PaymentRepo().AdminUpdatePaymentOfStudent(ctx, studentID, paymentID, paymentStatus)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", errlst.ParseErrors(err)
+	}
+
+	return updateRes, nil
 }

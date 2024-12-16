@@ -16,4 +16,7 @@ type Repository interface {
 	ListPaymentsByStudent(ctx context.Context, studentID int, paginationData abstract.PaginationData) (
 		[]*paymentModel.AllPaymentDAO, error,
 	)
+
+	AdminGetPaymentStatusOfStudent(ctx context.Context, studentID, paymentID int) (string, error)
+	AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error)
 }

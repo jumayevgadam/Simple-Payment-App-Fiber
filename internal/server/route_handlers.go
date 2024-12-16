@@ -109,6 +109,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		paymentPath := adminPath.Group("/student-payments")
 		{
 			paymentPath.Get("/:student_id", Handlers.PaymentHandler().AdminListPaymentsByStudent())
+			paymentPath.Put("/:student_id/update/:payment_id", Handlers.PaymentHandler().AdminUpdatePaymentOfStudent())
 		}
 	}
 

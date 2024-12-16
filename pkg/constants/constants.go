@@ -38,4 +38,10 @@ const (
 
 	// ErrMinPasswordLength.
 	ErrMinPasswordLength = "updated password must have at least 6 symbol"
+
+	// AtLeastPaymentPrice.
+	AtLeastPaymentPrice = 3820
+
+	// FullPaymentPrice.
+	FullPaymentPrice = 7920
 )

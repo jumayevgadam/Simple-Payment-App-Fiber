@@ -74,4 +74,15 @@ const (
 			check_photo = COALESCE(NULLIF($3, ''), check_photo)
 		WHERE student_id = $4 AND id = $5
 		RETURNING 'payment ops successfully updated';`
+
+	adminGetPaymentStatusQuery = `
+		SELECT payment_status
+		FROM payments
+		WHERE student_id = $1 AND id = $2;`
+
+	adminUpdatePaymentStatusQuery = `
+		UPDATE payments
+		SET payment_status = COALESCE(NULLIF($1, '')::payment_status_enum, payment_status)
+		WHERE student_id = $2 AND id = $3
+		RETURNING 'payment status changed';`
 )

@@ -19,4 +19,6 @@ type Service interface {
 	ListPaymentsByStudent(ctx context.Context, studentID int, paginationQuery abstract.PaginationQuery) (
 		abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], error,
 	)
+
+	AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error)
 }

@@ -137,3 +137,40 @@ func (r *PaymentRepository) StudentUpdatePayment(ctx context.Context, paymentDat
 
 	return res, nil
 }
+
+func (r *PaymentRepository) AdminGetPaymentStatusOfStudent(ctx context.Context, studentID, paymentID int) (string, error) {
+	var currentStatus string
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&currentStatus,
+		adminGetPaymentStatusQuery,
+		studentID,
+		paymentID,
+	)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return currentStatus, nil
+}
+
+func (r *PaymentRepository) AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error) {
+	var updatedRes string
+
+	err := r.psqlDB.QueryRow(
+		ctx,
+		adminUpdatePaymentStatusQuery,
+		paymentStatus,
+		studentID,
+		paymentID,
+	).Scan(&updatedRes)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	return updatedRes, nil
+}

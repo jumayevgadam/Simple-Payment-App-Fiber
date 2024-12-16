@@ -9,4 +9,5 @@ type Handlers interface {
 	ListPaymentsByStudent() fiber.Handler
 
 	AdminListPaymentsByStudent() fiber.Handler
+	AdminUpdatePaymentOfStudent() fiber.Handler
 }

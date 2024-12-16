@@ -147,3 +147,18 @@ func (s *StudentUpdateRequest) Validate() (string, error) {
 
 	return "", nil
 }
+
+type AllStudentData struct {
+	StudentID       int    `db:"student_id"`
+	StudentName     string `db:"student_name"`
+	StudentSurname  string `db:"student_surname"`
+	StudentUsername string `db:"student_username"`
+	RoleName        string `db:"role_name"`
+	FacultyName     string `db:"faculty_name"`
+	FacultyCode     string `db:"faculty_code"`
+	GroupCode       string `db:"group_code"`
+	CourseYear      int    `db:"course_year"`
+}
+
+type AllStudentDTO struct {
+}

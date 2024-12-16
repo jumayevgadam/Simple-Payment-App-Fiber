@@ -12,6 +12,7 @@ type Handlers interface {
 	ListAdmins() fiber.Handler
 	DeleteAdmin() fiber.Handler
 	UpdateAdmin() fiber.Handler
+	AdminFindStudent() fiber.Handler
 
 	AddStudent() fiber.Handler
 	GetStudent() fiber.Handler

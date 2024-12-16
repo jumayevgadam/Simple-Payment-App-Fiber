@@ -9,6 +9,7 @@ import (
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
@@ -35,6 +36,14 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 
 		err = reqvalidator.ReadRequest(c, &request)
 		if err != nil {
+			if request.PaymentType == "1" && request.CurrentPaidSum < constants.AtLeastPaymentPrice {
+				return errlst.NewBadRequestError("can not perform first semester payment")
+			}
+
+			if request.PaymentType == "3" && request.CurrentPaidSum < constants.FullPaymentPrice {
+				return errlst.NewBadRequestError("can not perform full payment for payment type 3")
+			}
+
 			return errlst.NewBadRequestError(err.Error())
 		}
 
@@ -100,7 +109,12 @@ func (h *PaymentHandler) GetPayment() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(paymentRes)
+		return c.Status(fiber.StatusOK).JSON(
+			fiber.Map{
+				"message":  "success in update",
+				"response": paymentRes,
+			},
+		)
 	}
 }
 
@@ -143,5 +157,33 @@ func (h *PaymentHandler) AdminListPaymentsByStudent() fiber.Handler {
 		}
 
 		return c.Status(fiber.StatusOK).JSON(listPaymentsByStudent)
+	}
+}
+
+func (h *PaymentHandler) AdminUpdatePaymentOfStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := strconv.Atoi(c.Params("student_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
+		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
+		paymentStatus := c.FormValue("payment-status")
+
+		response, err := h.service.PaymentService().AdminUpdatePaymentOfStudent(
+			c.Context(), studentID, paymentID, paymentStatus)
+
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message":  "success in update",
+			"response": response,
+		})
 	}
 }
