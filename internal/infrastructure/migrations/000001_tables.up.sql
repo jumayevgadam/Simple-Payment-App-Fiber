@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS roles (
     role VARCHAR(50) UNIQUE NOT NULL
 );
 
+INSERT INTO roles (
+    role
+) VALUES ('superadmin'), ('admin'), ('student');
+
 CREATE TABLE times (
     id SERIAL PRIMARY KEY,
     start_year INT NOT NULL CHECK (start_year > 0),

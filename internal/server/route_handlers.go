@@ -55,6 +55,8 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	superadminPath := v1.Group("/superadmin", mdwManager.RoleBasedMiddleware("superadmin", 1))
 	{
 		superadminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
+		superadminPath.Put("/update-admin/:admin_id", Handlers.UserHandler().UpdateAdmin())
+		superadminPath.Delete("delete-admin/:admin_id", Handlers.UserHandler().DeleteAdmin())
 	}
 
 	// Init Users.
@@ -67,9 +69,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		adminPath.Get("/find-student", Handlers.UserHandler().AdminFindStudent())
 		adminPath.Get("get-admin/:admin_id", Handlers.UserHandler().GetAdmin())
 		adminPath.Get("get-student/:student_id", Handlers.UserHandler().GetStudent())
-		adminPath.Delete("delete-admin/:admin_id", Handlers.UserHandler().DeleteAdmin())
 		adminPath.Delete("delete-student/:student_id", Handlers.UserHandler().DeleteStudent())
-		adminPath.Put("/update-admin/:admin_id", Handlers.UserHandler().UpdateAdmin())
 		adminPath.Put("/update-student/:student_id", Handlers.UserHandler().UpdateStudent())
 
 		// Init Roles.
