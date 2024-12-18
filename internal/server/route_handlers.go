@@ -4,10 +4,10 @@
 package server
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
@@ -26,10 +26,11 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		})
 	})
 
-	s.Fiber.Use(func(c *fiber.Ctx) error {
-		fmt.Println("Request Path:", c.Path())
-		return c.Next()
-	})
+	s.Fiber.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Content-Type, Authorization, Origin, X-Custom-Header",
+		AllowMethods: "POST,GET,PUT,DELETE,HEAD,OPTIONS,PATCH",
+	}))
 
 	s.Fiber.Static("/uploads", "./uploads", fiber.Static{
 		Browse: true,
@@ -52,7 +53,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		authPath.Post("/login", Handlers.UserHandler().Login())
 	}
 
-	superadminPath := v1.Group("/superadmin", mdwManager.RoleBasedMiddleware("superadmin", 1))
+	superadminPath := v1.Group("/superadmin", mdwManager.RoleBasedMiddleware(constants.OnlySuperAdmin, constants.OnlySuperAdminID))
 	{
 		superadminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
 		superadminPath.Put("/update-admin/:admin_id", Handlers.UserHandler().UpdateAdmin())
@@ -60,7 +61,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	}
 
 	// Init Users.
-	adminPath := v1.Group("/admin", mdwManager.RoleBasedMiddleware("admin", 2))
+	adminPath := v1.Group("/admin", mdwManager.RoleBasedMiddleware(constants.AdminRoles, constants.AdminRoleIDs))
 	{
 		// ADMIN.
 		adminPath.Post("/create-student", Handlers.UserHandler().AddStudent())
@@ -118,7 +119,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		}
 	}
 
-	studentPath := v1.Group("/students", mdwManager.RoleBasedMiddleware(constants.Student, constants.DefaultRoleID))
+	studentPath := v1.Group("/students", mdwManager.RoleBasedMiddleware(constants.StudentActionRoles, constants.StudentActionRoleIDs))
 	{
 		studentPath.Post("/add-payment", Handlers.PaymentHandler().AddPayment())
 		studentPath.Get("/list-payments", Handlers.PaymentHandler().ListPaymentsByStudent())

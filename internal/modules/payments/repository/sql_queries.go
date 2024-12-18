@@ -85,4 +85,10 @@ const (
 		SET payment_status = COALESCE(NULLIF($1, '')::payment_status_enum, payment_status)
 		WHERE student_id = $2 AND id = $3
 		RETURNING 'payment status changed';`
+
+	checkType3PaymentQuery = `
+		SELECT COUNT(*)
+		FROM payments
+		WHERE student_id = $1 AND time_id = 1 AND payment_type = '3' 
+		AND (payment_status = 'Accepted' OR payment_status = 'In Progress');`
 )

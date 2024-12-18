@@ -46,10 +46,7 @@ func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID int
 
 	err := r.psqlDB.QueryRow(
 		ctx,
-		`SELECT COUNT(*)
-			FROM payments
-			WHERE student_id = $1 AND time_id = 1 AND payment_type = '3' 
-			AND (payment_status = 'Accepted' OR payment_status = 'In Progress');`,
+		checkType3PaymentQuery,
 		studentID,
 	).Scan(&count)
 

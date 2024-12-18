@@ -2,6 +2,20 @@ package constants
 
 import "time"
 
+var (
+	OnlySuperAdmin = []string{"superadmin"}
+
+	OnlySuperAdminID = []int{1}
+
+	AdminRoles = []string{"superadmin", "admin"}
+
+	AdminRoleIDs = []int{1, 2}
+
+	StudentActionRoles = []string{"superadmin", "student"}
+
+	StudentActionRoleIDs = []int{1, 3}
+)
+
 const (
 	// when user sign-up to application, it's default roleID is 3.
 	DefaultRoleID = 3

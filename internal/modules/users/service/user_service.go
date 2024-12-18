@@ -328,7 +328,9 @@ func (s *UserService) UpdateStudent(ctx context.Context, studentID int, updateRe
 	return updateRes, nil
 }
 
-func (s *UserService) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent, paginationQuery abstract.PaginationQuery) (
+func (s *UserService) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent,
+	paginationQuery abstract.PaginationQuery,
+) (
 	abstract.PaginatedResponse[*userModel.AllStudentDTO], error,
 ) {
 	var (

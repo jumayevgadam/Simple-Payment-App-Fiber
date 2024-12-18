@@ -40,7 +40,7 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 	// Wrap the database in the transactional context.
 	transactionalDB := &DataStoreImpl{db: tx}
 
-	// Run the transaction function
+	// Run the transaction function.
 	err = transactionFn(transactionalDB)
 	if err != nil {
 		log.Printf("Error during transaction function execution: %v", err)
@@ -48,10 +48,10 @@ func (d *DataStoreImpl) WithTransaction(ctx context.Context, transactionFn func(
 		return errlst.NewInternalServerError(err.Error())
 	}
 
-	// Commit the transaction if no error occurred during execution
+	// Commit the transaction if no error occurred during execution.
 	if commitErr := tx.Commit(ctx); commitErr != nil {
 		log.Printf("Error committing transaction: %v", commitErr)
-		// Return a wrapped error if commit fails
+		// Return a wrapped error if commit fails.
 		return fmt.Errorf("error in committing transaction: %w", commitErr)
 	}
 

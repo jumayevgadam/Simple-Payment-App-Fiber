@@ -310,7 +310,9 @@ func (r *UserRepository) UpdateStudent(ctx context.Context, updateData userModel
 	return updateRes, nil
 }
 
-func (r *UserRepository) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent, paginationQuery abstract.PaginationData) (
+func (r *UserRepository) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent,
+	paginationQuery abstract.PaginationData,
+) (
 	[]*userModel.AllStudentData, error,
 ) {
 	var allStudentDataWithFilter []*userModel.AllStudentData

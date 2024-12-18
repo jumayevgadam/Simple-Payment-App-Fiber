@@ -4,12 +4,12 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
-	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/reqvalidator"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
@@ -39,12 +39,8 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.NewBadRequestError(err.Error())
 		}
 
-		if request.PaymentType == "1" && request.CurrentPaidSum < constants.AtLeastPaymentPrice {
-			return errlst.NewBadRequestError("can not perform first semester payment")
-		}
-
-		if request.PaymentType == "3" && request.CurrentPaidSum < constants.FullPaymentPrice {
-			return errlst.NewBadRequestError("can not perform full payment for payment type 3")
+		if err := helpers.CheckPayment(request); err != nil {
+			return errlst.NewBadRequestError(err)
 		}
 
 		checkPhoto, err := utils.ReadImage(c, "check-photo")
@@ -81,10 +77,6 @@ func (h *PaymentHandler) StudentUpdatePayment() fiber.Handler {
 		err = reqvalidator.ReadRequest(c, &updateRequest)
 		if err != nil {
 			return errlst.NewBadRequestError(err)
-		}
-
-		if updateRequest.PaymentType == "3" && updateRequest.CurrentPaidSum < constants.FullPaymentPrice {
-			return errlst.NewBadRequestError("[paymentHandler][StudentUpdatePayment]: unsufficient payment")
 		}
 
 		res, err := h.service.PaymentService().StudentUpdatePayment(c, studentID, paymentID, updateRequest)
