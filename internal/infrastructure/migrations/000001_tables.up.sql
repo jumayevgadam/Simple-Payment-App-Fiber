@@ -77,3 +77,8 @@ CREATE INDEX idx_faculty_code ON faculties (faculty_code);
 -- indexes for groups table 
 CREATE INDEX idx_group_code ON groups (group_code);
 
+INSERT INTO users (
+    role_id, name, surname, username, password
+) VALUES (
+    1, 'Gadam', 'Jumayev', 'hypergadam', '$2a$10$O1GSNPZgig1p.qLQj2Ibve8k1aDBey9Ll9I4D/XFxObPaUev3Fvhm'
+) RETURNING id;
