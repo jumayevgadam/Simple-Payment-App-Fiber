@@ -60,6 +60,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		adminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
 		adminPath.Get("/list-admins", Handlers.UserHandler().ListAdmins())
 		adminPath.Get("/list-students", Handlers.UserHandler().ListStudents())
+		adminPath.Get("/find-student", Handlers.UserHandler().AdminFindStudent())
 		adminPath.Get("get-admin/:admin_id", Handlers.UserHandler().GetAdmin())
 		adminPath.Get("get-student/:student_id", Handlers.UserHandler().GetStudent())
 		adminPath.Delete("delete-admin/:admin_id", Handlers.UserHandler().DeleteAdmin())
@@ -96,7 +97,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 			groupPath.Get("/:id", Handlers.GroupHandler().GetGroup())
 			groupPath.Delete("/:id", Handlers.GroupHandler().DeleteGroup())
 			groupPath.Put("/:id", Handlers.GroupHandler().UpdateGroup())
-			groupPath.Get("/:group_id/students", Handlers.GroupHandler().ListStudentsByGroupID())
+			groupPath.Get("/students", Handlers.GroupHandler().ListStudentsByGroupID())
 		}
 
 		// Init Times.
@@ -117,7 +118,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	{
 		studentPath.Post("/add-payment", Handlers.PaymentHandler().AddPayment())
 		studentPath.Get("/list-payments", Handlers.PaymentHandler().ListPaymentsByStudent())
-		studentPath.Get("/get-payment/:payment_id", Handlers.PaymentHandler().GetPayment())
+		studentPath.Get("/get-payment", Handlers.PaymentHandler().GetPayment())
 		studentPath.Put("/update-payment/:payment_id", Handlers.PaymentHandler().StudentUpdatePayment())
 	}
 }

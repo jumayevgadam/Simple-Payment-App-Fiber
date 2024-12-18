@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 )
 
@@ -158,7 +159,77 @@ type AllStudentData struct {
 	FacultyCode     string `db:"faculty_code"`
 	GroupCode       string `db:"group_code"`
 	CourseYear      int    `db:"course_year"`
+	TotalCount      int    `db:"total_count"`
 }
 
 type AllStudentDTO struct {
+	StudentID       int    `json:"studentID"`
+	StudentName     string `json:"studentName"`
+	StudentSurname  string `json:"studentSurname"`
+	StudentUsername string `json:"studentUsername"`
+	RoleName        string `json:"role"`
+	FacultyName     string `json:"facultyName"`
+	FacultyCode     string `json:"facultyCode"`
+	GroupCode       string `json:"groupCode"`
+	CourseYear      int    `json:"courseYear"`
+	TotalCount      int    `json:"totalStudentFound"`
+}
+
+func (a *AllStudentData) ToServer() *AllStudentDTO {
+	return &AllStudentDTO{
+		StudentID:       a.StudentID,
+		StudentName:     a.StudentName,
+		StudentSurname:  a.StudentSurname,
+		StudentUsername: a.StudentUsername,
+		RoleName:        a.RoleName,
+		FacultyName:     a.FacultyName,
+		FacultyCode:     a.FacultyCode,
+		GroupCode:       a.GroupCode,
+		CourseYear:      a.CourseYear,
+		TotalCount:      a.TotalCount,
+	}
+}
+
+type FilterStudent struct {
+	FacultyName     string
+	GroupCode       string
+	StudentName     string
+	StudentSurname  string
+	StudentUsername string
+}
+
+func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
+	facultyName := c.Query("faculty-name")
+	groupCode := c.Query("group-code")
+	studentName := c.Query("student-name")
+	studentSurname := c.Query("student-surname")
+	studentUsername := c.Query("student-username")
+
+	if facultyName == "" {
+		facultyName = ""
+	}
+
+	if groupCode == "" {
+		groupCode = ""
+	}
+
+	if studentName == "" {
+		studentName = ""
+	}
+
+	if studentSurname == "" {
+		studentSurname = ""
+	}
+
+	if studentUsername == "" {
+		studentUsername = ""
+	}
+
+	return FilterStudent{
+		FacultyName:     facultyName,
+		GroupCode:       groupCode,
+		StudentName:     studentName,
+		StudentSurname:  studentSurname,
+		StudentUsername: studentUsername,
+	}
 }

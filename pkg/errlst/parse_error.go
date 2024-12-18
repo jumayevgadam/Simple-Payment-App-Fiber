@@ -37,7 +37,7 @@ func ParseErrors(err error) RestErr {
 	case
 		strings.Contains(strings.ToLower(err.Error()), ErrInvalidJWTToken.Error()),
 		strings.Contains(strings.ToLower(err.Error()), ErrInvalidJWTClaims.Error()):
-		return NewUnauthorizedError(ErrUnauthorized.Error() + err.Error())
+		return NewUnauthorizedError(ErrUnauthorized.Error() + err.Error() + "\n")
 
 	default:
 		// If already a RestErr, return as-is
@@ -46,7 +46,7 @@ func ParseErrors(err error) RestErr {
 			return restErr
 		}
 
-		return NewInternalServerError("internal server error: [ParseErrors]" + err.Error())
+		return NewInternalServerError("internal server error: [ParseErrors]" + err.Error() + "\n")
 	}
 }
 

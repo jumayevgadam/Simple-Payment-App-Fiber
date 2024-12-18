@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
@@ -325,4 +326,45 @@ func (s *UserService) UpdateStudent(ctx context.Context, studentID int, updateRe
 	}
 
 	return updateRes, nil
+}
+
+func (s *UserService) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent, paginationQuery abstract.PaginationQuery) (
+	abstract.PaginatedResponse[*userModel.AllStudentDTO], error,
+) {
+	var (
+		allStudentDataWithFilter  []*userModel.AllStudentData
+		studentListResponseFilter abstract.PaginatedResponse[*userModel.AllStudentDTO]
+		err                       error
+	)
+
+	fmt.Println(filterStudent)
+
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		allStudentDataWithFilter, err = db.UsersRepo().AdminFindStudent(ctx, filterStudent, paginationQuery.ToPsqlDBStorage())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		studentListResponseFilter.TotalItems = len(allStudentDataWithFilter)
+
+		return nil
+	})
+
+	if err != nil {
+		return abstract.PaginatedResponse[*userModel.AllStudentDTO]{}, errlst.ParseErrors(err)
+	}
+
+	studentListWithFilter := lo.Map(
+		allStudentDataWithFilter,
+		func(item *userModel.AllStudentData, _ int) *userModel.AllStudentDTO {
+			return item.ToServer()
+		},
+	)
+
+	studentListResponseFilter.Items = studentListWithFilter
+	studentListResponseFilter.CurrentPage = paginationQuery.CurrentPage
+	studentListResponseFilter.Limit = paginationQuery.Limit
+	studentListResponseFilter.ItemsInCurrentPage = len(studentListWithFilter)
+
+	return studentListResponseFilter, nil
 }

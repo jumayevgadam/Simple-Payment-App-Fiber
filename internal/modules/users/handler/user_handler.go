@@ -243,3 +243,21 @@ func (h *UserHandler) ListPaymentsByStudentID() fiber.Handler {
 		return nil
 	}
 }
+
+func (h *UserHandler) AdminFindStudent() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		filterStudent := userModel.GetQueryParamsForFilterStudents(c)
+
+		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)
+		if err != nil {
+			return errlst.NewBadQueryParamsError(err)
+		}
+
+		studentListWithFilter, err := h.service.UserService().AdminFindStudent(c.Context(), filterStudent, paginationReq)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(studentListWithFilter)
+	}
+}

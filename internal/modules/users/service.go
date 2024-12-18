@@ -17,6 +17,9 @@ type Service interface {
 	ListAdmins(ctx context.Context, paginationQuery abstract.PaginationQuery) (
 		abstract.PaginatedResponse[*userModel.Admin], error,
 	)
+	AdminFindStudent(ctx context.Context, filter userModel.FilterStudent, paginationQuery abstract.PaginationQuery) (
+		abstract.PaginatedResponse[*userModel.AllStudentDTO], error,
+	)
 
 	AddStudent(ctx context.Context, request userModel.Request) (int, error)
 	GetStudent(ctx context.Context, studentID int) (*userModel.Student, error)

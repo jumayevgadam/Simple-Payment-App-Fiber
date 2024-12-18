@@ -34,6 +34,15 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 	)
 
 	err = s.repo.WithTransaction(ctx.Context(), func(db database.DataStore) error {
+		existingPayment, err := db.PaymentRepo().CheckType3Payment(ctx.Context(), studentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		if existingPayment {
+			return errlst.NewBadRequestError("You cannot perform payment for type 3, because this action has already been performed.")
+		}
+
 		studentDataForPayment, err := db.PaymentRepo().GetStudentInfoForPayment(ctx.Context(), studentID)
 		if err != nil {
 			return errlst.ParseErrors(err)

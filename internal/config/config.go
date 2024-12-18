@@ -10,7 +10,7 @@ import (
 )
 
 // Config struct keeps,
-// All needed configurations for this project
+// All needed configurations for this project.
 // Must be keep them in .env file.
 type Config struct {
 	Server   ServerConfig

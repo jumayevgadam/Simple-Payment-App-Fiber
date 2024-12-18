@@ -41,6 +41,25 @@ func (r *PaymentRepository) AddPayment(ctx context.Context, paymentData *payment
 	return paymentID, nil
 }
 
+func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID int) (bool, error) {
+	var count int
+
+	err := r.psqlDB.QueryRow(
+		ctx,
+		`SELECT COUNT(*)
+			FROM payments
+			WHERE student_id = $1 AND time_id = 1 AND payment_type = '3' 
+			AND (payment_status = 'Accepted' OR payment_status = 'In Progress');`,
+		studentID,
+	).Scan(&count)
+
+	if err != nil {
+		return false, errlst.ParseSQLErrors(err)
+	}
+
+	return count > 0, nil
+}
+
 func (r *PaymentRepository) GetStudentInfoForPayment(ctx context.Context, studentID int) (*paymentModel.StudentInfoForPayment, error) {
 	var studentDataForPayment paymentModel.StudentInfoForPayment
 

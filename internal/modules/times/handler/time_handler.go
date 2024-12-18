@@ -36,3 +36,9 @@ func (t *TimeHandler) AddTime() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(timeID)
 	}
 }
+
+func (t *TimeHandler) GetTime() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return nil
+	}
+}

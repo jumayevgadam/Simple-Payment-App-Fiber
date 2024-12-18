@@ -36,15 +36,15 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 
 		err = reqvalidator.ReadRequest(c, &request)
 		if err != nil {
-			if request.PaymentType == "1" && request.CurrentPaidSum < constants.AtLeastPaymentPrice {
-				return errlst.NewBadRequestError("can not perform first semester payment")
-			}
-
-			if request.PaymentType == "3" && request.CurrentPaidSum < constants.FullPaymentPrice {
-				return errlst.NewBadRequestError("can not perform full payment for payment type 3")
-			}
-
 			return errlst.NewBadRequestError(err.Error())
+		}
+
+		if request.PaymentType == "1" && request.CurrentPaidSum < constants.AtLeastPaymentPrice {
+			return errlst.NewBadRequestError("can not perform first semester payment")
+		}
+
+		if request.PaymentType == "3" && request.CurrentPaidSum < constants.FullPaymentPrice {
+			return errlst.NewBadRequestError("can not perform full payment for payment type 3")
 		}
 
 		checkPhoto, err := utils.ReadImage(c, "check-photo")
@@ -99,7 +99,12 @@ func (h *PaymentHandler) GetPayment() fiber.Handler {
 			return errlst.NewUnauthorizedError(err)
 		}
 
-		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		paymentIDStr := c.Query("payment-id")
+		if paymentIDStr == "" {
+			return errlst.NewBadRequestError("[paymentHandler][GetPayment]: payment-id Query param must need")
+		}
+
+		paymentID, err := strconv.Atoi(paymentIDStr)
 		if err != nil {
 			return errlst.NewBadRequestError(err)
 		}
@@ -111,7 +116,7 @@ func (h *PaymentHandler) GetPayment() fiber.Handler {
 
 		return c.Status(fiber.StatusOK).JSON(
 			fiber.Map{
-				"message":  "success in update",
+				"message":  "successfully got payment",
 				"response": paymentRes,
 			},
 		)

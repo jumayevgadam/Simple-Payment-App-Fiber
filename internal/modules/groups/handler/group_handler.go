@@ -154,9 +154,14 @@ func (h *GroupHandler) ListGroupsByFacultyID() fiber.Handler {
 
 func (h *GroupHandler) ListStudentsByGroupID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		groupID, err := strconv.Atoi(c.Params("group_id"))
+		groupIDStr := c.Query("group-id")
+		if groupIDStr == "" {
+			return errlst.NewBadRequestError("[groupHandler][ListStudentsByGroupID]: group-id query param can not be empty")
+		}
+
+		groupID, err := strconv.Atoi(groupIDStr)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.NewBadRequestError(err)
 		}
 
 		paginationQuery, err := abstract.GetPaginationFromFiberCtx(c)

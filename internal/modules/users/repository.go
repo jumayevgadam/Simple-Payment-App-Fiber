@@ -16,6 +16,9 @@ type Repository interface {
 	CountAdmins(ctx context.Context) (int, error)
 	UpdateAdmin(ctx context.Context, updateData userModel.AdminUpdateData) (string, error)
 	ListAdmins(ctx context.Context, paginationData abstract.PaginationData) ([]*userModel.AdminData, error)
+	AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent, paginationQuery abstract.PaginationData) (
+		[]*userModel.AllStudentData, error,
+	)
 
 	AddStudent(ctx context.Context, res userModel.Response) (int, error)
 	GetStudent(ctx context.Context, studentID int) (*userModel.StudentData, error)
@@ -27,6 +30,4 @@ type Repository interface {
 	ListStudentsByGroupID(ctx context.Context, groupID int, paginationData abstract.PaginationData) (
 		[]*userModel.StudentDataByGroupID, error,
 	)
-
-	// STUDENT.
 }

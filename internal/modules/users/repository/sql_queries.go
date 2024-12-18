@@ -168,4 +168,35 @@ const (
 			updated_at = NOW()
 		WHERE id = $6 AND role_id = 3
 		RETURNING 'student successfully updated';`
+
+	adminFindStudentQuery = `
+		SELECT 
+			u.id AS student_id,
+			u.name AS student_name,
+			u.surname AS student_surname,
+			u.username AS student_username,
+			r.role AS role_name,
+			f.faculty_name,
+			f.faculty_code,
+			g.group_code,
+			g.course_year,
+			COUNT(*) OVER() AS total_count
+		FROM 
+			users u
+		LEFT JOIN 
+			roles r ON u.role_id = r.id
+		LEFT JOIN 
+			groups g ON u.group_id = g.id
+		LEFT JOIN 
+			faculties f ON g.faculty_id = f.id
+		WHERE 
+			(u.name ILIKE '%' || COALESCE($1, '') || '%' OR $1 IS NULL)
+			AND (u.surname ILIKE '%' || COALESCE($2, '') || '%' OR $2 IS NULL)
+			AND (u.username ILIKE '%' || COALESCE($3, '') || '%' OR $3 IS NULL)
+			AND (g.group_code ILIKE '%' || COALESCE($4, '') || '%' OR $4 IS NULL)
+			AND (f.faculty_name ILIKE '%' || COALESCE($5, '') || '%' OR $5 IS NULL)
+		ORDER BY 
+			u.id
+		OFFSET $6 LIMIT $7;
+	`
 )

@@ -309,3 +309,30 @@ func (r *UserRepository) UpdateStudent(ctx context.Context, updateData userModel
 
 	return updateRes, nil
 }
+
+func (r *UserRepository) AdminFindStudent(ctx context.Context, filterStudent userModel.FilterStudent, paginationQuery abstract.PaginationData) (
+	[]*userModel.AllStudentData, error,
+) {
+	var allStudentDataWithFilter []*userModel.AllStudentData
+	offset := (paginationQuery.CurrentPage - 1) * paginationQuery.Limit
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&allStudentDataWithFilter,
+		adminFindStudentQuery,
+		filterStudent.StudentName,
+		filterStudent.StudentSurname,
+		filterStudent.StudentUsername,
+		filterStudent.GroupCode,
+		filterStudent.FacultyName,
+		offset,
+		paginationQuery.Limit,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return allStudentDataWithFilter, nil
+}
