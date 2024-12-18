@@ -131,9 +131,14 @@ func (h *FacultyHandler) UpdateFaculty() fiber.Handler {
 // ListGroupsByFacultyID handler.
 func (h *FacultyHandler) ListGroupsByFacultyID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		facultyID, err := strconv.Atoi(c.Params("faculty_id"))
+		facultyIDStr := c.Query("faculty-id")
+		if facultyIDStr == "" {
+			return errlst.NewBadQueryParamsError("query param faculty-id can not be empty")
+		}
+
+		facultyID, err := strconv.Atoi(facultyIDStr)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.NewBadRequestError(err)
 		}
 
 		paginationReq, err := abstract.GetPaginationFromFiberCtx(c)

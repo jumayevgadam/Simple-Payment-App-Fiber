@@ -83,6 +83,10 @@ func (h *PaymentHandler) StudentUpdatePayment() fiber.Handler {
 			return errlst.NewBadRequestError(err)
 		}
 
+		if updateRequest.PaymentType == "3" && updateRequest.CurrentPaidSum < constants.FullPaymentPrice {
+			return errlst.NewBadRequestError("[paymentHandler][StudentUpdatePayment]: unsufficient payment")
+		}
+
 		res, err := h.service.PaymentService().StudentUpdatePayment(c, studentID, paymentID, updateRequest)
 		if err != nil {
 			return errlst.Response(c, err)
@@ -146,14 +150,19 @@ func (h *PaymentHandler) ListPaymentsByStudent() fiber.Handler {
 
 func (h *PaymentHandler) AdminListPaymentsByStudent() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		studentIDStr := c.Query("student-id")
+		if studentIDStr == "" {
+			return errlst.NewBadQueryParamsError("student-id param cannot be empty")
+		}
+
+		studentID, err := strconv.Atoi(studentIDStr)
+		if err != nil {
+			return errlst.NewBadRequestError(err)
+		}
+
 		paginationQuery, err := abstract.GetPaginationFromFiberCtx(c)
 		if err != nil {
 			return errlst.NewBadQueryParamsError(err)
-		}
-
-		studentID, err := strconv.Atoi(c.Params("student_id"))
-		if err != nil {
-			return errlst.NewBadRequestError(err)
 		}
 
 		listPaymentsByStudent, err := h.service.PaymentService().ListPaymentsByStudent(c.Context(), studentID, paginationQuery)

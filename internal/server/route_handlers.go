@@ -52,12 +52,16 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		authPath.Post("/login", Handlers.UserHandler().Login())
 	}
 
+	superadminPath := v1.Group("/superadmin", mdwManager.RoleBasedMiddleware("superadmin", 1))
+	{
+		superadminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
+	}
+
 	// Init Users.
 	adminPath := v1.Group("/admin", mdwManager.RoleBasedMiddleware("admin", 2))
 	{
 		// ADMIN.
 		adminPath.Post("/create-student", Handlers.UserHandler().AddStudent())
-		adminPath.Post("/create-admin", Handlers.UserHandler().AddAdmin())
 		adminPath.Get("/list-admins", Handlers.UserHandler().ListAdmins())
 		adminPath.Get("/list-students", Handlers.UserHandler().ListStudents())
 		adminPath.Get("/find-student", Handlers.UserHandler().AdminFindStudent())
@@ -83,10 +87,10 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		{
 			facultyGroup.Post("/create", Handlers.FacultyHandler().AddFaculty())
 			facultyGroup.Get("/", Handlers.FacultyHandler().ListFaculties())
+			facultyGroup.Get("/list-groups", Handlers.FacultyHandler().ListGroupsByFacultyID())
 			facultyGroup.Get("/:id", Handlers.FacultyHandler().GetFaculty())
 			facultyGroup.Delete("/:id", Handlers.FacultyHandler().DeleteFaculty())
 			facultyGroup.Put("/:id", Handlers.FacultyHandler().UpdateFaculty())
-			facultyGroup.Get("/:faculty_id/groups", Handlers.FacultyHandler().ListGroupsByFacultyID())
 		}
 
 		// Init Groups.
@@ -94,10 +98,10 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		{
 			groupPath.Post("/create", Handlers.GroupHandler().AddGroup())
 			groupPath.Get("/", Handlers.GroupHandler().ListGroups())
+			groupPath.Get("/students", Handlers.GroupHandler().ListStudentsByGroupID())
 			groupPath.Get("/:id", Handlers.GroupHandler().GetGroup())
 			groupPath.Delete("/:id", Handlers.GroupHandler().DeleteGroup())
 			groupPath.Put("/:id", Handlers.GroupHandler().UpdateGroup())
-			groupPath.Get("/students", Handlers.GroupHandler().ListStudentsByGroupID())
 		}
 
 		// Init Times.
@@ -109,7 +113,7 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		// Init Payments.
 		paymentPath := adminPath.Group("/student-payments")
 		{
-			paymentPath.Get("/:student_id", Handlers.PaymentHandler().AdminListPaymentsByStudent())
+			paymentPath.Get("/", Handlers.PaymentHandler().AdminListPaymentsByStudent())
 			paymentPath.Put("/:student_id/update/:payment_id", Handlers.PaymentHandler().AdminUpdatePaymentOfStudent())
 		}
 	}

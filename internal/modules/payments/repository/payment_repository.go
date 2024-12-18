@@ -176,7 +176,9 @@ func (r *PaymentRepository) AdminGetPaymentStatusOfStudent(ctx context.Context, 
 	return currentStatus, nil
 }
 
-func (r *PaymentRepository) AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error) {
+func (r *PaymentRepository) AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (
+	string, error,
+) {
 	var updatedRes string
 
 	err := r.psqlDB.QueryRow(
