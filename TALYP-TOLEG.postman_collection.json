@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "d5921fa0-8863-45fd-b91b-b0bc1d95bfb3",
 		"name": "TALYP-TOLEG",
-		"description": "API DOCUMENTATION OF TALYP-TOLEG",
+		"description": "API DOCUMENTATION OF TALYP-TOLEG\n\n\\-->> STATISTICS PART REMOVED --<<",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "38305940"
 	},
@@ -10,27 +10,6 @@
 		{
 			"name": "Admin",
 			"item": [
-				{
-					"name": "Statistics",
-					"item": [
-						{
-							"name": "get-statistics-about-university",
-							"request": {
-								"method": "GET",
-								"header": []
-							},
-							"response": []
-						},
-						{
-							"name": "get-statistics-about-faculties",
-							"request": {
-								"method": "GET",
-								"header": []
-							},
-							"response": []
-						}
-					]
-				},
 				{
 					"name": "create-student",
 					"request": {
@@ -409,7 +388,41 @@
 					"name": "list-students-by-group-id",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjEsInJvbGVfaWQiOjEsInVzZXJuYW1lIjoiaHlwZXJnYWRhbSIsInJvbGUiOiJzdXBlcmFkbWluIiwiZXhwIjoxNzM0MzY1NjkxfQ.YUmUlDDCPdj7SwhXW76BKDwTkKbcqUUs4Kj86KRp_d8",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:4000/api/v1/admin/groups/students?group-id=8&current-page=1&limit=2",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"groups",
+								"students"
+							],
+							"query": [
+								{
+									"key": "group-id",
+									"value": "8"
+								},
+								{
+									"key": "current-page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
 					},
 					"response": []
 				},
@@ -425,7 +438,39 @@
 					"name": "update-check-payment-status",
 					"request": {
 						"method": "PUT",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjEsInJvbGVfaWQiOjEsInVzZXJuYW1lIjoiaHlwZXJnYWRhbSIsInJvbGUiOiJzdXBlcmFkbWluIiwiZXhwIjoxNzM0MzY1NjkxfQ.YUmUlDDCPdj7SwhXW76BKDwTkKbcqUUs4Kj86KRp_d8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "payment-status",
+									"value": "Accepted",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:4000/api/v1/admin/student-payments/122/update/10",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"student-payments",
+								"122",
+								"update",
+								"10"
+							]
+						}
 					},
 					"response": []
 				},
@@ -483,7 +528,34 @@
 					"name": "get-group",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjEsInJvbGVfaWQiOjEsInVzZXJuYW1lIjoiaHlwZXJnYWRhbSIsInJvbGUiOiJzdXBlcmFkbWluIn0.BWYvhJHLZ6unA0FD_2Lsr6UOL86XamzESoIdco_6bgY",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:4000/api/v1/admin/groups/4",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"groups",
+								"4"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
 					},
 					"response": []
 				},
@@ -552,6 +624,65 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "search-user",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjEsInJvbGVfaWQiOjEsInVzZXJuYW1lIjoiaHlwZXJnYWRhbSIsInJvbGUiOiJzdXBlcmFkbWluIn0.BWYvhJHLZ6unA0FD_2Lsr6UOL86XamzESoIdco_6bgY",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:4000/api/v1/admin/find-student/?student-name=&student-username=&group-code=a13&faculty-name=Maglumat &current-page&limit",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"find-student",
+								""
+							],
+							"query": [
+								{
+									"key": "student-name",
+									"value": ""
+								},
+								{
+									"key": "student-surname",
+									"value": "Jumayev",
+									"disabled": true
+								},
+								{
+									"key": "student-username",
+									"value": ""
+								},
+								{
+									"key": "group-code",
+									"value": "a13"
+								},
+								{
+									"key": "faculty-name",
+									"value": "Maglumat "
+								},
+								{
+									"key": "current-page",
+									"value": null
+								},
+								{
+									"key": "limit",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -561,8 +692,50 @@
 				{
 					"name": "add-payment",
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjMsInJvbGVfaWQiOjMsInVzZXJuYW1lIjoibXRmNjAwNjAwIiwicm9sZSI6InN0dWRlbnQifQ.0xTx8QNhuU9_qB3SH6Sd_zLqV9O28Ue_5hKnmwH1iGY",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "check-photo",
+									"type": "file",
+									"src": "/home/gadam/Pictures/Screenshots/Screenshot from 2024-12-13 19-31-03.png"
+								},
+								{
+									"key": "payment-type",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "current-balance",
+									"value": "5000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:4000/api/v1/students/add-payment",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"add-payment"
+							]
+						}
 					},
 					"response": []
 				},
@@ -570,7 +743,48 @@
 					"name": "update-payment",
 					"request": {
 						"method": "PUT",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMjIsInJvbGVfaWQiOjMsInVzZXJuYW1lIjoibXRmNTAwNTAwIiwicm9sZSI6InN0dWRlbnQiLCJleHAiOjE3MzQzNTgzNDV9.H_8y6I8nipAjfevC2MR9EeUucIPouOVSCdBEcNyuk34",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "current-paid-sum",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "payment-type",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "check-photo",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:4000/api/v1/students/update-payment/10",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"update-payment",
+								"10"
+							]
+						}
 					},
 					"response": []
 				},
@@ -603,6 +817,27 @@
 				},
 				{
 					"name": "get-payment",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "statistics-of-university",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "statistics-about-faculty",
 					"request": {
 						"method": "GET",
 						"header": []
