@@ -46,7 +46,7 @@ func (mw *Manager) RoleBasedMiddleware(allowedRoles []string, allowedRoleIDs []i
 // Helper function to check if a string exists in a slice.
 func containsString(slice []string, item string) bool {
 	for _, str := range slice {
-		if strings.EqualFold(str, item) { // Case-insensitive comparison
+		if strings.EqualFold(str, item) { // Case-insensitive comparison.
 			return true
 		}
 	}

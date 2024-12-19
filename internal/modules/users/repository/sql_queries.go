@@ -12,6 +12,8 @@ const (
 			u.role_id AS role_id,
 			r.role AS role_type,
 			u.username AS username,
+			u.name AS name,
+			u.surname AS surname,
 			u.password AS password
 		FROM users AS u 
 		INNER JOIN roles AS r ON r.id = u.role_id

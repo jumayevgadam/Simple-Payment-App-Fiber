@@ -89,3 +89,6 @@ INSERT INTO users (
 
 ALTER TABLE times
 ADD COLUMN is_active BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE payments
+ADD CONSTRAINT unique_student_time_payment UNIQUE (student_id, time_id, payment_type);
