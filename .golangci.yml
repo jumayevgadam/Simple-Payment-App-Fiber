@@ -21,7 +21,7 @@ linters:
     - exhaustive
     - copyloopvar
     - forcetypeassert
-    - gochecknoinits
+    # - gochecknoinits
     - gocognit
     - goconst
     - gocritic
@@ -49,8 +49,8 @@ linters:
     - whitespace
     - wsl
     # - wastedassign - запрещает делать short declare
-    # - gosec
-    # - funlen
+    - gosec
+    - funlen
     # - gochecknoglobals
     # - depguard
     # - dupl

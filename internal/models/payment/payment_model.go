@@ -38,6 +38,7 @@ type AllPaymentDAO struct {
 	ID             int       `db:"id"`
 	StudentID      int       `db:"student_id"`
 	PaymentType    string    `db:"payment_type"`
+	CourseYear     int       `db:"course_year"`
 	CheckPhoto     string    `db:"check_photo"`
 	CurrentPaidSum int       `db:"payment_amount"`
 	PaymentStatus  string    `db:"payment_status"`
@@ -50,6 +51,7 @@ type AllPaymentDTO struct {
 	ID             int       `json:"paymentID"`
 	StudentID      int       `json:"studentID"`
 	PaymentType    string    `json:"paymentType"`
+	CourseYear     int       `json:"courseYear"`
 	CheckPhoto     string    `json:"checkPhotoURL"`
 	CurrentPaidSum int       `json:"paymentAmount"`
 	PaymentStatus  string    `json:"paymentStatus"`
@@ -62,6 +64,7 @@ func (a *AllPaymentDAO) ToServer() *AllPaymentDTO {
 		ID:             a.ID,
 		StudentID:      a.StudentID,
 		PaymentType:    a.PaymentType,
+		CourseYear:     a.CourseYear,
 		CheckPhoto:     a.CheckPhoto,
 		CurrentPaidSum: a.CurrentPaidSum,
 		PaymentStatus:  a.PaymentStatus,

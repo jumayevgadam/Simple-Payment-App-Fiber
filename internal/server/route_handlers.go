@@ -17,8 +17,7 @@ import (
 
 const v1URL = "/api/v1"
 
-// MapHandlers function contains all needed endpoints.
-func (s *Server) MapHandlers(dataStore database.DataStore) {
+func (s *Server) MapCustomMiddlewares() {
 	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":   "pong",
@@ -35,6 +34,11 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 	s.Fiber.Static("/uploads", "./uploads", fiber.Static{
 		Browse: true,
 	})
+}
+
+// MapHandlers function contains all needed endpoints.
+func (s *Server) MapHandlers(dataStore database.DataStore) {
+	s.MapCustomMiddlewares()
 
 	// Init MiddlewareManager.
 	mdwManager := middleware.NewMiddlewareManager(s.Cfg, s.Logger)

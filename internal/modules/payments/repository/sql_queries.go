@@ -54,16 +54,19 @@ const (
 
 	listPaymentsByStudentQuery = `
 		SELECT 
-			id,
-			student_id, 
-			payment_type,
-			payment_status,
-			payment_amount,
-			check_photo,
-			uploaded_at,
-			updated_at
-		FROM payments
-		WHERE student_id = $1
+			p.id,
+			p.student_id, 
+			p.payment_type,
+			g.course_year,
+			p.payment_status,
+			p.payment_amount,
+			p.check_photo,
+			p.uploaded_at,
+			p.updated_at
+		FROM payments p
+		INNER JOIN users u ON u.id = p.student_id
+		INNER JOIN groups g ON g.id = u.group_id
+		WHERE p.student_id = $1 AND u.role_id = 3
 		ORDER BY id DESC OFFSET $2 LIMIT $3;`
 
 	studentUpdatePaymentQuery = `
