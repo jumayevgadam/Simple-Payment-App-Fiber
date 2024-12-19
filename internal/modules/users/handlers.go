@@ -19,5 +19,4 @@ type Handlers interface {
 	ListStudents() fiber.Handler
 	DeleteStudent() fiber.Handler
 	UpdateStudent() fiber.Handler
-	ListPaymentsByStudentID() fiber.Handler
 }

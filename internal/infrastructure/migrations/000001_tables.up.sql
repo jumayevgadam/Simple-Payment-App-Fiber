@@ -86,3 +86,6 @@ INSERT INTO users (
 ) VALUES (
     1, 'Gadam', 'Jumayev', 'hypergadam', '$2a$10$O1GSNPZgig1p.qLQj2Ibve8k1aDBey9Ll9I4D/XFxObPaUev3Fvhm'
 ) RETURNING id;
+
+ALTER TABLE times
+ADD COLUMN is_active BOOLEAN DEFAULT FALSE;

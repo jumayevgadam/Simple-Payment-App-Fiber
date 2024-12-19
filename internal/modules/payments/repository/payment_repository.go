@@ -41,13 +41,14 @@ func (r *PaymentRepository) AddPayment(ctx context.Context, paymentData *payment
 	return paymentID, nil
 }
 
-func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID int) (bool, error) {
+func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID, timeID int) (bool, error) {
 	var count int
 
 	err := r.psqlDB.QueryRow(
 		ctx,
 		checkType3PaymentQuery,
 		studentID,
+		timeID,
 	).Scan(&count)
 
 	if err != nil {
@@ -191,4 +192,22 @@ func (r *PaymentRepository) AdminUpdatePaymentOfStudent(ctx context.Context, stu
 	}
 
 	return updatedRes, nil
+}
+
+func (r *PaymentRepository) ListPaymentsByStudentID(ctx context.Context, studentID int) ([]*paymentModel.PaymentsByStudentID, error) {
+	var paymentsByStudentID []*paymentModel.PaymentsByStudentID
+
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&paymentsByStudentID,
+		paymentsByStudentIDQuery,
+		studentID,
+	)
+
+	if err != nil {
+		return nil, errlst.ParseSQLErrors(err)
+	}
+
+	return paymentsByStudentID, nil
 }

@@ -26,7 +26,7 @@ const (
 				check_photo
 			) VALUES (
 				$1,
-				COALESCE(NULLIF($2, 0), 1),
+				$2,
 				$3,
 				COALESCE(NULLIF($4, '')::payment_status_enum, 'In Progress'), 
 				$5,
@@ -89,6 +89,11 @@ const (
 	checkType3PaymentQuery = `
 		SELECT COUNT(*)
 		FROM payments
-		WHERE student_id = $1 AND time_id = 1 AND payment_type = '3' 
+		WHERE student_id = $1 AND time_id = $2 AND payment_type = '3' 
 		AND (payment_status = 'Accepted' OR payment_status = 'In Progress');`
+
+	paymentsByStudentIDQuery = `
+		SELECT student_id, payment_type, payment_status
+		FROM payments 
+		WHERE student_id = $1 AND time_id = 1;`
 )

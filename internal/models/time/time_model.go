@@ -1,7 +1,5 @@
 package time
 
-import "github.com/jumayevgadam/tsu-toleg/pkg/constants"
-
 // Request model.
 type Request struct {
 	StartYear int `form:"start-year" validate:"required"`
@@ -24,16 +22,18 @@ func (r *Request) ToPsqlDBStorage() Response {
 
 // DTO model.
 type DTO struct {
-	ID        int `json:"id"`
-	StartYear int `json:"startYear"`
-	EndYear   int `json:"endYear"`
+	ID        int  `json:"id"`
+	StartYear int  `json:"startYear"`
+	EndYear   int  `json:"endYear"`
+	IsActive  bool `json:"isActiveYear"`
 }
 
 // DAO model.
 type DAO struct {
-	ID        int `db:"id"`
-	StartYear int `db:"start_year"`
-	EndYear   int `db:"end_year"`
+	ID        int  `db:"id"`
+	StartYear int  `db:"start_year"`
+	EndYear   int  `db:"end_year"`
+	IsActive  bool `db:"is_active"`
 }
 
 // ToServer sends DAO model to server.
@@ -42,19 +42,22 @@ func (d *DAO) ToServer() DTO {
 		ID:        d.ID,
 		StartYear: d.StartYear,
 		EndYear:   d.EndYear,
+		IsActive:  d.IsActive,
 	}
 }
 
 // UpdateRequest model and validate that.
 type UpdateRequest struct {
-	StartYear int `form:"start-year"`
-	EndYear   int `form:"end-year"`
+	StartYear int  `form:"start-year,omitempty"`
+	EndYear   int  `form:"end-year,omitempty"`
+	IsActive  bool `form:"is-active,omitempty"`
 }
 
-func (u *UpdateRequest) Validate() (string, error) {
-	if u.StartYear == 0 && u.EndYear == 0 {
-		return constants.NoUpdateResponse, nil
+func (u *UpdateRequest) ToPsqlDBStorage(timeID int) DAO {
+	return DAO{
+		ID:        timeID,
+		StartYear: u.StartYear,
+		EndYear:   u.EndYear,
+		IsActive:  u.IsActive,
 	}
-
-	return "", nil
 }

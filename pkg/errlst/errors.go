@@ -73,8 +73,6 @@ var (
 	ErrSyntax = errors.New("invalid syntax")
 )
 
-var _ RestErr = (*RestError)(nil) //nolint:errcheck
-
 // RestErr interface needs capturing errors.
 type RestErr interface {
 	Status() int

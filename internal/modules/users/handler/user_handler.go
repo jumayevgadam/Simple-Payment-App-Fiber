@@ -238,12 +238,6 @@ func (h *UserHandler) UpdateStudent() fiber.Handler {
 	}
 }
 
-func (h *UserHandler) ListPaymentsByStudentID() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return nil
-	}
-}
-
 func (h *UserHandler) AdminFindStudent() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		filterStudent := userModel.GetQueryParamsForFilterStudents(c)

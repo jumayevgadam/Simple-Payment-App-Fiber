@@ -36,7 +36,7 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 
 		err = reqvalidator.ReadRequest(c, &request)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.NewBadRequestError(err)
 		}
 
 		if err := helpers.CheckPayment(request); err != nil {

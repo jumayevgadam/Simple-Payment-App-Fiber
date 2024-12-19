@@ -109,6 +109,11 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		timePath := adminPath.Group("/times")
 		{
 			timePath.Post("/create", Handlers.TimeHandler().AddTime())
+			timePath.Get("/", Handlers.TimeHandler().ListTimes())
+			timePath.Get("/active-year", Handlers.TimeHandler().SelectActiveYear())
+			timePath.Get("/:time_id", Handlers.TimeHandler().GetTime())
+			timePath.Delete("/:time_id", Handlers.TimeHandler().DeleteTime())
+			timePath.Put("/:time_id", Handlers.TimeHandler().UpdateTime())
 		}
 
 		// Init Payments.

@@ -34,13 +34,31 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 	)
 
 	err = s.repo.WithTransaction(ctx.Context(), func(db database.DataStore) error {
-		existingPayment, err := db.PaymentRepo().CheckType3Payment(ctx.Context(), studentID)
+		// Select active year timeID.
+		activeYear, err := db.TimesRepo().SelectActiveYear(ctx.Context())
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		existingPayment, err := db.PaymentRepo().CheckType3Payment(ctx.Context(), studentID, activeYear.ID)
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
 		if existingPayment {
 			return errlst.NewBadRequestError("You cannot perform payment for type 3, because this action has already been performed.")
+		}
+
+		// implement logic here for student can do action with payment_type 1 and 2.
+		paymentsByStudentID, err := db.PaymentRepo().ListPaymentsByStudentID(ctx.Context(), studentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		for _, payment := range paymentsByStudentID {
+			if payment.PaymentType == paymentReq.PaymentType {
+				return errlst.NewBadRequestError("already u performed some payments for this year")
+			}
 		}
 
 		studentDataForPayment, err := db.PaymentRepo().GetStudentInfoForPayment(ctx.Context(), studentID)
@@ -57,7 +75,7 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 			return errlst.ParseErrors(err)
 		}
 
-		paymentID, err = db.PaymentRepo().AddPayment(ctx.Context(), paymentReq.ToPsqlDBStorage(studentID, checkPhotoURL))
+		paymentID, err = db.PaymentRepo().AddPayment(ctx.Context(), paymentReq.ToPsqlDBStorage(studentID, activeYear.ID, checkPhotoURL))
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
