@@ -61,7 +61,7 @@ func (mw *Manager) ParseToken(accessToken string) (*token.AccessTokenClaims, err
 			return []byte(mw.cfg.JWT.TokenSecret), nil
 		})
 	if err != nil {
-		return nil, errlst.NewUnauthorizedError("invalid access token")
+		return nil, errlst.NewUnauthorizedError("invalid access token, can not parse it")
 	}
 
 	claims, ok := tokenStr.Claims.(*token.AccessTokenClaims)

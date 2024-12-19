@@ -92,17 +92,17 @@ func (h *PaymentHandler) GetPayment() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		studentID, err := middleware.GetStudentIDFromFiberContext(c)
 		if err != nil {
-			return errlst.NewUnauthorizedError(err)
+			return errlst.Response(c, errlst.NewUnauthorizedError(err.Error()))
 		}
 
 		paymentIDStr := c.Query("payment-id")
 		if paymentIDStr == "" {
-			return errlst.NewBadRequestError("[paymentHandler][GetPayment]: payment-id Query param must need")
+			return errlst.Response(c, errlst.NewBadQueryParamsError("payment-id must implement in query param"))
 		}
 
 		paymentID, err := strconv.Atoi(paymentIDStr)
 		if err != nil {
-			return errlst.NewBadRequestError(err)
+			return errlst.Response(c, errlst.NewBadRequestError(err.Error()))
 		}
 
 		paymentRes, err := h.service.PaymentService().GetPayment(c.Context(), studentID, paymentID)

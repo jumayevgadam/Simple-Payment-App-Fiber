@@ -91,16 +91,25 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 }
 
 func (s *PaymentService) GetPayment(ctx context.Context, studentID, paymentID int) (*paymentModel.AllPaymentDTO, error) {
-	paymentData, err := s.repo.PaymentRepo().GetPaymentByID(ctx, paymentID)
-	if err != nil {
-		return nil, errlst.ParseErrors(err)
-	}
+	var (
+		paymentData *paymentModel.AllPaymentDAO
+		err         error
+	)
 
-	if paymentData.StudentID != studentID {
-		return nil, errlst.NewBadRequestError(
-			"studentID's mismatched: [paymentService][GetPaymentByID]",
-		)
-	}
+	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
+		paymentData, err = db.PaymentRepo().GetPaymentByID(ctx, paymentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
+		}
+
+		if paymentData.StudentID != studentID {
+			return errlst.NewBadRequestError(
+				"studentID's mismatched: [paymentService][GetPaymentByID]",
+			)
+		}
+
+		return nil
+	})
 
 	return paymentData.ToServer(), nil
 }

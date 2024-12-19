@@ -12,6 +12,9 @@ import (
 // Common errors encountered throughout the application:
 
 var (
+	// ErrAuthorizationHeaderNotProvided is used when authorization header not provided.
+	ErrAuthorizationHeaderNotProvided = errors.New("authorization header is not provided")
+
 	// ErrBadRequest is used when a client sends an invalid request.
 	ErrBadRequest = errors.New("bad request")
 

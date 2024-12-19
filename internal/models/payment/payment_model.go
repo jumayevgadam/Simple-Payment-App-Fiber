@@ -42,6 +42,8 @@ type AllPaymentDAO struct {
 	CheckPhoto     string    `db:"check_photo"`
 	CurrentPaidSum int       `db:"payment_amount"`
 	PaymentStatus  string    `db:"payment_status"`
+	StartYear      int       `db:"start_year"`
+	EndYear        int       `db:"end_year"`
 	UploadedAt     time.Time `db:"uploaded_at"`
 	UpdatedAt      time.Time `db:"updated_at"`
 }
@@ -55,6 +57,8 @@ type AllPaymentDTO struct {
 	CheckPhoto     string    `json:"checkPhotoURL"`
 	CurrentPaidSum int       `json:"paymentAmount"`
 	PaymentStatus  string    `json:"paymentStatus"`
+	StartYear      int       `json:"startYear"`
+	EndYear        int       `json:"endYear"`
 	UploadedAt     time.Time `json:"uploadedAt"`
 	UpdatedAt      time.Time `json:"updatedAt"`
 }
@@ -68,6 +72,8 @@ func (a *AllPaymentDAO) ToServer() *AllPaymentDTO {
 		CheckPhoto:     a.CheckPhoto,
 		CurrentPaidSum: a.CurrentPaidSum,
 		PaymentStatus:  a.PaymentStatus,
+		StartYear:      a.StartYear,
+		EndYear:        a.EndYear,
 		UploadedAt:     a.UploadedAt,
 		UpdatedAt:      a.UpdatedAt,
 	}

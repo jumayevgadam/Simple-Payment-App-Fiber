@@ -36,16 +36,22 @@ const (
 
 	getPaymentByIDQuery = `
 		SELECT 
-			id,
-			student_id,
-			payment_type,
-			payment_status,
-			payment_amount,
-			check_photo,
-			uploaded_at,
-			updated_at
-		FROM payments
-		WHERE id = $1;`
+			p.id,
+			p.student_id,
+			p.payment_type,
+			t.start_year,
+			t.end_year,
+			g.course_year,
+			p.payment_status,
+			p.payment_amount,
+			p.check_photo,
+			p.uploaded_at,
+			p.updated_at
+		FROM payments p
+		INNER JOIN times t ON t.id = p.time_id
+		INNER JOIN users u ON u.id = p.student_id
+		INNER JOIN groups g ON g.id = u.group_id
+		WHERE p.id = $1 AND u.role_id = 3;`
 
 	countPaymentsByStudentQuery = `
 		SELECT COUNT(student_id)
@@ -61,9 +67,12 @@ const (
 			p.payment_status,
 			p.payment_amount,
 			p.check_photo,
+			t.start_year,
+			t.end_year,
 			p.uploaded_at,
 			p.updated_at
 		FROM payments p
+		INNER JOIN times t ON t.id = p.time_id
 		INNER JOIN users u ON u.id = p.student_id
 		INNER JOIN groups g ON g.id = u.group_id
 		WHERE p.student_id = $1 AND u.role_id = 3

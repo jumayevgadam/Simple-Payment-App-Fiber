@@ -13,13 +13,13 @@ func (mw *Manager) RoleBasedMiddleware(allowedRoles []string, allowedRoleIDs []i
 		// Extract token from the Authorization header.
 		tokenString := c.Get("Authorization")
 		if tokenString == "" {
-			return errlst.NewForbiddenError("authorization header not provided")
+			return errlst.Response(c, errlst.NewForbiddenError(errlst.ErrAuthorizationHeaderNotProvided.Error()))
 		}
 
 		// Parse the token to extract claims.
 		claims, err := mw.ParseToken(tokenString)
 		if err != nil {
-			return errlst.NewUnauthorizedError(fmt.Sprintf("cannot parse token: %v", err))
+			return errlst.Response(c, err)
 		}
 
 		// Validate role and role ID.
