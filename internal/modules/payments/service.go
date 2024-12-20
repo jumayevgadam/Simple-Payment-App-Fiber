@@ -10,7 +10,7 @@ import (
 )
 
 type Service interface {
-	AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHeader, studentID int, paymentRequest *paymentModel.Request) (int, error)
+	AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHeader, studentID int, paymentRequest paymentModel.Request) (int, error)
 	GetPayment(ctx context.Context, studentID, paymentID int) (*paymentModel.AllPaymentDTO, error)
 	StudentUpdatePayment(ctx *fiber.Ctx, studentID, paymentID int, updateRequest paymentModel.UpdatePaymentRequest) (
 		string, error,

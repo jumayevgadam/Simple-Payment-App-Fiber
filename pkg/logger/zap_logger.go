@@ -65,7 +65,7 @@ func (l *APILogger) getLoggerLevel(cfg *config.Config) zapcore.Level {
 // InitLogger.
 func (l *APILogger) InitLogger() {
 	logLevel := l.getLoggerLevel(l.cfg)
-	logWriter := zapcore.AddSync(os.Stderr)
+	logWriter := zapcore.AddSync(os.Stdout)
 
 	var encoderCfg zapcore.EncoderConfig
 	if l.cfg.Server.Mode == "Development" {

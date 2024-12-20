@@ -6,10 +6,12 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
+	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 	"github.com/samber/lo"
@@ -25,40 +27,42 @@ func NewPaymentService(repo database.DataStore) *PaymentService {
 	return &PaymentService{repo: repo}
 }
 
-func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHeader, studentID int, paymentReq *paymentModel.Request) (
+func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHeader, studentID int, paymentReq paymentModel.Request) (
 	int, error,
 ) {
 	var (
 		paymentID int
-		err       error
+		// currentPaymentAmount int
+		err error
 	)
 
 	err = s.repo.WithTransaction(ctx.Context(), func(db database.DataStore) error {
-		// Select active year timeID.
+		// Select active year.
 		activeYear, err := db.TimesRepo().SelectActiveYear(ctx.Context())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		existingPayment, err := db.PaymentRepo().CheckType3Payment(ctx.Context(), studentID, activeYear.ID)
+		existingPayment, totalPaymentSum, err := db.PaymentRepo().CheckType3Payment(
+			ctx.Context(), studentID, activeYear.ID)
+
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		if existingPayment {
-			return errlst.NewBadRequestError("You cannot perform payment for type 3, because this action has already been performed.")
+		if existingPayment || totalPaymentSum == constants.FullPaymentPrice {
+			return errlst.ErrPaymentPerformedForThisYear
 		}
 
-		// implement logic here for student can do action with payment_type 1 and 2.
-		paymentsByStudentID, err := db.PaymentRepo().ListPaymentsByStudentID(ctx.Context(), studentID)
+		isPerformedPaymentForFirstSemester, firstSemesterPaymentAmount, err := db.PaymentRepo().IsPerformedPaymentCheck(
+			ctx.Context(), studentID, activeYear.ID)
+
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
 
-		for _, payment := range paymentsByStudentID {
-			if payment.PaymentType == paymentReq.PaymentType {
-				return errlst.NewBadRequestError("already u performed some payments for this year")
-			}
+		if err := helpers.CheckPayment(paymentReq, firstSemesterPaymentAmount, isPerformedPaymentForFirstSemester); err != nil {
+			return err
 		}
 
 		studentDataForPayment, err := db.PaymentRepo().GetStudentInfoForPayment(ctx.Context(), studentID)
@@ -91,25 +95,14 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 }
 
 func (s *PaymentService) GetPayment(ctx context.Context, studentID, paymentID int) (*paymentModel.AllPaymentDTO, error) {
-	var (
-		paymentData *paymentModel.AllPaymentDAO
-		err         error
-	)
+	paymentData, err := s.repo.PaymentRepo().GetPaymentByID(ctx, paymentID)
+	if err != nil {
+		return nil, errlst.ParseErrors(err)
+	}
 
-	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		paymentData, err = db.PaymentRepo().GetPaymentByID(ctx, paymentID)
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
-
-		if paymentData.StudentID != studentID {
-			return errlst.NewBadRequestError(
-				"studentID's mismatched: [paymentService][GetPaymentByID]",
-			)
-		}
-
-		return nil
-	})
+	if paymentData.StudentID != studentID {
+		return nil, errlst.ParseErrors(err)
+	}
 
 	return paymentData.ToServer(), nil
 }
@@ -127,7 +120,7 @@ func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID in
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		_, err = db.UsersRepo().GetStudent(ctx, studentID)
 		if err != nil {
-			return errlst.NewNotFoundError("student can not found: [paymentService][ListPaymentsByStudent]")
+			return errlst.ErrStudentNotFound
 		}
 
 		totalCountOfPaymentsByStudent, err = db.PaymentRepo().CountPaymentByStudent(ctx, studentID)

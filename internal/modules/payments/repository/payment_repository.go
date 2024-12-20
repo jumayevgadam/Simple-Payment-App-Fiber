@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
@@ -20,7 +22,7 @@ func NewPaymentRepository(psqlDB connection.DB) *PaymentRepository {
 	return &PaymentRepository{psqlDB: psqlDB}
 }
 
-func (r *PaymentRepository) AddPayment(ctx context.Context, paymentData *paymentModel.Response) (int, error) {
+func (r *PaymentRepository) AddPayment(ctx context.Context, paymentData paymentModel.Response) (int, error) {
 	var paymentID int
 
 	err := r.psqlDB.QueryRow(
@@ -41,8 +43,11 @@ func (r *PaymentRepository) AddPayment(ctx context.Context, paymentData *payment
 	return paymentID, nil
 }
 
-func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID, timeID int) (bool, error) {
-	var count int
+func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID, timeID int) (bool, int, error) {
+	var (
+		count      int
+		paymentSum int
+	)
 
 	err := r.psqlDB.QueryRow(
 		ctx,
@@ -52,10 +57,27 @@ func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID, ti
 	).Scan(&count)
 
 	if err != nil {
-		return false, errlst.ParseSQLErrors(err)
+		return false, 0, errlst.ParseSQLErrors(err)
 	}
 
-	return count > 0, nil
+	err = r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&paymentSum,
+		totalPaymentSumQuery,
+		studentID,
+		timeID,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, 0, nil
+		}
+
+		return false, 0, errlst.ParseSQLErrors(err)
+	}
+
+	return count > 0, paymentSum, nil
 }
 
 func (r *PaymentRepository) GetStudentInfoForPayment(ctx context.Context, studentID int) (*paymentModel.StudentInfoForPayment, error) {
@@ -210,4 +232,62 @@ func (r *PaymentRepository) ListPaymentsByStudentID(ctx context.Context, student
 	}
 
 	return paymentsByStudentID, nil
+}
+
+func (r *PaymentRepository) IsPerformedPaymentCheck(ctx context.Context, studentID, timeID int) (bool, int, error) {
+	var (
+		exists                     bool
+		firstSemesterPaymentAmount int
+	)
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&exists,
+		isPerformedPaymentCheckQuery,
+		studentID,
+		timeID,
+	)
+
+	if err != nil {
+		return false, 0, errlst.ParseSQLErrors(err)
+	}
+
+	if exists {
+		err = r.psqlDB.Get(
+			ctx,
+			r.psqlDB,
+			&firstSemesterPaymentAmount,
+			firstSemesterPaymentAmountQuery,
+			studentID,
+			timeID,
+		)
+
+		if err != nil {
+			return false, 0, errlst.ParseSQLErrors(err)
+		}
+	}
+
+	return exists, firstSemesterPaymentAmount, nil
+}
+
+func (r *PaymentRepository) CurrentPaymentAmount(ctx context.Context, studentID, timeID int) (int, error) {
+	var totalPaymentAmount int
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		totalPaymentAmount,
+		`SELECT
+			 SUM(payment_amount) FROM payments 
+		WHERE student_id = $1 AND time_id = $2
+		GROUP BY student_id, time_id;`,
+		studentID, timeID,
+	)
+
+	if err != nil {
+		return 0, errlst.ParseSQLErrors(err)
+	}
+
+	return totalPaymentAmount, nil
 }

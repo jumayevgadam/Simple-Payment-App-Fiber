@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services"
 	"github.com/jumayevgadam/tsu-toleg/internal/middleware"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
@@ -39,16 +38,12 @@ func (h *PaymentHandler) AddPayment() fiber.Handler {
 			return errlst.NewBadRequestError(err)
 		}
 
-		if err := helpers.CheckPayment(request); err != nil {
-			return errlst.NewBadRequestError(err)
-		}
-
 		checkPhoto, err := utils.ReadImage(c, "check-photo")
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		paymentID, err := h.service.PaymentService().AddPayment(c, checkPhoto, studentID, &request)
+		paymentID, err := h.service.PaymentService().AddPayment(c, checkPhoto, studentID, request)
 		if err != nil {
 			return errlst.Response(c, err)
 		}

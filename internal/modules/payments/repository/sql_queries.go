@@ -104,8 +104,21 @@ const (
 		WHERE student_id = $1 AND time_id = $2 AND payment_type = '3' 
 		AND (payment_status = 'Accepted' OR payment_status = 'In Progress');`
 
+	totalPaymentSumQuery = `
+		SELECT SUM(payment_amount)
+		FROM payments 
+		WHERE student_id = $1 AND time_id = $2
+		GROUP BY student_id;`
+
 	paymentsByStudentIDQuery = `
 		SELECT student_id, payment_type, payment_status
 		FROM payments 
 		WHERE student_id = $1 AND time_id = 1;`
+
+	isPerformedPaymentCheckQuery = `
+		SELECT EXISTS (SELECT 1 FROM payments WHERE student_id = $1 AND payment_type = '1' AND time_id = $2);`
+
+	firstSemesterPaymentAmountQuery = `
+		SELECT payment_amount FROM payments
+		WHERE student_id = $1 AND time_id = $2;`
 )
