@@ -16,18 +16,15 @@ func (s *Server) MapCustomMiddlewares() {
 		})
 	})
 
+	s.Fiber.Use(CustomRecover())
+
 	s.Fiber.Use(
-		CustomRecover(),
 		cors.New(cors.Config{
 			AllowOrigins: "*",
 			AllowHeaders: "Content-Type, Authorization, Origin, X-Custom-Header",
 			AllowMethods: "POST,GET,PUT,DELETE,HEAD,OPTIONS,PATCH",
 		}),
 	)
-
-	s.Fiber.Get("/panic", func(_ *fiber.Ctx) error {
-		panic("this is a test panic")
-	})
 
 	s.Fiber.Static("/uploads", "./uploads", fiber.Static{
 		Browse: true,
