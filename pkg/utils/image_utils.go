@@ -18,11 +18,11 @@ func ReadImage(c *fiber.Ctx, field string) (*multipart.FileHeader, error) {
 
 	file, err := c.FormFile(field)
 	if err != nil {
-		return nil, errlst.NewBadRequestError(err.Error())
+		return nil, errlst.ErrNoUploadedFile
 	}
 
 	if file.Size > maxFileSize {
-		return nil, errlst.NewBadRequestError("file size exceeds from limit 5MB")
+		return nil, errlst.ErrFileSize
 	}
 
 	return file, nil

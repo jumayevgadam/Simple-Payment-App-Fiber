@@ -68,6 +68,12 @@ var (
 	// ErrSyntax is returned when there is a syntax error in the input or the request.
 	ErrSyntax = errors.New("invalid syntax")
 
+	// ErrNoUploadedFile is used when student does not upload payment.
+	ErrNoUploadedFile = errors.New("there is no uploaded file associated with the given key")
+
+	// ErrFileSize is returned when student uploaded file bigger than 5MB.
+	ErrFileSize = errors.New("file size exceeds from limit 5MB")
+
 	// ------------------ NOT FOUND COLLECTIOIN OF ERRORS ----------------------------------------.
 
 	// ErrNotFound is returned when the requested resource could not be found in the system.
@@ -85,10 +91,28 @@ var (
 	// ErrNoSuchRole is returned when an attempt is made to find roles associated with a permission that does not exist.
 	ErrNoSuchRole = errors.New("no roles found for this permission")
 
-	// -------------------- SPECIFIC ERRORS FOR PAYMENT MODULE ---------------------------
+	// -------------------- SPECIFIC ERRORS FOR PAYMENT MODULE -----------------------------------.
 
 	// ErrPaymentPerformedForThisYear is used when student also perform payment after full payment.
-	ErrPaymentPerformedForThisYear = errors.New("you cannot perform full for this year, because this action has already been performed")
+	ErrPaymentPerform = errors.New("you cannot perform full payment for this year, because this action has already been performed")
+
+	// ErrDidNotPerformPayment is used when student did not perform that academic year yet.
+	ErrDidNotPerformPayment = errors.New("u did not perform first semester payment, please do for first semester or perform full payment")
+
+	// ErrFullPayment is used when student perform full payment with wrong details.
+	ErrFullPayment = errors.New("please implement true payment balance for full payment")
+
+	// ErrFirstSemesterPayment is used when student perform wrong payment for first semester.
+	ErrFirstSemesterPayment = errors.New("can not perform first semester payment, unnecessary payment balance for first semester payment")
+
+	// ErrDidNotPerformFullPayment is used when student perform first semester payment, then does not perform full payment.
+	ErrDidNotPerformFullPayment = errors.New("u performed first semester payment, please perform 2nd semester payment")
+
+	// ErrSecondSemesterPayment is used when student perform wrong payment for second semester.
+	ErrSecondSemesterPayment = errors.New("u performed first semester payment, but unnecessary payment implemented for second semester")
+
+	// ErrInPaymentType is used when student perform wrong payment type.
+	ErrInPaymentType = errors.New("error in wrong type, only payment types 1, 2 and 3 allowed")
 )
 
 // RestErr interface needs capturing errors.

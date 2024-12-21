@@ -4,10 +4,6 @@
 package server
 
 import (
-	"time"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	handlerManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/handlers/manager"
 	serviceManager "github.com/jumayevgadam/tsu-toleg/internal/infrastructure/services/manager"
@@ -16,25 +12,6 @@ import (
 )
 
 const v1URL = "/api/v1"
-
-func (s *Server) MapCustomMiddlewares() {
-	s.Fiber.Get("/ping", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"message":   "pong",
-			"timestamp": time.Now(),
-		})
-	})
-
-	s.Fiber.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Content-Type, Authorization, Origin, X-Custom-Header",
-		AllowMethods: "POST,GET,PUT,DELETE,HEAD,OPTIONS,PATCH",
-	}))
-
-	s.Fiber.Static("/uploads", "./uploads", fiber.Static{
-		Browse: true,
-	})
-}
 
 // MapHandlers function contains all needed endpoints.
 func (s *Server) MapHandlers(dataStore database.DataStore) {

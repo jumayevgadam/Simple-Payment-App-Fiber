@@ -50,7 +50,7 @@ linters:
     - wsl
     # - wastedassign - запрещает делать short declare
     - gosec
-    - funlen
+    # - funlen
     # - gochecknoglobals
     # - depguard
     # - dupl

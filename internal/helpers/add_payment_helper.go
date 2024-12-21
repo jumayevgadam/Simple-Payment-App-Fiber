@@ -13,38 +13,28 @@ func CheckPayment(request payment.Request, firstSemesterPaymentAmount int, first
 	switch firstSemesterPayment {
 	case true:
 		if request.PaymentType != "2" || request.PaymentType == "3" {
-			return errlst.NewBadRequestError(
-				"u performed first semester payment, please perform 2nd semester payment",
-			)
+			return errlst.ErrDidNotPerformFullPayment
 		}
 
 		if request.PaymentType == "2" && request.CurrentPaidSum != fullPrice-firstSemesterPaymentAmount {
-			return errlst.NewBadRequestError(
-				"u performed first semester payment, unnecessary payment implemented for second semester",
-			)
+			return errlst.ErrSecondSemesterPayment
 		}
 
 	case false:
 		if request.PaymentType == "1" && request.CurrentPaidSum < minimum || request.CurrentPaidSum > fullPrice {
-			return errlst.NewBadRequestError(
-				"can not perform first semester payment, unnecessary payment balance for first semester payment",
-			)
+			return errlst.ErrFirstSemesterPayment
 		}
 
 		if request.PaymentType == "2" {
-			return errlst.NewBadRequestError(
-				"u did not perform first semester payment,u can not perform second semester payment, please do for first semester or perform full payment",
-			)
+			return errlst.ErrDidNotPerformPayment
 		}
 
 		if request.PaymentType == "3" && request.CurrentPaidSum != fullPrice {
-			return errlst.NewBadRequestError(
-				"please implement true payment balance for full payment",
-			)
+			return errlst.ErrFullPayment
 		}
 
 	default:
-		errlst.NewBadRequestError("u implement wrong payment_type")
+		return errlst.ErrInPaymentType
 	}
 
 	return nil

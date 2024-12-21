@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"mime/multipart"
 	"os"
 
@@ -51,7 +52,7 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 		}
 
 		if existingPayment || totalPaymentSum == constants.FullPaymentPrice {
-			return errlst.ErrPaymentPerformedForThisYear
+			return errlst.ErrPaymentPerform
 		}
 
 		isPerformedPaymentForFirstSemester, firstSemesterPaymentAmount, err := db.PaymentRepo().IsPerformedPaymentCheck(
@@ -181,7 +182,11 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 			return errlst.ParseErrors(err)
 		}
 
-		photo, _ := utils.ReadImage(c, "check-photo")
+		photo, err := utils.ReadImage(c, "check-photo")
+		if err != nil && !errors.Is(err, errlst.ErrNoUploadedFile) {
+			return errlst.ParseErrors(err)
+		}
+
 		if photo == nil {
 			checkPhotoURL = paymentData.CheckPhoto
 		}
