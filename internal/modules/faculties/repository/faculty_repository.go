@@ -109,7 +109,7 @@ func (f *FacultyRepository) DeleteFaculty(ctx context.Context, facultyID int) er
 	}
 
 	if result.RowsAffected() == 0 {
-		return errlst.NewNotFoundError("[facultyRepository][DeleteFaculty]: faculty not found")
+		return errlst.ErrFacultyNotFound
 	}
 
 	return nil

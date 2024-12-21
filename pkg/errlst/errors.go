@@ -2,7 +2,6 @@ package errlst
 
 import (
 	"errors"
-	"fmt"
 )
 
 // Package errlst provides a centralized place for defining errors used in various layers of the project.
@@ -82,14 +81,23 @@ var (
 	// ErrFileNotFound is returned when the uploaded file not found.
 	ErrFileNotFound = errors.New("file not found")
 
-	// ErrStudentNotFound is returned when student not found in that id.
+	// ErrStudentNotFound is returned when student not found an identified id.
 	ErrStudentNotFound = errors.New("student not found")
 
+	// ErrAdminNotFound is returned when admin not found an identified id.
+	ErrAdminNotFound = errors.New("admin not found")
+
 	// ErrPaymentNotFound is returned whene there is not a payment in given id.
-	ErrPaymentNotFound = errors.New("no payment found with the given id")
+	ErrPaymentNotFound = errors.New("no payment found with the given paymentID")
 
 	// ErrNoSuchRole is returned when an attempt is made to find roles associated with a permission that does not exist.
 	ErrNoSuchRole = errors.New("no roles found for this permission")
+
+	// ErrGroupNotFound is returned when group not found in that identified id.
+	ErrGroupNotFound = errors.New("group not found an identified id")
+
+	// ErrFacultyNotFound is returned when faculty not found in that identified id.
+	ErrFacultyNotFound = errors.New("faculty not found an identified id")
 
 	// -------------------- SPECIFIC ERRORS FOR PAYMENT MODULE -----------------------------------.
 
@@ -112,39 +120,10 @@ var (
 	ErrSecondSemesterPayment = errors.New("u performed first semester payment, but unnecessary payment implemented for second semester")
 
 	// ErrInPaymentType is used when student perform wrong payment type.
-	ErrInPaymentType = errors.New("error in wrong type, only payment types 1, 2 and 3 allowed")
+	ErrInPaymentType = errors.New("wrong payment type, only payment types 1, 2 and 3 allowed")
+
+	// ErrMisMatchedStudentID is used when payments.student_id is not equal to studentID.
+	ErrMisMatchedStudentID = errors.New("studentID mismatched with payments.student_id")
+
+	// ------------------ SPECIFIC ERRORS FOR GROUPS MODULE --------------------------------------.
 )
-
-// RestErr interface needs capturing errors.
-type RestErr interface {
-	Status() int
-	Error() string
-	Causes() interface{}
-	// AppearedAt() time.Time
-}
-
-// RestError struct to implement the RestErr interface.
-type RestError struct {
-	ErrStatus  int         `json:"err_status,omitempty"`
-	ErrMessage string      `json:"err_msg,omitempty"`
-	ErrCause   interface{} `json:"err_cause,omitempty"`
-}
-
-// ---------- IMPLEMENTING RestErr methods -------------.
-
-// Status is.
-func (e RestError) Status() int {
-	return e.ErrStatus
-}
-
-// Causes is.
-func (e RestError) Causes() interface{} {
-	return e.ErrCause
-}
-
-func (e RestError) Error() string {
-	return fmt.Sprintf(
-		"Error: {\n  Status: %d,\n  Message: \"%s\",\n  Cause: %v\n}",
-		e.ErrStatus, e.ErrMessage, e.ErrCause,
-	)
-}

@@ -110,7 +110,7 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, groupID int) error {
 	}
 
 	if result.RowsAffected() == 0 {
-		return errlst.NewNotFoundError("[groupRepository][DeleteGroup]: group not found")
+		return errlst.ErrGroupNotFound
 	}
 
 	return nil

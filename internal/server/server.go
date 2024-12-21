@@ -37,8 +37,6 @@ func NewServer(
 		Logger:    logger,
 	}
 
-	server.Logger.InitLogger()
-
 	return server
 }
 

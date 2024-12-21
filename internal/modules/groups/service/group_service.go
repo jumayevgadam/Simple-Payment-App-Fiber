@@ -114,10 +114,10 @@ func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue 
 		err       error
 	)
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
-		// check group exist in this id
+		// check group exist in this id.
 		_, err = db.GroupsRepo().GetGroup(ctx, groupID)
 		if err != nil {
-			return errlst.ParseErrors(err)
+			return errlst.ErrGroupNotFound
 		}
 
 		resFromDB, err = db.GroupsRepo().UpdateGroup(ctx, inputValue.ToStorage(groupID))
@@ -150,7 +150,7 @@ func (s *GroupService) ListGroupsByFacultyID(ctx context.Context, facultyID int,
 		// check faculty that exist or not.
 		_, err = db.FacultiesRepo().GetFaculty(ctx, facultyID)
 		if err != nil {
-			return errlst.NewNotFoundError("[GroupService][ListGroupsByFacultyID]: faculty not found")
+			return errlst.ErrFacultyNotFound
 		}
 
 		totalGroupCount, err = db.GroupsRepo().CountGroupsByFacultyID(ctx, facultyID)

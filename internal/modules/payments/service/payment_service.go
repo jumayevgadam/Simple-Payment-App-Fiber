@@ -102,7 +102,7 @@ func (s *PaymentService) GetPayment(ctx context.Context, studentID, paymentID in
 	}
 
 	if paymentData.StudentID != studentID {
-		return nil, errlst.ParseErrors(err)
+		return nil, errlst.ErrMisMatchedStudentID
 	}
 
 	return paymentData.ToServer(), nil
@@ -237,11 +237,11 @@ func (s *PaymentService) AdminUpdatePaymentOfStudent(ctx context.Context, studen
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		paymentData, err := db.PaymentRepo().GetPaymentByID(ctx, paymentID)
 		if err != nil {
-			return errlst.NewBadRequestError(err)
+			return errlst.ErrPaymentNotFound
 		}
 
 		if paymentData.StudentID != studentID {
-			return errlst.NewBadRequestError("mismatched studentID in [paymentService][AdminUpdatePaymentOfStudent]")
+			return errlst.ErrMisMatchedStudentID
 		}
 
 		updateRes, err = db.PaymentRepo().AdminUpdatePaymentOfStudent(ctx, studentID, paymentID, paymentStatus)

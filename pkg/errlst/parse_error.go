@@ -15,66 +15,90 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/pkg/logger"
 )
 
+// RestErr interface needs capturing errors.
+type RestErr interface {
+	Status() int
+	Error() string
+}
+
+// RestError struct to implement the RestErr interface.
+type RestError struct {
+	ErrStatus  int         `json:"err_status,omitempty"`
+	ErrKind    string      `json:"err_kind,omitempty"`
+	ErrMessage interface{} `json:"err_msg,omitempty"`
+}
+
+// ---------- IMPLEMENTING RestErr methods -------------.
+
+// Status is.
+func (e RestError) Status() int {
+	return e.ErrStatus
+}
+
+func (e RestError) Error() string {
+	return fmt.Sprintf("%v", e.ErrMessage)
+}
+
 // NewBadRequestError creates a new 400 bad request error.
-func NewBadRequestError(cause interface{}) RestErr {
+func NewBadRequestError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusBadRequest,
-		ErrMessage: ErrBadRequest.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrBadRequest.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewNotFoundError creates a new 404 not found error.
-func NewNotFoundError(cause interface{}) RestErr {
+func NewNotFoundError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusNotFound,
-		ErrMessage: ErrNotFound.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrNotFound.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewBadQueryParamsError creates a 403 bad query params error.
-func NewBadQueryParamsError(cause interface{}) RestErr {
+func NewBadQueryParamsError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusBadRequest,
-		ErrMessage: ErrBadQueryParams.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrBadQueryParams.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewUnauthorizedError creates a 401 unauthorized error.
-func NewUnauthorizedError(cause interface{}) RestErr {
+func NewUnauthorizedError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusUnauthorized,
-		ErrMessage: ErrUnauthorized.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrUnauthorized.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewInternalServerError creates a 500 internal server error.
-func NewInternalServerError(cause interface{}) RestErr {
+func NewInternalServerError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusInternalServerError,
-		ErrMessage: ErrInternalServer.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrInternalServer.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewConflictError creates a new 409 conflict error.
-func NewConflictError(cause interface{}) RestErr {
+func NewConflictError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusConflict,
-		ErrMessage: ErrConflict.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrConflict.Error(),
+		ErrMessage: err,
 	}
 }
 
 // NewForbiddenError creates a new 403 forbidden error.
-func NewForbiddenError(cause interface{}) RestErr {
+func NewForbiddenError(err any) RestErr {
 	return &RestError{
 		ErrStatus:  http.StatusForbidden,
-		ErrMessage: ErrForbidden.Error(),
-		ErrCause:   cause,
+		ErrKind:    ErrForbidden.Error(),
+		ErrMessage: err,
 	}
 }
 
