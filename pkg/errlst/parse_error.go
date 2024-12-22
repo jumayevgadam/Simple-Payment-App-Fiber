@@ -1,7 +1,6 @@
 package errlst
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -165,7 +164,7 @@ func ParseValidatorError(err error) RestErr {
 func ParseErrors(err error) RestErr {
 	switch {
 	// pgx specific errors
-	case errors.Is(err, sql.ErrNoRows):
+	case errors.Is(err, pgx.ErrNoRows):
 		return NewNotFoundError(err.Error())
 	case errors.Is(err, pgx.ErrTooManyRows):
 		return NewConflictError(err.Error())

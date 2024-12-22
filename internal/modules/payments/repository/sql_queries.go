@@ -84,7 +84,7 @@ const (
 			payment_type = COALESCE(NULLIF($1, '')::payment_type_enum, payment_type),
 			payment_amount = COALESCE(NULLIF($2, 0), payment_amount),
 			check_photo = COALESCE(NULLIF($3, ''), check_photo)
-		WHERE student_id = $4 AND id = $5
+		WHERE student_id = $4 AND id = $5 AND (payment_status = 'In Progress' OR payment_status = 'Rejected')
 		RETURNING 'payment ops successfully updated';`
 
 	adminGetPaymentStatusQuery = `

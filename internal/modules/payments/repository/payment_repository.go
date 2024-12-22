@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
+	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
@@ -158,9 +159,29 @@ func (r *PaymentRepository) ListPaymentsByStudent(ctx context.Context, studentID
 }
 
 func (r *PaymentRepository) StudentUpdatePayment(ctx context.Context, paymentData paymentModel.UpdatePaymentData) (string, error) {
-	var res string
+	var (
+		res          string
+		paymentTypes []string
+	)
 
-	err := r.psqlDB.QueryRow(
+	err := r.psqlDB.Select(
+		ctx,
+		r.psqlDB,
+		&paymentTypes,
+		`SELECT payment_type FROM payments WHERE student_id = $1 AND time_id = $2`,
+		paymentData.StudentID,
+		paymentData.TimeID,
+	)
+
+	if err != nil {
+		return "", errlst.ParseSQLErrors(err)
+	}
+
+	if updateChkErr := helpers.UpdatePaymentChecker(paymentData, paymentTypes); updateChkErr != nil {
+		return "", updateChkErr
+	}
+
+	err = r.psqlDB.QueryRow(
 		ctx,
 		studentUpdatePaymentQuery,
 		paymentData.PaymentType,

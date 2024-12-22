@@ -7,33 +7,53 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 )
 
-// UpdatePaymentCheck method helps to us updating fields of payments table.
-func UpdatePayment(request *payment.UpdatePaymentRequest, currentPaymentType string, paymentCount int, currentBalance int) error {
-	fullPrice := constants.FullPaymentPrice
-
-	switch paymentCount {
-	case 2:
-		if request.PaymentType != "" && request.PaymentType == "3" {
-			return errors.New("you can not update payment type to full type")
-		}
-	case 1:
-		switch currentPaymentType {
-		case "1":
-			if request.PaymentType == "2" {
-				return errors.New("you can not update payment")
+func UpdatePaymentChecker(paymentData payment.UpdatePaymentData, paymentTypes []string) error {
+	for _, pType := range paymentTypes {
+		switch len(pType) {
+		case 2:
+			if paymentData.PaymentType == "3" {
+				return errors.New("can not update payment for full update, two times performed payment")
 			}
-		}
 
-		if currentPaymentType == "3" && request.PaymentType != "3" {
-			return errors.New("")
-		}
+			switch pType {
+			case "1":
+				if paymentData.CurrentPaidSum >= constants.FullPaymentPrice || paymentData.CurrentPaidSum < constants.AtLeastPaymentPrice {
+					return errors.New("wrong payment amount implemented for first semester payment update")
+				}
 
-		if currentPaymentType == "1" && request.PaymentType == "3" && request.CurrentPaidSum != fullPrice {
-			return errors.New("current payment type 1, for updating to full payment, current paid sum is not equal to full price")
-		}
+			case "2":
+				if paymentData.PaymentType == "3" {
+					return errors.New("can not update for full payment, current payment type for second semester")
+				}
+			}
 
-		if request.PaymentType == "2" && currentPaymentType == "3" {
-			return errors.New("can not update payment ")
+		case 1:
+			switch pType {
+			case "1":
+				if paymentData.PaymentType == "3" && paymentData.CurrentPaidSum != constants.FullPaymentPrice {
+					return errors.New("wrong payment amount implemented for full payment in update payment")
+				}
+
+				if paymentData.PaymentType == "" && paymentData.CurrentPaidSum < constants.AtLeastPaymentPrice || paymentData.CurrentPaidSum >= constants.FullPaymentPrice {
+					return errors.New("current payment type 1, wrong payment balance implemented for first semester in update")
+				}
+
+			case "3":
+				if paymentData.PaymentType == "2" {
+					return errors.New("current payment type 3, can not update payment for second semester")
+				}
+
+				if paymentData.PaymentStatus == "1" {
+					if paymentData.CurrentPaidSum == 0 {
+						return errors.New("current payment type 3, for updating payment to first semester, please implement payment balance")
+					} else {
+						if paymentData.CurrentPaidSum < constants.AtLeastPaymentPrice || paymentData.CurrentPaidSum >= constants.FullPaymentPrice {
+							return errors.New("current payment type 3, wrong payment amount implemented for first semester in update")
+						}
+					}
+				}
+			}
+
 		}
 	}
 

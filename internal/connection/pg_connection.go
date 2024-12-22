@@ -91,15 +91,15 @@ func connectToDB(ctx context.Context, cfg config.PostgresDB) (*pgxpool.Pool, err
 		cfg.SslMode,
 	)
 
-	// Parse the connection string to create a pgxpool configuration
+	// Parse the connection string to create a pgxpool configuration.
 	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		return nil, fmt.Errorf("parsing connection config: %w", err)
 	}
 
 	// Configure the connection pool settings
-	config.MaxConns = 200 // Max number of connections
-	config.MinConns = 10  // Min number of connections
+	config.MaxConns = 200 // Max number of connections.
+	config.MinConns = 10  // Min number of connections.
 
 	// Create a new connection pool
 	db, err := pgxpool.NewWithConfig(ctx, config)
@@ -107,7 +107,7 @@ func connectToDB(ctx context.Context, cfg config.PostgresDB) (*pgxpool.Pool, err
 		return nil, fmt.Errorf("creating connection pool: %w", err)
 	}
 
-	// Ping the database to verify the connection
+	// Ping the database to verify the connection.
 	if err := db.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("pinging database: %w", err)
 	}
