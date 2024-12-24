@@ -1,11 +1,11 @@
 package server
 
 import (
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func (s *Server) MapCustomMiddlewares() {
@@ -16,7 +16,11 @@ func (s *Server) MapCustomMiddlewares() {
 		})
 	})
 
-	s.Fiber.Use(CustomRecover())
+	s.Fiber.Use(recover.New())
+
+	s.Fiber.Get("/panic", func(c *fiber.Ctx) error {
+		panic("errr")
+	})
 
 	s.Fiber.Use(
 		cors.New(cors.Config{
@@ -31,20 +35,20 @@ func (s *Server) MapCustomMiddlewares() {
 	})
 }
 
-func CustomRecover() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("Request failed: %v", err)
+// func CustomRecover() fiber.Handler {
+// 	return func(c *fiber.Ctx) error {
+// 		defer func() {
+// 			if err := recover(); err != nil {
+// 				log.Printf("Request failed: %v", err)
 
-				if jsonErr := c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"message": "Something went wrong, please try again later",
-				}); jsonErr != nil {
-					log.Printf("error sending response: %v, URL: %v", err, c.OriginalURL())
-				}
-			}
-		}()
+// 				if jsonErr := c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+// 					"message": "Something went wrong, please try again later",
+// 				}); jsonErr != nil {
+// 					log.Printf("error sending response: %v, URL: %v", err, c.OriginalURL())
+// 				}
+// 			}
+// 		}()
 
-		return c.Next()
-	}
-}
+// 		return c.Next()
+// 	}
+// }

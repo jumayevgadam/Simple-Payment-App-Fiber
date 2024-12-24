@@ -46,7 +46,7 @@ func (h *UserHandler) AddStudent() fiber.Handler {
 
 		err := reqvalidator.ReadRequest(c, &request)
 		if err != nil {
-			return errlst.NewBadRequestError(err.Error())
+			return errlst.Response(c, err)
 		}
 
 		userID, err := h.service.UserService().AddStudent(c.Context(), request)

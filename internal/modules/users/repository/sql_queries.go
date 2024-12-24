@@ -1,8 +1,8 @@
 package repository
 
-const limitOffSet = ` ORDER BY id DESC OFFSET $1 LIMIT $2;`
+const limitOffSet = ` ORDER BY surname ASC OFFSET $1 LIMIT $2;`
 
-const limitOffSetTwo = ` ORDER BY id DESC OFFSET $2 LIMIT $3;`
+const limitOffSetTwo = ` ORDER BY surname ASC OFFSET $2 LIMIT $3;`
 
 // AUTH.
 const (
@@ -137,7 +137,7 @@ const (
 			id,
 			role_id,
 			group_id,
-			CONCAT(name, ' ', surname) AS full_name,
+			CONCAT(surname, ' ', name) AS full_name,
 			username,
 			password,
 			created_at,

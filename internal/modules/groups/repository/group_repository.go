@@ -35,6 +35,7 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Res
 		groupDAO.FacultyID,
 		groupDAO.GroupCode,
 		groupDAO.CourseYear,
+		groupDAO.Index,
 	).Scan(&groupID); err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
@@ -126,6 +127,7 @@ func (r *GroupRepository) UpdateGroup(ctx context.Context, groupDAO *groupModel.
 		groupDAO.FacultyID,
 		groupDAO.GroupCode,
 		groupDAO.CourseYear,
+		groupDAO.Index,
 		groupDAO.ID,
 	).Scan(&res); err != nil {
 		return "", errlst.ParseSQLErrors(err)

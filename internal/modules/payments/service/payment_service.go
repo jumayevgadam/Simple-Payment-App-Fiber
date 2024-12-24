@@ -10,6 +10,7 @@ import (
 	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
+	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
@@ -109,12 +110,13 @@ func (s *PaymentService) GetPayment(ctx context.Context, studentID, paymentID in
 }
 
 func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID int, paginationQuery abstract.PaginationQuery) (
-	abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], error,
+	abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], userModel.StudentNameAndSurname, error,
 ) {
 	var (
 		allPaymentListDataByStudent   []*paymentModel.AllPaymentDAO
 		paymentListResponseByStudent  abstract.PaginatedResponse[*paymentModel.AllPaymentDTO]
 		totalCountOfPaymentsByStudent int
+		studentData                   userModel.StudentNameAndSurnameData
 		err                           error
 	)
 
@@ -131,7 +133,7 @@ func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID in
 
 		paymentListResponseByStudent.TotalItems = totalCountOfPaymentsByStudent
 
-		allPaymentListDataByStudent, err = db.PaymentRepo().ListPaymentsByStudent(ctx, studentID, paginationQuery.ToPsqlDBStorage())
+		allPaymentListDataByStudent, studentData, err = db.PaymentRepo().ListPaymentsByStudent(ctx, studentID, paginationQuery.ToPsqlDBStorage())
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
@@ -140,7 +142,7 @@ func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID in
 	})
 
 	if err != nil {
-		return abstract.PaginatedResponse[*paymentModel.AllPaymentDTO]{}, errlst.ParseErrors(err)
+		return abstract.PaginatedResponse[*paymentModel.AllPaymentDTO]{}, userModel.StudentNameAndSurname{}, errlst.ParseErrors(err)
 	}
 
 	paymentListByStudent := lo.Map(
@@ -155,7 +157,7 @@ func (s *PaymentService) ListPaymentsByStudent(ctx context.Context, studentID in
 	paymentListResponseByStudent.Limit = paginationQuery.Limit
 	paymentListResponseByStudent.ItemsInCurrentPage = len(paymentListByStudent)
 
-	return paymentListResponseByStudent, nil
+	return paymentListResponseByStudent, studentData.ToServer(), nil
 }
 
 func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID int, updateReq paymentModel.UpdatePaymentRequest) (
@@ -164,7 +166,8 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 	var (
 		updateResponse string
 		checkPhotoURL  string
-		err            error
+		// paymentCount   int
+		err error
 	)
 
 	err = s.repo.WithTransaction(c.Context(), func(db database.DataStore) error {
@@ -175,6 +178,11 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 
 		if paymentData.StudentID != studentID {
 			return errlst.NewBadRequestError("studentID mismatch with payment record")
+		}
+
+		_, err = db.PaymentRepo().CountPaymentByStudent(c.Context(), studentID)
+		if err != nil {
+			return errlst.ParseErrors(err)
 		}
 
 		studentInfo, err := db.PaymentRepo().GetStudentInfoForPayment(c.Context(), studentID)
@@ -208,6 +216,10 @@ func (s *PaymentService) StudentUpdatePayment(c *fiber.Ctx, studentID, paymentID
 
 			updateReq.PhotoURL = checkPhotoURL
 		}
+
+		// if err := helpers.UpdatePaymentChecker(paymentData, paymentCount, updateReq); err != nil {
+		// 	return err
+		// }
 
 		updateResponse, err = db.PaymentRepo().StudentUpdatePayment(c.Context(), updateReq.ToPsqlDBStorage(
 			studentID, paymentID))
@@ -257,4 +269,32 @@ func (s *PaymentService) AdminUpdatePaymentOfStudent(ctx context.Context, studen
 	}
 
 	return updateRes, nil
+}
+
+func (s *PaymentService) StudentDeletePayment(ctx context.Context, studentID, paymentID int) error {
+	activeYear, err := s.repo.TimesRepo().SelectActiveYear(ctx)
+	if err != nil {
+		return errlst.ParseErrors(err)
+	}
+
+	err = s.repo.PaymentRepo().StudentDeletePayment(ctx, studentID, paymentID, activeYear.ID)
+	if err != nil {
+		return errlst.ParseErrors(err)
+	}
+
+	return nil
+}
+
+func (s *PaymentService) AdminDeleteStudentPayment(ctx context.Context, studentID, paymentID int) error {
+	activeYear, err := s.repo.TimesRepo().SelectActiveYear(ctx)
+	if err != nil {
+		return errlst.ErrActiveYearNotFound
+	}
+
+	err = s.repo.PaymentRepo().AdminDeleteStudentPayment(ctx, studentID, paymentID, activeYear.ID)
+	if err != nil {
+		return errlst.ParseErrors(err)
+	}
+
+	return nil
 }

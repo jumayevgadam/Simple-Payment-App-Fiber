@@ -94,7 +94,7 @@ func (h *FacultyHandler) DeleteFaculty() fiber.Handler {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusNoContent).JSON(fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"response": "successfully deleted faculty",
 		})
 	}

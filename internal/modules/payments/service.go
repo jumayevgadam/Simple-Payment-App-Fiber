@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
+	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 )
 
@@ -15,10 +16,14 @@ type Service interface {
 	StudentUpdatePayment(ctx *fiber.Ctx, studentID, paymentID int, updateRequest paymentModel.UpdatePaymentRequest) (
 		string, error,
 	)
+	StudentDeletePayment(ctx context.Context, studentID, paymentID int) error
 
 	ListPaymentsByStudent(ctx context.Context, studentID int, paginationQuery abstract.PaginationQuery) (
-		abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], error,
+		abstract.PaginatedResponse[*paymentModel.AllPaymentDTO], userModel.StudentNameAndSurname, error,
 	)
 
 	AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error)
+	AdminDeleteStudentPayment(ctx context.Context, studentID, paymentID int) error
+
+	// ------------------ STATISTICS -----------------------//
 }

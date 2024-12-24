@@ -34,6 +34,7 @@ func (f *FacultyRepository) AddFaculty(ctx context.Context, res *facultyModel.Re
 		addFacultyQuery,
 		res.Name,
 		res.Code,
+		res.Index,
 	).Scan(&facultyID); err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
@@ -124,6 +125,7 @@ func (f *FacultyRepository) UpdateFaculty(ctx context.Context, facultyDAO *facul
 		updateFacultyQuery,
 		facultyDAO.Name,
 		facultyDAO.Code,
+		facultyDAO.Index,
 		facultyDAO.ID,
 	).Scan(&res); err != nil {
 		return "", errlst.ParseSQLErrors(err)

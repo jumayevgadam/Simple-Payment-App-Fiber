@@ -126,7 +126,7 @@ func (h *PaymentHandler) ListPaymentsByStudent() fiber.Handler {
 			return errlst.NewBadQueryParamsError(err)
 		}
 
-		listPaymentsByStudent, err := h.service.PaymentService().ListPaymentsByStudent(c.Context(), studentID, paginationQuery)
+		listPaymentsByStudent, _, err := h.service.PaymentService().ListPaymentsByStudent(c.Context(), studentID, paginationQuery)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
@@ -152,12 +152,15 @@ func (h *PaymentHandler) AdminListPaymentsByStudent() fiber.Handler {
 			return errlst.NewBadQueryParamsError(err)
 		}
 
-		listPaymentsByStudent, err := h.service.PaymentService().ListPaymentsByStudent(c.Context(), studentID, paginationQuery)
+		listPaymentsByStudent, studentRes, err := h.service.PaymentService().ListPaymentsByStudent(c.Context(), studentID, paginationQuery)
 		if err != nil {
 			return errlst.Response(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(listPaymentsByStudent)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"studentPayments": listPaymentsByStudent,
+			"student":         studentRes,
+		})
 	}
 }
 
@@ -185,6 +188,52 @@ func (h *PaymentHandler) AdminUpdatePaymentOfStudent() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message":  "success in update",
 			"response": response,
+		})
+	}
+}
+
+func (h *PaymentHandler) StudentDeletePayment() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := middleware.GetStudentIDFromFiberContext(c)
+		if err != nil {
+			return errlst.Response(c, errlst.NewUnauthorizedError(err.Error()))
+		}
+
+		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		err = h.service.PaymentService().StudentDeletePayment(c.Context(), studentID, paymentID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "payment successfully deleted",
+		})
+	}
+}
+
+func (h *PaymentHandler) AdminDeleteStudentPayment() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		studentID, err := strconv.Atoi(c.Params("student_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		paymentID, err := strconv.Atoi(c.Params("payment_id"))
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		err = h.service.PaymentService().AdminDeleteStudentPayment(c.Context(), studentID, paymentID)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "admin successfully deleted payments of student",
 		})
 	}
 }

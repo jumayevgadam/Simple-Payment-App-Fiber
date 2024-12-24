@@ -99,28 +99,31 @@ var (
 	// ErrFacultyNotFound is returned when faculty not found in that identified id.
 	ErrFacultyNotFound = errors.New("faculty not found an identified id")
 
+	// ErrActiveYearNotFound is returned when active year not setted in database.
+	ErrActiveYearNotFound = errors.New("active year not found for performing this action")
+
 	// -------------------- SPECIFIC ERRORS FOR PAYMENT MODULE -----------------------------------.
 
 	// ErrPaymentPerformedForThisYear is used when student also perform payment after full payment.
-	ErrPaymentPerform = errors.New("you cannot perform full payment for this year, because this action has already been performed")
+	ErrPaymentPerform = errors.New("")
 
 	// ErrDidNotPerformPayment is used when student did not perform that academic year yet.
-	ErrDidNotPerformPayment = errors.New("u did not perform first semester payment, please do for first semester or perform full payment")
+	ErrDidNotPerformPayment = errors.New("birinji semestriň tölegini ýada doly tölegi ýerine ýetiriň")
 
 	// ErrFullPayment is used when student perform full payment with wrong details.
-	ErrFullPayment = errors.New("please implement true payment balance for full payment")
+	ErrFullPayment = errors.New("doly töleg üçin nädogry balans girizildi")
 
 	// ErrFirstSemesterPayment is used when student perform wrong payment for first semester.
-	ErrFirstSemesterPayment = errors.New("can not perform first semester payment, unnecessary payment balance for first semester payment")
+	ErrFirstSemesterPayment = errors.New("birinji semestr tölegi üçin dogry balans girizilmedi")
 
 	// ErrDidNotPerformFullPayment is used when student perform first semester payment, then does not perform full payment.
-	ErrDidNotPerformFullPayment = errors.New("u performed first semester payment, please perform 2nd semester payment")
+	ErrDidNotPerformFullPayment = errors.New("birinji semestr tölendi, ikinji semesteri töläň")
 
 	// ErrSecondSemesterPayment is used when student perform wrong payment for second semester.
-	ErrSecondSemesterPayment = errors.New("u performed first semester payment, but unnecessary payment implemented for second semester")
+	ErrSecondSemesterPayment = errors.New("ikinji semesteriň tölegi üçin dogry balans girizilmedi")
 
 	// ErrInPaymentType is used when student perform wrong payment type.
-	ErrInPaymentType = errors.New("wrong payment type, only payment types 1, 2 and 3 allowed")
+	ErrInPaymentType = errors.New("töleg etmek üçin semestr saýlanmady")
 
 	// ErrMisMatchedStudentID is used when payments.student_id is not equal to studentID.
 	ErrMisMatchedStudentID = errors.New("studentID mismatched with payments.student_id")

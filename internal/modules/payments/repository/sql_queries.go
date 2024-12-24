@@ -76,7 +76,14 @@ const (
 		INNER JOIN users u ON u.id = p.student_id
 		INNER JOIN groups g ON g.id = u.group_id
 		WHERE p.student_id = $1 AND u.role_id = 3
-		ORDER BY id DESC OFFSET $2 LIMIT $3;`
+		ORDER BY p.id ASC OFFSET $2 LIMIT $3;`
+
+	studentNameAndSurnameQuery = `
+		SELECT 
+			name,
+			surname
+		FROM users
+		WHERE id = $1 AND role_id = 3;`
 
 	studentUpdatePaymentQuery = `
 		UPDATE payments
@@ -121,4 +128,15 @@ const (
 	firstSemesterPaymentAmountQuery = `
 		SELECT payment_amount FROM payments
 		WHERE student_id = $1 AND time_id = $2;`
+
+	studentDeletePaymentQuery = `
+		DELETE FROM payments
+		WHERE id = $1 AND student_id = $2 AND time_id = $3 AND payment_type IS NOT 'Accepted';`
+
+	adminDeleteStudentPayment = `
+		DELETE FROM payments
+		WHERE id = $1 AND student_id = $2 AND time_id = $3;`
 )
+
+// --------------------- STATISTICS QUERIES ---------------------//.
+const ()

@@ -111,5 +111,6 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		studentPath.Get("/list-payments", Handlers.PaymentHandler().ListPaymentsByStudent())
 		studentPath.Get("/get-payment", Handlers.PaymentHandler().GetPayment())
 		studentPath.Put("/update-payment/:payment_id", Handlers.PaymentHandler().StudentUpdatePayment())
+		studentPath.Delete("/delete/:payment_id", Handlers.PaymentHandler().StudentDeletePayment())
 	}
 }

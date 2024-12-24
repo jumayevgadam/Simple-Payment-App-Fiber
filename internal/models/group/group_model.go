@@ -5,6 +5,7 @@ type Req struct {
 	FacultyID  int    `form:"faculty-id" json:"facultyID" validate:"required"`
 	GroupCode  string `form:"group-code" json:"groupCode" validate:"required"`
 	CourseYear int    `form:"course-year" json:"courseYear" validate:"required,lte=5,gte=1"`
+	Index      int    `form:"group-index" json:"groupIndex" validate:"required,gte=1"`
 }
 
 // GroupRes model is response model which get from DB.
@@ -12,6 +13,7 @@ type Res struct {
 	FacultyID  int    `db:"faculty_id"`
 	GroupCode  string `db:"group_code"`
 	CourseYear int    `db:"course_year"`
+	Index      int    `db:"group_index"`
 }
 
 // ToStorage method for sending request model to storage.
@@ -20,6 +22,7 @@ func (g *Req) ToStorage() *Res {
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
 		CourseYear: g.CourseYear,
+		Index:      g.Index,
 	}
 }
 
@@ -29,6 +32,7 @@ type DAO struct {
 	FacultyID  int    `db:"faculty_id"`
 	GroupCode  string `db:"group_code"`
 	CourseYear int    `db:"course_year"`
+	Index      int    `db:"group_index"`
 }
 
 // GroupDTO model for service and handler layer performing request actions.
@@ -37,6 +41,7 @@ type DTO struct {
 	FacultyID  int    `json:"facultyID"`
 	GroupCode  string `json:"groupCode"`
 	CourseYear int    `json:"courseYear"`
+	Index      int    `json:"groupIndex"`
 }
 
 // ToStorage method for sending DTO model to storage.
@@ -46,6 +51,7 @@ func (g *DTO) ToStorage() *DAO {
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
 		CourseYear: g.CourseYear,
+		Index:      g.Index,
 	}
 }
 
@@ -56,6 +62,7 @@ func (g *DAO) ToServer() *DTO {
 		FacultyID:  g.FacultyID,
 		GroupCode:  g.GroupCode,
 		CourseYear: g.CourseYear,
+		Index:      g.Index,
 	}
 }
 
@@ -64,6 +71,7 @@ type UpdateGroupReq struct {
 	FacultyID  int    `form:"faculty-id"`
 	GroupCode  string `form:"group-code"`
 	CourseYear int    `form:"course-year"`
+	Index      int    `form:"group-index"`
 }
 
 func (u *UpdateGroupReq) ToStorage(groupID int) *DAO {
@@ -72,12 +80,13 @@ func (u *UpdateGroupReq) ToStorage(groupID int) *DAO {
 		FacultyID:  u.FacultyID,
 		GroupCode:  u.GroupCode,
 		CourseYear: u.CourseYear,
+		Index:      u.Index,
 	}
 }
 
 // If update structure has no value, then must return that.
 func (u UpdateGroupReq) Validate() (string, error) {
-	if u.GroupCode == "" && u.FacultyID == 0 && u.CourseYear == 0 {
+	if u.GroupCode == "" && u.FacultyID == 0 && u.CourseYear == 0 && u.Index == 0 {
 		return "update structure has no value", nil
 	}
 

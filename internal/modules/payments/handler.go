@@ -7,7 +7,14 @@ type Handlers interface {
 	StudentUpdatePayment() fiber.Handler
 	GetPayment() fiber.Handler
 	ListPaymentsByStudent() fiber.Handler
+	StudentDeletePayment() fiber.Handler
 
 	AdminListPaymentsByStudent() fiber.Handler
 	AdminUpdatePaymentOfStudent() fiber.Handler
+	AdminDeleteStudentPayment() fiber.Handler
+
+	// ------- STATISTICS ------------------//.
+
+	AdminGetStatisticsAboutYear() fiber.Handler
+	AdminGetStatisticsAboutFaculty() fiber.Handler
 }

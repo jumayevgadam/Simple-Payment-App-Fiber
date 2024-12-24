@@ -1,19 +1,16 @@
-FROM golang:1.23.3
+FROM golang:1.23-bookworm
 
 # Set the working directory inside the container
-WORKDIR /tsu-toleg
+WORKDIR /app
 
-# Copy the entire project into the container
 COPY . .
 
-# Explicitly enable Go modules
-ENV GO111MODULE=on
+RUN go mod tidy
 
-# Build the go application
-RUN go build -o main cmd/main.go
+WORKDIR /app
 
-# EXPOSE the port the application runs on
-EXPOSE 8080
+RUN go build cmd/main.go
 
-# Command to run go application
-CMD [ "tsu-toleg/main" ]
+EXPOSE 7000
+
+CMD ["go","run","cmd/main.go"]

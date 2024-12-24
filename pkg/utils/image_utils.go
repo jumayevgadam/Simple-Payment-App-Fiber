@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 )
@@ -48,15 +49,18 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 		return "", errlst.NewInternalServerError(fmt.Sprintf("failed to create subdirectory: %s", err.Error()))
 	}
 
+	uuidSuffix := uuid.New().String()[:5]
+
 	// Final file path for saving
 	fileDstPath := fmt.Sprintf(
-		"%s/%s_%s_%s_%s_%s%s",
+		"%s/%s_%s_%s_%s_%s_%s%s",
 		basePath,
 		cleanedFacultyName,
 		groupCode,
 		semester,
 		studentName,
 		username,
+		uuidSuffix,
 		filepath.Ext(file.Filename),
 	)
 
@@ -68,12 +72,13 @@ func SaveImage(c *fiber.Ctx, file *multipart.FileHeader, facultyName, groupCode,
 
 	// Return a relative URL for the saved file
 	return fmt.Sprintf(
-		"%s_%s_%s_%s_%s%s",
+		"%s_%s_%s_%s_%s_%s%s",
 		cleanedFacultyName,
 		groupCode,
 		semester,
 		studentName,
 		username,
+		uuidSuffix,
 		filepath.Ext(file.Filename),
 	), nil
 }

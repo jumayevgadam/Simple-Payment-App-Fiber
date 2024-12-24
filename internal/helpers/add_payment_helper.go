@@ -16,7 +16,7 @@ func CheckPayment(request payment.Request, firstSemesterPaymentAmount int, first
 			return errlst.ErrDidNotPerformFullPayment
 		}
 
-		if request.PaymentType == "2" && request.CurrentPaidSum != fullPrice-firstSemesterPaymentAmount {
+		if request.PaymentType == "2" && request.CurrentPaidSum < fullPrice-firstSemesterPaymentAmount {
 			return errlst.ErrSecondSemesterPayment
 		}
 
@@ -29,7 +29,7 @@ func CheckPayment(request payment.Request, firstSemesterPaymentAmount int, first
 			return errlst.ErrDidNotPerformPayment
 		}
 
-		if request.PaymentType == "3" && request.CurrentPaidSum != fullPrice {
+		if request.PaymentType == "3" && request.CurrentPaidSum < fullPrice {
 			return errlst.ErrFullPayment
 		}
 

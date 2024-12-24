@@ -9,7 +9,7 @@ import (
 
 // Request model.
 type Request struct {
-	GroupID  int    `form:"groupID" validate:"required"`
+	GroupID  int    `form:"group-id" validate:"required"`
 	Name     string `form:"name" validate:"required"`
 	Surname  string `form:"surname" validate:"required"`
 	Username string `form:"username" validate:"required"`
@@ -231,5 +231,22 @@ func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
 		StudentName:     studentName,
 		StudentSurname:  studentSurname,
 		StudentUsername: studentUsername,
+	}
+}
+
+type StudentNameAndSurnameData struct {
+	Name    string `db:"name"`
+	Surname string `db:"surname"`
+}
+
+type StudentNameAndSurname struct {
+	Name    string `json:"name"`
+	Surname string `json:"surname"`
+}
+
+func (s *StudentNameAndSurnameData) ToServer() StudentNameAndSurname {
+	return StudentNameAndSurname{
+		Name:    s.Name,
+		Surname: s.Surname,
 	}
 }

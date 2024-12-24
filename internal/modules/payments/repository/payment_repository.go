@@ -6,8 +6,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jumayevgadam/tsu-toleg/internal/connection"
-	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
+	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/internal/modules/payments"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
@@ -136,9 +136,12 @@ func (r *PaymentRepository) CountPaymentByStudent(ctx context.Context, studentID
 }
 
 func (r *PaymentRepository) ListPaymentsByStudent(ctx context.Context, studentID int, paginationData abstract.PaginationData) (
-	[]*paymentModel.AllPaymentDAO, error,
+	[]*paymentModel.AllPaymentDAO, userModel.StudentNameAndSurnameData, error,
 ) {
-	var paymentListByStudent []*paymentModel.AllPaymentDAO
+	var (
+		paymentListByStudent []*paymentModel.AllPaymentDAO
+		studentData          userModel.StudentNameAndSurnameData
+	)
 	offset := (paginationData.CurrentPage - 1) * paginationData.Limit
 
 	err := r.psqlDB.Select(
@@ -152,36 +155,30 @@ func (r *PaymentRepository) ListPaymentsByStudent(ctx context.Context, studentID
 	)
 
 	if err != nil {
-		return nil, errlst.ParseSQLErrors(err)
+		return nil, userModel.StudentNameAndSurnameData{}, errlst.ParseSQLErrors(err)
 	}
 
-	return paymentListByStudent, nil
+	err = r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&studentData,
+		studentNameAndSurnameQuery,
+		studentID,
+	)
+
+	if err != nil {
+		return nil, userModel.StudentNameAndSurnameData{}, errlst.ErrStudentNotFound
+	}
+
+	return paymentListByStudent, studentData, nil
 }
 
 func (r *PaymentRepository) StudentUpdatePayment(ctx context.Context, paymentData paymentModel.UpdatePaymentData) (string, error) {
 	var (
-		res          string
-		paymentTypes []string
+		res string
 	)
 
-	err := r.psqlDB.Select(
-		ctx,
-		r.psqlDB,
-		&paymentTypes,
-		`SELECT payment_type FROM payments WHERE student_id = $1 AND time_id = $2`,
-		paymentData.StudentID,
-		paymentData.TimeID,
-	)
-
-	if err != nil {
-		return "", errlst.ParseSQLErrors(err)
-	}
-
-	if updateChkErr := helpers.UpdatePaymentChecker(paymentData, paymentTypes); updateChkErr != nil {
-		return "", updateChkErr
-	}
-
-	err = r.psqlDB.QueryRow(
+	err := r.psqlDB.QueryRow(
 		ctx,
 		studentUpdatePaymentQuery,
 		paymentData.PaymentType,
@@ -311,4 +308,44 @@ func (r *PaymentRepository) CurrentPaymentAmount(ctx context.Context, studentID,
 	}
 
 	return totalPaymentAmount, nil
+}
+
+func (r *PaymentRepository) StudentDeletePayment(ctx context.Context, studentID, paymentID, timeID int) error {
+	result, err := r.psqlDB.Exec(
+		ctx,
+		studentDeletePaymentQuery,
+		paymentID,
+		studentID,
+		timeID,
+	)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.ErrPaymentNotFound
+	}
+
+	return nil
+}
+
+func (r *PaymentRepository) AdminDeleteStudentPayment(ctx context.Context, studentID, paymentID, timeID int) error {
+	result, err := r.psqlDB.Exec(
+		ctx,
+		adminDeleteStudentPayment,
+		paymentID,
+		studentID,
+		timeID,
+	)
+
+	if err != nil {
+		return errlst.ParseSQLErrors(err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return errlst.ErrPaymentNotFound
+	}
+
+	return nil
 }

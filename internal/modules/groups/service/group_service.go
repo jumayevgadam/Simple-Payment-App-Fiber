@@ -113,6 +113,7 @@ func (s *GroupService) UpdateGroup(ctx context.Context, groupID int, inputValue 
 		resFromDB string
 		err       error
 	)
+
 	err = s.repo.WithTransaction(ctx, func(db database.DataStore) error {
 		// check group exist in this id.
 		_, err = db.GroupsRepo().GetGroup(ctx, groupID)

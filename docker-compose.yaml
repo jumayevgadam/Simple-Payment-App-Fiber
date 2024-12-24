@@ -1,22 +1,28 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  tsu_toleg:
-    build:
-      context: .
-      dockerfile: dockerfile
-    image: tsu-toleg
-    container_name: tsu-toleg 
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      
-  postgres:
-    container_name: postgres
-    image: postgres:latest
+  db:
+    image: postgres
+    restart: always
+
     environment:
-      - POSTGRES=value
+      POSTGRES_DB: tsu_toleg
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+  app:
+    image: app
+    restart: on-failure
+    ports:
+      - "7000:7000"
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  dbdata:
