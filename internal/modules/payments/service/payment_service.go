@@ -52,7 +52,7 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 			return errlst.ParseErrors(err)
 		}
 
-		if existingPayment || totalPaymentSum == constants.FullPaymentPrice {
+		if existingPayment || totalPaymentSum < constants.FullPaymentPrice {
 			return errlst.ErrPaymentPerform
 		}
 
