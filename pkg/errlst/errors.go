@@ -105,7 +105,7 @@ var (
 	// -------------------- SPECIFIC ERRORS FOR PAYMENT MODULE -----------------------------------.
 
 	// ErrPaymentPerformedForThisYear is used when student also perform payment after full payment.
-	ErrPaymentPerform = errors.New("")
+	ErrPaymentPerform = errors.New("töleg edip bolanok, hemme tölegleriňiz edildi")
 
 	// ErrDidNotPerformPayment is used when student did not perform that academic year yet.
 	ErrDidNotPerformPayment = errors.New("birinji semestriň tölegini ýada doly tölegi ýerine ýetiriň")

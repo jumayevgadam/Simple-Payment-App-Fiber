@@ -39,7 +39,7 @@ func (r *GroupRepository) AddGroup(ctx context.Context, groupDAO *groupModel.Res
 	).Scan(&groupID); err != nil {
 		return -1, errlst.ParseSQLErrors(err)
 	}
-
+		
 	return groupID, nil
 }
 

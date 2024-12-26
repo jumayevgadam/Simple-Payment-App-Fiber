@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/statistics"
+	timeModel "github.com/jumayevgadam/tsu-toleg/internal/models/time"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 )
@@ -26,4 +28,6 @@ type Service interface {
 	AdminDeleteStudentPayment(ctx context.Context, studentID, paymentID int) error
 
 	// ------------------ STATISTICS -----------------------//
+	AdminGetStatisticsAboutYear(ctx context.Context, timeModel timeModel.AcademicYearRequest) (statistics.StatisticsAboutUniversity, error)
+	AdminGetStatisticsAboutFaculty(ctx context.Context, facultyID int, timeModel timeModel.AcademicYearRequest) (statistics.StatisticsAboutUniversity, error)
 }

@@ -137,6 +137,3 @@ const (
 		DELETE FROM payments
 		WHERE id = $1 AND student_id = $2 AND time_id = $3;`
 )
-
-// --------------------- STATISTICS QUERIES ---------------------//.
-const ()

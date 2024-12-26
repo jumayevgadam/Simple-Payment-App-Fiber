@@ -82,7 +82,8 @@ type StudentDataByGroupID struct {
 	ID        int       `db:"id"`
 	RoleID    int       `db:"role_id"`
 	GroupID   int       `db:"group_id"`
-	FullName  string    `db:"full_name"`
+	Name      string    `db:"name"`
+	Surname   string    `db:"surname"`
 	Username  string    `db:"username"`
 	Password  string    `db:"password"`
 	CreatedAt time.Time `db:"created_at"`
@@ -93,7 +94,8 @@ type StudentResGroupID struct {
 	ID        int       `json:"id"`
 	RoleID    int       `json:"roleID"`
 	GroupID   int       `json:"groupID"`
-	FullName  string    `json:"fullName"`
+	Name      string    `json:"name"`
+	Surname   string    `json:"surname"`
 	Username  string    `json:"username"`
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -105,7 +107,8 @@ func (s *StudentDataByGroupID) ToServer() *StudentResGroupID {
 		ID:        s.ID,
 		RoleID:    s.RoleID,
 		GroupID:   s.GroupID,
-		FullName:  s.FullName,
+		Name:      s.Name,
+		Surname:   s.Surname,
 		Username:  s.Username,
 		Password:  s.Password,
 		CreatedAt: s.CreatedAt,
@@ -114,7 +117,7 @@ func (s *StudentDataByGroupID) ToServer() *StudentResGroupID {
 }
 
 type StudentUpdateRequest struct {
-	GroupID  int    `form:"groupID"`
+	GroupID  int    `form:"group-id"`
 	Name     string `form:"name"`
 	Surname  string `form:"surname"`
 	Username string `form:"username"`
@@ -156,10 +159,8 @@ type AllStudentData struct {
 	StudentUsername string `db:"student_username"`
 	RoleName        string `db:"role_name"`
 	FacultyName     string `db:"faculty_name"`
-	FacultyCode     string `db:"faculty_code"`
 	GroupCode       string `db:"group_code"`
 	CourseYear      int    `db:"course_year"`
-	TotalCount      int    `db:"total_count"`
 }
 
 type AllStudentDTO struct {
@@ -169,10 +170,8 @@ type AllStudentDTO struct {
 	StudentUsername string `json:"studentUsername"`
 	RoleName        string `json:"role"`
 	FacultyName     string `json:"facultyName"`
-	FacultyCode     string `json:"facultyCode"`
 	GroupCode       string `json:"groupCode"`
 	CourseYear      int    `json:"courseYear"`
-	TotalCount      int    `json:"totalStudentFound"`
 }
 
 func (a *AllStudentData) ToServer() *AllStudentDTO {
@@ -183,35 +182,21 @@ func (a *AllStudentData) ToServer() *AllStudentDTO {
 		StudentUsername: a.StudentUsername,
 		RoleName:        a.RoleName,
 		FacultyName:     a.FacultyName,
-		FacultyCode:     a.FacultyCode,
 		GroupCode:       a.GroupCode,
 		CourseYear:      a.CourseYear,
-		TotalCount:      a.TotalCount,
 	}
 }
 
 type FilterStudent struct {
-	FacultyName     string
-	GroupCode       string
 	StudentName     string
 	StudentSurname  string
 	StudentUsername string
 }
 
 func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
-	facultyName := c.Query("faculty-name")
-	groupCode := c.Query("group-code")
 	studentName := c.Query("student-name")
 	studentSurname := c.Query("student-surname")
 	studentUsername := c.Query("student-username")
-
-	if facultyName == "" {
-		facultyName = ""
-	}
-
-	if groupCode == "" {
-		groupCode = ""
-	}
 
 	if studentName == "" {
 		studentName = ""
@@ -226,8 +211,6 @@ func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
 	}
 
 	return FilterStudent{
-		FacultyName:     facultyName,
-		GroupCode:       groupCode,
 		StudentName:     studentName,
 		StudentSurname:  studentSurname,
 		StudentUsername: studentUsername,

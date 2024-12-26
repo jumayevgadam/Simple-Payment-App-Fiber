@@ -1,16 +1,22 @@
-FROM golang:1.23-bookworm
+# Build stage
+FROM golang:1.23 AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-COPY . .
+COPY ./ ./
+
+ENV GO111MODULE=on
 
 RUN go mod tidy
+RUN go build cmd/main.go
+
+# Final stage
+FROM alpine:3.17.2
 
 WORKDIR /app
 
-RUN go build cmd/main.go
+COPY --from=builder /app ./
 
-EXPOSE 7000
+EXPOSE 4000
 
-CMD ["go","run","cmd/main.go"]
+CMD [ "./main" ]

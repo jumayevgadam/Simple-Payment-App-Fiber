@@ -61,3 +61,5 @@ func (u *UpdateRequest) ToPsqlDBStorage(timeID int) DAO {
 		IsActive:  u.IsActive,
 	}
 }
+
+

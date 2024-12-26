@@ -4,6 +4,8 @@ import (
 	"context"
 
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
+	"github.com/jumayevgadam/tsu-toleg/internal/models/statistics"
+	timeModel "github.com/jumayevgadam/tsu-toleg/internal/models/time"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
 )
@@ -26,4 +28,10 @@ type Repository interface {
 	AdminGetPaymentStatusOfStudent(ctx context.Context, studentID, paymentID int) (string, error)
 	AdminUpdatePaymentOfStudent(ctx context.Context, studentID, paymentID int, paymentStatus string) (string, error)
 	AdminDeleteStudentPayment(ctx context.Context, studentID, paymentID, timeID int) error
+
+	// ------------ STATISTICS -----------//
+	AdminGetStatisticsAboutYear(ctx context.Context, academicYear timeModel.AcademicYearData) (statistics.StatisticsAboutUniversityData, error)
+	AdminGetStatisticsAboutFaculty(ctx context.Context, facultyID int, academicYear timeModel.AcademicYearData) (
+		statistics.StatisticsAboutUniversityData, error,
+	)
 }

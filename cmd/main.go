@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		appLogger.Errorf("[main][connection][GetDBConnection]: error: %v", err.Error())
 	}
-	
+
 	defer func() {
 		psqlDB.Close()
 		appLogger.Info("database connections closed successfully")

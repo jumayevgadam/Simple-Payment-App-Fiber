@@ -137,7 +137,8 @@ const (
 			id,
 			role_id,
 			group_id,
-			CONCAT(surname, ' ', name) AS full_name,
+			name,
+			surname,
 			username,
 			password,
 			created_at,
@@ -177,12 +178,10 @@ const (
 			u.name AS student_name,
 			u.surname AS student_surname,
 			u.username AS student_username,
-			r.role AS role_name,
-			f.faculty_name,
-			f.faculty_code,
-			g.group_code,
-			g.course_year,
-			COUNT(*) OVER() AS total_count
+			COALESCE(r.role, '') AS role_name,
+			COALESCE(f.faculty_name, '') AS faculty_name,
+			COALESCE(g.group_code, '') AS group_code,
+			COALESCE(g.course_year, 0) AS course_year
 		FROM 
 			users u
 		LEFT JOIN 
@@ -192,13 +191,12 @@ const (
 		LEFT JOIN 
 			faculties f ON g.faculty_id = f.id
 		WHERE 
-			(u.name ILIKE '%' || COALESCE($1, '') || '%' OR $1 IS NULL)
-			AND (u.surname ILIKE '%' || COALESCE($2, '') || '%' OR $2 IS NULL)
-			AND (u.username ILIKE '%' || COALESCE($3, '') || '%' OR $3 IS NULL)
-			AND (g.group_code ILIKE '%' || COALESCE($4, '') || '%' OR $4 IS NULL)
-			AND (f.faculty_name ILIKE '%' || COALESCE($5, '') || '%' OR $5 IS NULL)
+			u.role_id = 3
+			AND ($1 = '' OR u.name ILIKE '%' || $1 || '%')
+			AND ($2 = '' OR u.surname ILIKE '%' || $2 || '%')
+			AND ($3 = '' OR u.username ILIKE '%' || $3 || '%')
 		ORDER BY 
-			u.id
-		OFFSET $6 LIMIT $7;
+			u.surname ASC
+		OFFSET $4 LIMIT $5;
 	`
 )
