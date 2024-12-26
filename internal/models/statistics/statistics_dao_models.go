@@ -1,10 +1,10 @@
 package statistics
 
-// ----------------------- STATISTICS MODELS -------------
+// ----------------------- STATISTICS MODELS -------------.
 
-// ----------------------- STATISTICS ABOUT UNIVERSITY ---
+// ----------------------- STATISTICS ABOUT UNIVERSITY ---.
 
-// ----------------------- DAO MODELS --------------------
+// ----------------------- DAO MODELS --------------------.
 type StatisticsAboutUniversityData struct {
 	FirstSemesterData  FirstSemesterData  `db:"first_semester_data"`
 	SecondSemesterData SecondSemesterData `db:"second_semester_data"`

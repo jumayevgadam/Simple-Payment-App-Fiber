@@ -108,10 +108,10 @@ func (s *Server) MapHandlers(dataStore database.DataStore) {
 		statisticsPath := adminPath.Group("/statistics")
 		{
 			statisticsPath.Get("/university", Handlers.PaymentHandler().AdminGetStatisticsAboutYear())
-			statisticsPath.Get("/faculty/:faculty_id", Handlers.PaymentHandler().AdminGetStatisticsAboutFaculty())
+			statisticsPath.Get("/faculty", Handlers.PaymentHandler().AdminGetStatisticsAboutFaculty())
 		}
 	}
-
+				
 	studentPath := v1.Group("/students", mdwManager.RoleBasedMiddleware(constants.StudentActionRoles, constants.StudentActionRoleIDs))
 	{
 		studentPath.Post("/add-payment", Handlers.PaymentHandler().AddPayment())

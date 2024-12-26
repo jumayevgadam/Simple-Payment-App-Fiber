@@ -13,7 +13,7 @@ type Request struct {
 	Name     string `form:"name" validate:"required"`
 	Surname  string `form:"surname" validate:"required"`
 	Username string `form:"username" validate:"required"`
-	Password string `form:"password" validate:"required"`
+	Password string `form:"password" validate:"required,gte=6"`
 }
 
 // Response model.
@@ -188,15 +188,25 @@ func (a *AllStudentData) ToServer() *AllStudentDTO {
 }
 
 type FilterStudent struct {
-	StudentName     string
-	StudentSurname  string
-	StudentUsername string
+	FacultyName    string
+	GroupCode      string
+	StudentName    string
+	StudentSurname string
 }
 
 func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
+	facultyName := c.Query("faculty-name")
+	groupCode := c.Query("group-code")
 	studentName := c.Query("student-name")
 	studentSurname := c.Query("student-surname")
-	studentUsername := c.Query("student-username")
+
+	if facultyName == "" {
+		facultyName = ""
+	}
+
+	if groupCode == "" {
+		groupCode = ""
+	}
 
 	if studentName == "" {
 		studentName = ""
@@ -206,14 +216,11 @@ func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
 		studentSurname = ""
 	}
 
-	if studentUsername == "" {
-		studentUsername = ""
-	}
-
 	return FilterStudent{
-		StudentName:     studentName,
-		StudentSurname:  studentSurname,
-		StudentUsername: studentUsername,
+		FacultyName:    facultyName,
+		GroupCode:      groupCode,
+		StudentName:    studentName,
+		StudentSurname: studentSurname,
 	}
 }
 

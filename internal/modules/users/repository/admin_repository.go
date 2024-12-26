@@ -137,7 +137,6 @@ func (r *UserRepository) AdminFindStudent(ctx context.Context, filterStudent use
 		adminFindStudentQuery,
 		filterStudent.StudentName,
 		filterStudent.StudentSurname,
-		filterStudent.StudentUsername,
 		offset,
 		paginationQuery.Limit,
 	)

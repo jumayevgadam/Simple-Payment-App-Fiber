@@ -39,11 +39,39 @@ func (h *PaymentHandler) AdminGetStatisticsAboutYear() fiber.Handler {
 
 func (h *PaymentHandler) AdminGetStatisticsAboutFaculty() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		facultyID := c.Query("faculty-id")
-		if facultyID == "" {
-			return errlst.Response(c, errors.New("error: faculty-id can not be empty"))
+		var academicYearReq timeModel.AcademicYearRequest
+
+		facultyIDStr := c.Query("faculty-id")
+		if facultyIDStr == "" {
+			return errlst.Response(c, errors.New("faculty-id can not be empty"))
 		}
 
-		return nil
+		facultyID, err := strconv.Atoi(facultyIDStr)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		startYearStr := c.Query("start-year")
+		if startYearStr == "" {
+			return errlst.Response(c, errors.New("start-year can not be empty"))
+		}
+
+		startYear, err := strconv.Atoi(startYearStr)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		academicYearReq.StartYear = startYear
+
+		if academicYearReq.EndYear == 0 {
+			academicYearReq.EndYear = academicYearReq.StartYear + 1
+		}
+
+		stcByFacultyOfTSU, err := h.service.PaymentService().AdminGetStatisticsAboutFaculty(c.Context(), facultyID, academicYearReq)
+		if err != nil {
+			return errlst.Response(c, err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(stcByFacultyOfTSU)
 	}
 }

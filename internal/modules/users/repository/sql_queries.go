@@ -192,11 +192,12 @@ const (
 			faculties f ON g.faculty_id = f.id
 		WHERE 
 			u.role_id = 3
-			AND ($1 = '' OR u.name ILIKE '%' || $1 || '%')
-			AND ($2 = '' OR u.surname ILIKE '%' || $2 || '%')
-			AND ($3 = '' OR u.username ILIKE '%' || $3 || '%')
+			AND ($1 = '' OR f.faculty_name ILIKE '%' || $1 '%')
+			AND ($2 = '' OR g.group_code ILIKE '%' || $2 '%') 
+			AND ($3 = '' OR u.name ILIKE '%' || $3 || '%')
+			AND ($4 = '' OR u.surname ILIKE '%' || $4 || '%')
 		ORDER BY 
 			u.surname ASC
-		OFFSET $4 LIMIT $5;
+		OFFSET $5 LIMIT $6;
 	`
 )

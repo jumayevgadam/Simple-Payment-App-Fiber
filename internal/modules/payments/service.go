@@ -29,5 +29,6 @@ type Service interface {
 
 	// ------------------ STATISTICS -----------------------//
 	AdminGetStatisticsAboutYear(ctx context.Context, timeModel timeModel.AcademicYearRequest) (statistics.StatisticsAboutUniversity, error)
-	AdminGetStatisticsAboutFaculty(ctx context.Context, facultyID int, timeModel timeModel.AcademicYearRequest) (statistics.StatisticsAboutUniversity, error)
+	AdminGetStatisticsAboutFaculty(ctx context.Context, facultyID int, timeModel timeModel.AcademicYearRequest) (
+		statistics.StatisticsAboutUniversity, error)
 }

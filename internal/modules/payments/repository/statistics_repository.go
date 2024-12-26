@@ -161,7 +161,7 @@ func (r *PaymentRepository) AdminGetStatisticsAboutFaculty(ctx context.Context, 
 	if err != nil {
 		return statistics.StatisticsAboutUniversityData{}, errlst.ParseSQLErrors(err)
 	}
-														
+
 	return statistics.StatisticsAboutUniversityData{
 		FirstSemesterData:  firstSemesterData,
 		SecondSemesterData: secondSemesterData,
