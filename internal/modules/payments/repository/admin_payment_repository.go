@@ -118,43 +118,6 @@ func (r *PaymentRepository) ListPaymentsByStudentID(ctx context.Context, student
 	return paymentsByStudentID, nil
 }
 
-func (r *PaymentRepository) IsPerformedPaymentCheck(ctx context.Context, studentID, timeID int) (bool, int, error) {
-	var (
-		exists                     bool
-		firstSemesterPaymentAmount int
-	)
-
-	err := r.psqlDB.Get(
-		ctx,
-		r.psqlDB,
-		&exists,
-		isPerformedPaymentCheckQuery,
-		studentID,
-		timeID,
-	)
-
-	if err != nil {
-		return false, 0, errlst.ParseSQLErrors(err)
-	}
-
-	if exists {
-		err = r.psqlDB.Get(
-			ctx,
-			r.psqlDB,
-			&firstSemesterPaymentAmount,
-			firstSemesterPaymentAmountQuery,
-			studentID,
-			timeID,
-		)
-
-		if err != nil {
-			return false, 0, errlst.ParseSQLErrors(err)
-		}
-	}
-
-	return exists, firstSemesterPaymentAmount, nil
-}
-
 func (r *PaymentRepository) CurrentPaymentAmount(ctx context.Context, studentID, timeID int) (int, error) {
 	var totalPaymentAmount int
 

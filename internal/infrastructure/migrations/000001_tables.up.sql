@@ -98,3 +98,7 @@ ADD COLUMN faculty_index INT;
 
 ALTER TABLE groups 
 ADD COLUMN group_index INT;
+
+-- Remove the unique constraint on (student_id, time_id, payment_type).
+ALTER TABLE payments 
+DROP CONSTRAINT unique_student_time_payment;

@@ -197,7 +197,7 @@ func ParseErrors(err error) RestErr {
 			return restErr
 		}
 
-		return NewInternalServerError("internal server error: " + err.Error())
+		return NewInternalServerError(err.Error())
 	}
 }
 

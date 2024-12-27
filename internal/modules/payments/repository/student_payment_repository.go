@@ -69,6 +69,48 @@ func (r *PaymentRepository) CheckType3Payment(ctx context.Context, studentID, ti
 	return count > 0, paymentSum, nil
 }
 
+func (r *PaymentRepository) IsPerformedPaymentCheck(ctx context.Context, studentID, timeID int) (bool, int, error) {
+	var (
+		exists                     bool
+		firstSemesterPaymentAmount int
+	)
+
+	err := r.psqlDB.Get(
+		ctx,
+		r.psqlDB,
+		&exists,
+		isPerformedPaymentCheckQuery,
+		studentID,
+		timeID,
+	)
+
+	if err != nil {
+		return false, 0, errlst.ParseSQLErrors(err)
+	}
+
+	if !exists {
+		return false, 0, nil
+	}
+
+	if exists {
+		err = r.psqlDB.Get(
+			ctx,
+			r.psqlDB,
+			&firstSemesterPaymentAmount,
+			firstSemesterPaymentAmountQuery,
+			studentID,
+			timeID,
+		)
+
+		if err != nil {
+			// error occured in this place
+			return false, 0, errlst.ParseSQLErrors(err)
+		}
+	}
+
+	return exists, firstSemesterPaymentAmount, nil
+}
+
 func (r *PaymentRepository) StudentUpdatePayment(ctx context.Context, paymentData paymentModel.UpdatePaymentData) (string, error) {
 	var (
 		res string

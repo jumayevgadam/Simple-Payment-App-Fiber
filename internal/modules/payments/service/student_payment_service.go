@@ -7,14 +7,12 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jumayevgadam/tsu-toleg/internal/helpers"
 	"github.com/samber/lo"
 
 	"github.com/jumayevgadam/tsu-toleg/internal/infrastructure/database"
 	paymentModel "github.com/jumayevgadam/tsu-toleg/internal/models/payment"
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
-	"github.com/jumayevgadam/tsu-toleg/pkg/constants"
 	"github.com/jumayevgadam/tsu-toleg/pkg/errlst"
 	"github.com/jumayevgadam/tsu-toleg/pkg/utils"
 )
@@ -35,27 +33,27 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 			return errlst.ParseErrors(err)
 		}
 
-		existingPayment, totalPaymentSum, err := db.PaymentRepo().CheckType3Payment(
-			ctx.Context(), studentID, activeYear.ID)
+		// _, _, err = db.PaymentRepo().CheckType3Payment(
+		// 	ctx.Context(), studentID, activeYear.ID)
 
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
+		// if err != nil {
+		// 	return errlst.ParseErrors(err)
+		// }
 
-		if existingPayment || totalPaymentSum >= constants.FullPaymentPrice {
-			return errlst.ErrPaymentPerform
-		}
+		// if existingPayment || totalPaymentSum >= constants.FullPaymentPrice {
+		// 	return errlst.ErrPaymentPerform
+		// }
 
-		isPerformedPaymentForFirstSemester, firstSemesterPaymentAmount, err := db.PaymentRepo().IsPerformedPaymentCheck(
-			ctx.Context(), studentID, activeYear.ID)
+		// _, _, err = db.PaymentRepo().IsPerformedPaymentCheck(
+		// 	ctx.Context(), studentID, activeYear.ID)
 
-		if err != nil {
-			return errlst.ParseErrors(err)
-		}
+		// if err != nil {
+		// 	return errlst.ParseErrors(err)
+		// }
 
-		if err := helpers.CheckPayment(paymentReq, firstSemesterPaymentAmount, isPerformedPaymentForFirstSemester); err != nil {
-			return err
-		}
+		// if err := helpers.CheckPayment(paymentReq, firstSemesterPaymentAmount, isPerformedPaymentForFirstSemester); err != nil {
+		// 	return err
+		// }
 
 		studentDataForPayment, err := db.PaymentRepo().GetStudentInfoForPayment(ctx.Context(), studentID)
 		if err != nil {
@@ -70,7 +68,6 @@ func (s *PaymentService) AddPayment(ctx *fiber.Ctx, checkPhoto *multipart.FileHe
 		if err != nil {
 			return errlst.ParseErrors(err)
 		}
-
 		paymentID, err = db.PaymentRepo().AddPayment(ctx.Context(), paymentReq.ToPsqlDBStorage(studentID, activeYear.ID, checkPhotoURL))
 		if err != nil {
 			return errlst.ParseErrors(err)
