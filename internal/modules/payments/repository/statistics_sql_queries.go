@@ -29,7 +29,7 @@ const (
 				GROUP BY student_id
 				HAVING SUM(CASE WHEN payment_status = 'Accepted' THEN 1 ELSE 0 END) = COUNT(*)
 			)
-			) AS count_first_semester_not_paid;`
+		) AS count_first_semester_not_paid;`
 
 	secondSemesterStatisticsQuery = `
 		SELECT 
@@ -54,7 +54,7 @@ const (
 				GROUP BY student_id
 				HAVING SUM(CASE WHEN payment_status = 'Accepted' THEN 1 ELSE 0 END) = COUNT(*)
 			)
-			) AS count_second_semester_not_paid;`
+		) AS count_second_semester_not_paid;`
 
 	bothSemesterStatisticsQuery = `
 		WITH first_semester_payers AS (
@@ -139,7 +139,7 @@ const (
 				GROUP BY p.student_id
 				HAVING SUM(CASE WHEN p.payment_status = 'Accepted' THEN 1 ELSE 0 END) = COUNT(*)
 			) AS paid_students
-			) AS count_first_semester_paid,
+			) AS count_second_semester_paid,
 		  (SELECT COUNT(*)
 			FROM users u INNER JOIN "groups" g2 ON g2.id = u.group_id
 			WHERE u.role_id = 3 AND g2.faculty_id = $1
@@ -153,7 +153,7 @@ const (
 				GROUP BY p.student_id
 				HAVING SUM(CASE WHEN p.payment_status = 'Accepted' THEN 1 ELSE 0 END) = COUNT(*)
 			)
-		  ) AS count_first_semester_not_paid;`
+		  ) AS count_second_semester_not_paid;`
 
 	bothSemesterStatisticsByFacultyQuery = `
 		  WITH first_semester_payers AS (

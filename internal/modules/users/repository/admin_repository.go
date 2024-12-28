@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
 	userModel "github.com/jumayevgadam/tsu-toleg/internal/models/user"
 	"github.com/jumayevgadam/tsu-toleg/pkg/abstract"
@@ -128,17 +130,61 @@ func (r *UserRepository) AdminFindStudent(ctx context.Context, filterStudent use
 	[]*userModel.AllStudentData, error,
 ) {
 	var allStudentDataWithFilter []*userModel.AllStudentData
+
 	offset := (paginationQuery.CurrentPage - 1) * paginationQuery.Limit
+
+	query := adminFindStudentBaseQuery
+	args := []interface{}{}
+	index := 1
+
+	if filterStudent.FacultyName != "" {
+		query += ` AND f.faculty_name ILIKE '%' || $` + strconv.Itoa(index) + ` || '%'`
+		args = append(args, filterStudent.FacultyName)
+		index++
+	}
+
+	if filterStudent.GroupCode != "" {
+		query += ` AND g.group_code ILIKE '%' || $` + strconv.Itoa(index) + ` || '%'`
+		args = append(args, filterStudent.GroupCode)
+		index++
+	}
+
+	if filterStudent.StudentName != "" {
+		query += ` AND u.name ILIKE '%' || $` + strconv.Itoa(index) + ` || '%'`
+		args = append(args, filterStudent.StudentName)
+		index++
+	}
+
+	if filterStudent.StudentSurname != "" {
+		query += ` AND u.surname ILIKE '%' || $` + strconv.Itoa(index) + ` || '%'`
+		args = append(args, filterStudent.StudentSurname)
+		index++
+	}
+
+	switch filterStudent.PaymentStatus {
+	case "firstSemesterPaid":
+		query += firstSemesterPaidQuery
+	case "firstSemesterNotPaid":
+		query += firstSemesterNotPaidQuery
+	case "secondSemesterPaid":
+		query += secondSemesterPaidQuery
+	case "secondSemesterNotPaid":
+		query += secondSemesterNotPaidQuery
+	case "bothSemesterPaid":
+		query += bothSemesterPaidQuery
+	case "bothSemesterNotPaid":
+		query += bothSemesterNotPaidQuery
+	}
+
+	query += fmt.Sprintf(limitOffSetQuery, index, index+1)
+	args = append(args, offset, paginationQuery.Limit)
 
 	err := r.psqlDB.Select(
 		ctx,
 		r.psqlDB,
 		&allStudentDataWithFilter,
-		adminFindStudentQuery,
-		filterStudent.StudentName,
-		filterStudent.StudentSurname,
-		offset,
-		paginationQuery.Limit,
+		query,
+		args...,
 	)
 
 	if err != nil {

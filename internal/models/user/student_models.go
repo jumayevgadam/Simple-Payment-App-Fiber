@@ -192,35 +192,16 @@ type FilterStudent struct {
 	GroupCode      string
 	StudentName    string
 	StudentSurname string
+	PaymentStatus  string
 }
 
 func GetQueryParamsForFilterStudents(c *fiber.Ctx) FilterStudent {
-	facultyName := c.Query("faculty-name")
-	groupCode := c.Query("group-code")
-	studentName := c.Query("student-name")
-	studentSurname := c.Query("student-surname")
-
-	if facultyName == "" {
-		facultyName = ""
-	}
-
-	if groupCode == "" {
-		groupCode = ""
-	}
-
-	if studentName == "" {
-		studentName = ""
-	}
-
-	if studentSurname == "" {
-		studentSurname = ""
-	}
-
 	return FilterStudent{
-		FacultyName:    facultyName,
-		GroupCode:      groupCode,
-		StudentName:    studentName,
-		StudentSurname: studentSurname,
+		FacultyName:    c.Query("faculty-name", ""),
+		GroupCode:      c.Query("group-code", ""),
+		StudentName:    c.Query("student-name", ""),
+		StudentSurname: c.Query("student-surname", ""),
+		PaymentStatus:  c.Query("payment-status", ""),
 	}
 }
 
