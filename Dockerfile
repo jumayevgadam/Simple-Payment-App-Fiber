@@ -7,7 +7,6 @@ COPY ./ ./
 
 ENV GO111MODULE=on
 
-RUN go mod tidy
 RUN go build cmd/main.go
 
 # Final stage

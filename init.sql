@@ -92,3 +92,13 @@ ADD COLUMN is_active BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE payments
 ADD CONSTRAINT unique_student_time_payment UNIQUE (student_id, time_id, payment_type);
+
+ALTER TABLE faculties 
+ADD COLUMN faculty_index INT;
+
+ALTER TABLE groups 
+ADD COLUMN group_index INT;
+
+-- Remove the unique constraint on (student_id, time_id, payment_type).
+ALTER TABLE payments 
+DROP CONSTRAINT unique_student_time_payment;
