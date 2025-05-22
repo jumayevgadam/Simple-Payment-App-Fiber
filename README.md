@@ -32,19 +32,40 @@
 | UUIDs      | [google/uuid](https://github.com/google/uuid)               |
 
 <h2> SETUP </h2>
+
 ```
     git clone https://github.com/jumayevgadam/Simple-Payment-App-Fiber.git
     cd Simple-Payment-App-Fiber
 ```
-# Create .env file 
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_NAME=your_db
-JWT_SECRET=your_jwt_secret
 
-<h2> RUN THE APP </h2>
+### CREATE ".env" file and put values ###
+```
+    DB_HOST = localhost
+DB_PORT = 5432
+DB_NAME = db_name
+DB_USER = postgres
+DB_PASSWORD = 12345
+DB_SSLMODE = disable
+
+## -SERVER-OPS
+HTTP_PORT = 4000
+SERVER_MODE = Development
+READ_TIMEOUT = 10s
+WRITE_TIMEOUT = 10s
+
+## -ACCESS-OPS
+JWT_SECRET_KEY = secretkey
+
+## -LOGGER-OPS
+LOG_DEVELOPMENT = true
+LOG_DISABLE_CALLER = false
+LOG_DISABLE_STACK_TRACE = false
+LOG_ENCODING = console
+LOG_LEVEL = info
+```
+
+### RUN THE APP ###
+
 ```
     go run cmd/main.go
 ```
